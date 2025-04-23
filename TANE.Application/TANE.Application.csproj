@@ -10,20 +10,6 @@
     <Folder Include="Common\Exceptions\" />
     <Folder Include="Groups\JwtTokens\Commands\Interfaces\" />
     <Folder Include="Groups\JwtTokens\Queries\Interfaces\" />
-    <Folder Include="Groups\Dage\Commands\Interfaces\" />
-    <Folder Include="Groups\Dage\Queries\Interfaces\" />
-    <Folder Include="Groups\DagSkabeloner\Commands\Interfaces\" />
-    <Folder Include="Groups\DagSkabeloner\Queries\Interfaces\" />
-    <Folder Include="Groups\TurSkabeloner\Commands\Interfaces\" />
-    <Folder Include="Groups\TurSkabeloner\Queries\Interfaces\" />
-    <Folder Include="Groups\Ture\Commands\Interfaces\" />
-    <Folder Include="Groups\Ture\Queries\Interfaces\" />
-    <Folder Include="Groups\Kunder\Commands\Interfaces\" />
-    <Folder Include="Groups\Kunder\Queries\Interfaces\" />
-    <Folder Include="Groups\RejsePlanSkabeloner\Commands\Interfaces\" />
-    <Folder Include="Groups\RejsePlanSkabeloner\Queries\Interfaces\" />
-    <Folder Include="Groups\RejsePlaner\Commands\Interfaces\" />
-    <Folder Include="Groups\RejsePlaner\Queries\Interfaces\" />
   </ItemGroup>
 
   <ItemGroup>
