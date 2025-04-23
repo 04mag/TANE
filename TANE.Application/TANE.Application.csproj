@@ -11,8 +11,12 @@
     <Folder Include="Groups\JwtTokens\Commands\Interfaces\" />
     <Folder Include="Groups\JwtTokens\Queries\Interfaces\" />
   </ItemGroup>
-
+   
   <ItemGroup>
+    <ProjectReference Include="..\TANE.Domain\TANE.Domain.csproj" />
+  </ItemGroup>
+   
+   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.4" />
   </ItemGroup>
 
