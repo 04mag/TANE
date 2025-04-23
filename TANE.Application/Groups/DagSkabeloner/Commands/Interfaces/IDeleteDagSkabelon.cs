@@ -8,5 +8,6 @@ namespace TANE.Application.Groups.DagSkabeloner.Commands.Interfaces
 {
     internal interface IDeleteDagSkabelon
     {
+        Task<bool> DeleteDagSkabelonAsync(int id);
     }
 }
