@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TANE.Domain.Entities;
 
 namespace TANE.Application.RepositoryInterfaces
 {
     public interface IJwtTokenRepository
     {
+        Task<JwtToken> UserLogin(string email, string password);
+        Task<JwtToken> RefreshToken(string token, string refreshToken);
     }
 }
