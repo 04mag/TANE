@@ -22,11 +22,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Groups\Kunder\Queries\" />
+    <ProjectReference Include="..\TANE.Application\TANE.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TANE.Application\TANE.Application.csproj" />
+    <Folder Include="Groups\" />
   </ItemGroup>
 
 </Project>
