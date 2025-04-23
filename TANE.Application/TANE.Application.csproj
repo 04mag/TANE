@@ -24,7 +24,6 @@
     <Folder Include="Groups\RejsePlanSkabeloner\Queries\Interfaces\" />
     <Folder Include="Groups\RejsePlaner\Commands\Interfaces\" />
     <Folder Include="Groups\RejsePlaner\Queries\Interfaces\" />
-    <Folder Include="RepositoryInterfaces\" />
   </ItemGroup>
 
   <ItemGroup>
