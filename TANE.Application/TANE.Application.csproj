@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Common\Exceptions\" />
     <Folder Include="Groups\JwtTokens\Commands\Interfaces\" />
     <Folder Include="Groups\JwtTokens\Queries\Interfaces\" />
     <Folder Include="Groups\Dage\Commands\Interfaces\" />
@@ -23,6 +24,7 @@
     <Folder Include="Groups\RejsePlanSkabeloner\Queries\Interfaces\" />
     <Folder Include="Groups\RejsePlaner\Commands\Interfaces\" />
     <Folder Include="Groups\RejsePlaner\Queries\Interfaces\" />
+    <Folder Include="RepositoryInterfaces\" />
   </ItemGroup>
 
   <ItemGroup>
