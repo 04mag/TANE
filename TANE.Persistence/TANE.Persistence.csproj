@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TANE.Application\TANE.Application.csproj" />
+  </ItemGroup>
+
 </Project>
