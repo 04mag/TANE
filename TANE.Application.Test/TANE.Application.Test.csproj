@@ -25,8 +25,4 @@
     <ProjectReference Include="..\TANE.Application\TANE.Application.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Groups\" />
-  </ItemGroup>
-
 </Project>
