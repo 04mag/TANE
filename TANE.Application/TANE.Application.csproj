@@ -8,8 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Common\Exceptions\" />
-    <Folder Include="Groups\JwtTokens\Commands\Interfaces\" />
-    <Folder Include="Groups\JwtTokens\Queries\Interfaces\" />
   </ItemGroup>
    
   <ItemGroup>
