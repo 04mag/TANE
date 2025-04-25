@@ -1,4 +1,5 @@
-﻿@using TANE.Application.Groups.JwtTokens.Commands.Interfaces
+﻿@using TANE.Application.Common.Exceptions
+@using TANE.Application.Groups.JwtTokens.Commands.Interfaces
 @using TANE.Domain.Entities
 @inject IUserLogin _UserLogin
 @inject NavigationManager _NavigationManager
@@ -11,11 +12,13 @@
 
     <RadzenTemplateForm Data=@("SimpleLogin")>
         <RadzenLogin AllowRegister="false" AllowResetPassword="false" Login="@(args => OnLogin(args))"/>
+        <RadzenText>@ErrorMessage</RadzenText>
     </RadzenTemplateForm>
 
 </RadzenCard>
 
 @code {
+    public string ErrorMessage { get; set; } = string.Empty;
 
     private async Task OnLogin(LoginArgs args)
     {
@@ -25,9 +28,13 @@
 
             _NavigationManager.NavigateTo("/");
         }
+        catch (NotAuthorizedException ex)
+        {
+            ErrorMessage = ex.Message;
+        }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            ErrorMessage = ex.Message;
         }
 
     }
