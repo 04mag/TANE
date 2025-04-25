@@ -1,0 +1,34 @@
+﻿@using TANE.Application.Groups.JwtTokens.Commands.Interfaces
+@using TANE.Domain.Entities
+@inject IUserLogin _UserLogin
+@inject NavigationManager _NavigationManager
+
+@page "/login"
+
+<h3>Login</h3>
+
+<RadzenCard class="rz-my-12 rz-mx-auto rz-p-4 rz-p-md-12" style="max-width: 600px;">
+
+    <RadzenTemplateForm Data=@("SimpleLogin")>
+        <RadzenLogin AllowRegister="false" AllowResetPassword="false" Login="@(args => OnLogin(args))"/>
+    </RadzenTemplateForm>
+
+</RadzenCard>
+
+@code {
+
+    private async Task OnLogin(LoginArgs args)
+    {
+        try
+        {
+            var token = await _UserLogin.LoginAsync(args.Username, args.Password);
+
+            _NavigationManager.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+    }
+}

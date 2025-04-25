@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TANE.Application.Groups.JwtTokens.Commands.Interfaces
 {
-    internal interface IRefreshToken
+    public interface IRefreshToken
     {
         Task<string> RefreshTokenAsync(string token, string refreshToken);
     }
