@@ -12,13 +12,9 @@ namespace TANE.Persistence.Repositories
     public class JwtTokenRepository : IJwtTokenRepository
     {
         private readonly HttpClient _httpClient;
-        public JwtTokenRepository()
+        public JwtTokenRepository(HttpClient httpClient)
         {
-            _httpClient = new HttpClient
-            {
-                //Husk evt at ændre denne til den rigtige URL
-                BaseAddress = new Uri("https://localhost:7100/")
-            };
+            _httpClient = httpClient;
         }
 
         public async Task<JwtToken> RefreshToken(string token, string refreshToken)
