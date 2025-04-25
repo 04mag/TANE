@@ -9,7 +9,7 @@ using TANE.Domain.Entities;
 
 namespace TANE.Persistence.Repositories
 {
-    internal class JwtTokenRepository : IJwtTokenRepository
+    public class JwtTokenRepository : IJwtTokenRepository
     {
         private readonly HttpClient _httpClient;
         public JwtTokenRepository()
@@ -17,7 +17,7 @@ namespace TANE.Persistence.Repositories
             _httpClient = new HttpClient
             {
                 //Husk evt at ændre denne til den rigtige URL
-                BaseAddress = new Uri("http://localhost:6001/auth")
+                BaseAddress = new Uri("https://localhost:7100/")
             };
         }
 
@@ -42,12 +42,12 @@ namespace TANE.Persistence.Repositories
             }
         }
 
-        public Task<JwtToken> UserLogin(string email, string password)
+        public async Task<JwtToken> UserLogin(string email, string password)
         {
-            var result = _httpClient.PostAsJsonAsync("api/account/login", new { email, password });
-            if (result.Result.IsSuccessStatusCode)
+            var result = await _httpClient.PostAsJsonAsync("api/account/login", new { email, password });
+            if (result.IsSuccessStatusCode)
             {
-                var jwtToken = result.Result.Content.ReadFromJsonAsync<JwtToken>();
+                var jwtToken = await result.Content.ReadFromJsonAsync<JwtToken>();
                 
                 if (jwtToken == null)
                 {
@@ -55,6 +55,10 @@ namespace TANE.Persistence.Repositories
                 }
 
                 return jwtToken;
+            }
+            else if (result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                throw new Exception();
             }
             else
             {
