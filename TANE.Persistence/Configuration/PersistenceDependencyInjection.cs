@@ -20,45 +20,15 @@ namespace TANE.Persistence.Configuration
             // Add your persistence-related services here
 
             //Add http clients
-            services.AddHttpClient<IDagRepository, DagRepository>(client =>
-            {
-                client.BaseAddress = new Uri($"{baseAddress}"); // Adjust the base address when yarp is added (add "dag/")
-            });
-
-            services.AddHttpClient<IDagSkabelonRepository, DagSkabelonRepository>(client =>
-            {
-                client.BaseAddress = new Uri($"{baseAddress}"); // Adjust the base address when yarp is added (add "dagskabelon/")
-            });
-
-            services.AddHttpClient<IJwtTokenRepository, JwtTokenRepository>(client =>
-            {
-                client.BaseAddress = new Uri($"{baseAddress}"); // Adjust the base address when yarp is added (add "auth/")
-            });
-
-            services.AddHttpClient<IKundeRepository, KundeRepository>(client =>
-            {
-                client.BaseAddress = new Uri($"{baseAddress}"); // Adjust the base address when yarp is added (add "kunde/")
-            });
-
-            services.AddHttpClient<IRejsePlanRepository, RejsePlanRepository>(client =>
-            {
-                client.BaseAddress = new Uri($"{baseAddress}"); // Adjust the base address when yarp is added (add "rejseplan/")
-            });
-
-            services.AddHttpClient<IRejsePlanSkabelonRepository, RejsePlanSkabelonRepository>(client =>
-            {
-                client.BaseAddress = new Uri($"{baseAddress}"); // Adjust the base address when yarp is added (add "rejseplanskabelon/")
-            });
-
-            services.AddHttpClient<ITurRepository, TurRepository>(client =>
-            {
-                client.BaseAddress = new Uri($"{baseAddress}"); // Adjust the base address when yarp is added (add "tur/")
-            });
-
-            services.AddHttpClient<ITurSkabelonRepository, TurSkabelonRepository>(client =>
-            {
-                client.BaseAddress = new Uri($"{baseAddress}"); // Adjust the base address when yarp is added (add "turskabelon/")
-            });
+           services.AddHttpClient(
+                "auth",
+                client =>
+                {
+                    client.BaseAddress = baseAddress; 
+                    
+                    //Update address to match your Yarp configuration
+                    //client.BaseAddress = new Uri(client.BaseAddress, "auth/");
+                });
 
             //Repositories
             services.AddScoped<IDagRepository, DagRepository>();
