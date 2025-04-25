@@ -19,22 +19,26 @@ namespace TANE.Persistence.Repositories
 
         public async Task<JwtToken> RefreshToken(string token, string refreshToken)
         {
-            var result = await _httpClient.PostAsJsonAsync("api/account/refresh-token", new { token, refreshToken });
-
-            if (result.IsSuccessStatusCode)
+            using (_httpClient)
             {
-                var jwtToken = await result.Content.ReadFromJsonAsync<JwtToken>();
+                var result = await _httpClient.PostAsJsonAsync("api/account/refresh-token", new { token, refreshToken });
 
-                if (jwtToken == null)
+                if (result.IsSuccessStatusCode)
                 {
-                    throw new Exception("Failed to deserialize JWT token");
-                }
 
-                return jwtToken;
-            }
-            else
-            {
-                throw new Exception("Failed to refresh token");
+                    var jwtToken = await result.Content.ReadFromJsonAsync<JwtToken>();
+
+                    if (jwtToken == null)
+                    {
+                        throw new Exception("Failed to deserialize JWT token");
+                    }
+
+                    return jwtToken;
+                }
+                else
+                {
+                    throw new Exception("Failed to refresh token");
+                }
             }
         }
 
