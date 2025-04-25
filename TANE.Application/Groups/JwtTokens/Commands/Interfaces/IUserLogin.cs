@@ -7,7 +7,7 @@ using TANE.Domain.Entities;
 
 namespace TANE.Application.Groups.JwtTokens.Commands.Interfaces
 {
-    internal interface IUserLogin
+    public interface IUserLogin
     {
         Task<JwtToken> LoginAsync(string email, string password);
     }
