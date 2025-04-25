@@ -12,4 +12,9 @@
     <PackageReference Include="Radzen.Blazor" Version="6.6.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TANE.Application\TANE.Application.csproj" />
+    <ProjectReference Include="..\TANE.Persistence\TANE.Persistence.csproj" />
+  </ItemGroup>
+
 </Project>

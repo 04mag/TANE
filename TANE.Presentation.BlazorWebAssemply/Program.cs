@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Radzen;
+using TANE.Application.Configuration;
+using TANE.Persistence.Configuration;
 
 namespace TANE.Presentation.BlazorWebAssemply
 {
@@ -13,6 +15,10 @@ namespace TANE.Presentation.BlazorWebAssemply
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+            //Add layer services
+            builder.Services.RegisterApplicationLayer();
+            builder.Services.RegisterPersistenceLayer();
 
             builder.Services.AddRadzenComponents();
 
