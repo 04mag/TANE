@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
+using TANE.Application.Common.Exceptions;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
 
@@ -11,17 +12,17 @@ namespace TANE.Persistence.Repositories
 {
     public class JwtTokenRepository : IJwtTokenRepository
     {
-        private readonly HttpClient _httpClient;
-        public JwtTokenRepository(HttpClient httpClient)
+        private readonly IHttpClientFactory _httpClientFactory;
+        public JwtTokenRepository(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<JwtToken> RefreshToken(string token, string refreshToken)
         {
-            using (_httpClient)
+            using (HttpClient httpClient = _httpClientFactory.CreateClient("auth"))
             {
-                var result = await _httpClient.PostAsJsonAsync("api/account/refresh-token", new { token, refreshToken });
+                var result = await httpClient.PostAsJsonAsync("api/account/refresh-token", new { token, refreshToken });
 
                 if (result.IsSuccessStatusCode)
                 {
@@ -44,25 +45,28 @@ namespace TANE.Persistence.Repositories
 
         public async Task<JwtToken> UserLogin(string email, string password)
         {
-            var result = await _httpClient.PostAsJsonAsync("api/account/login", new { email, password });
-            if (result.IsSuccessStatusCode)
+            using (HttpClient httpClient = _httpClientFactory.CreateClient("auth"))
             {
-                var jwtToken = await result.Content.ReadFromJsonAsync<JwtToken>();
-                
-                if (jwtToken == null)
+                var result = await httpClient.PostAsJsonAsync("api/account/login", new { email, password });
+                if (result.IsSuccessStatusCode)
                 {
-                    throw new Exception("Failed to deserialize JWT token");
-                }
+                    var jwtToken = await result.Content.ReadFromJsonAsync<JwtToken>();
 
-                return jwtToken;
-            }
-            else if (result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                throw new Exception();
-            }
-            else
-            {
-                throw new Exception("Failed to login");
+                    if (jwtToken == null)
+                    {
+                        throw new Exception("Failed to deserialize JWT token");
+                    }
+
+                    return jwtToken;
+                }
+                else if (result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    throw new NotAuthorizedException("Credentials provided were invalid");
+                }
+                else
+                {
+                    throw new Exception("Failed to login");
+                }
             }
         }
     }
