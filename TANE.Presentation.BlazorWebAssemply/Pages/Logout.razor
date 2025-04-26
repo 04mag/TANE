@@ -1,0 +1,19 @@
+﻿@using TANE.Presentation.BlazorWebAssemply.Helpers
+@inject NavigationManager _NavigationManager
+@inject Blazored.LocalStorage.ILocalStorageService _LocalStorage
+
+@page "/logout"
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        LocalStorageHandler localStorageHandler = new LocalStorageHandler(_LocalStorage);
+
+        await localStorageHandler.RemoveTokenAsync();
+        await localStorageHandler.RemoveRefreshTokenAsync();
+        await localStorageHandler.RemoveTokenExpirationAsync();
+
+        // Redirect to the login page
+        _NavigationManager.NavigateTo("/login", true);
+    }
+}

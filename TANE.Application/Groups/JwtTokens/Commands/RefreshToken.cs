@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TANE.Application.Common.Exceptions;
 using TANE.Application.Groups.JwtTokens.Commands.Interfaces;
 using TANE.Application.RepositoryInterfaces;
+using TANE.Domain.Entities;
 
 namespace TANE.Application.Groups.JwtTokens.Commands
 {
@@ -16,9 +18,21 @@ namespace TANE.Application.Groups.JwtTokens.Commands
         {
             _jwtTokenRepository = jwtTokenRepository;
         }
-        public async Task<string> RefreshTokenAsync(string token, string refreshToken)
+        public async Task<JwtToken> RefreshTokenAsync(string token, string refreshToken)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var jwtToken = await _jwtTokenRepository.RefreshToken(token, refreshToken);
+                return jwtToken;
+            }
+            catch (RefreshTokenExpiredException ex)
+            {
+                throw new RefreshTokenExpiredException(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while refreshing token", ex);
+            }
         }
     }
 }

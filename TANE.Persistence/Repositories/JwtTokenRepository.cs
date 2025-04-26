@@ -18,11 +18,11 @@ namespace TANE.Persistence.Repositories
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<JwtToken> RefreshToken(string token, string refreshToken)
+        public async Task<JwtToken> RefreshToken(string accessToken, string refreshToken)
         {
             using (HttpClient httpClient = _httpClientFactory.CreateClient("auth"))
             {
-                var result = await httpClient.PostAsJsonAsync("api/account/refresh-token", new { token, refreshToken });
+                var result = await httpClient.PostAsJsonAsync("api/Account/refresh-token", new { accessToken, refreshToken });
 
                 if (result.IsSuccessStatusCode)
                 {
@@ -35,6 +35,10 @@ namespace TANE.Persistence.Repositories
                     }
 
                     return jwtToken;
+                }
+                else if ((int)result.StatusCode == 498)
+                {
+                    throw new RefreshTokenExpiredException("Invalid token");
                 }
                 else
                 {
