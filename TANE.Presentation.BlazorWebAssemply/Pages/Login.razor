@@ -1,8 +1,10 @@
 ﻿@using TANE.Application.Common.Exceptions
 @using TANE.Application.Groups.JwtTokens.Commands.Interfaces
 @using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Helpers
 @inject IUserLogin _UserLogin
 @inject NavigationManager _NavigationManager
+@inject Blazored.LocalStorage.ILocalStorageService _LocalStorage
 
 @page "/login"
 
@@ -24,9 +26,16 @@
     {
         try
         {
-            var token = await _UserLogin.LoginAsync(args.Username, args.Password);
+            var jwtToken = await _UserLogin.LoginAsync(args.Username, args.Password);
 
-            _NavigationManager.NavigateTo("/");
+            LocalStorageHandler localStorageHandler = new LocalStorageHandler(_LocalStorage);
+
+            // Store the JWT token in local storage
+            await localStorageHandler.SetTokenAsync(jwtToken.Token);
+            await localStorageHandler.SetRefreshTokenAsync(jwtToken.RefreshToken);
+            await localStorageHandler.SetTokenExpirationAsync(jwtToken.Expiration.ToString());
+
+            _NavigationManager.NavigateTo("/", true);
         }
         catch (NotAuthorizedException ex)
         {
@@ -36,6 +45,5 @@
         {
             ErrorMessage = ex.Message;
         }
-
     }
 }

@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Radzen;
@@ -21,6 +22,8 @@ namespace TANE.Presentation.BlazorWebAssemply
             builder.Services.RegisterPersistenceLayer();
 
             builder.Services.AddRadzenComponents();
+
+            builder.Services.AddBlazoredLocalStorage();
 
             await builder.Build().RunAsync();
         }
