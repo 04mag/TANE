@@ -1,0 +1,27 @@
+﻿@inject CustomStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthStateProvider.CurrentUser != null && AuthStateProvider.CurrentUser.Expiration.ToLocalTime() < DateTime.Now)
+        {
+            try
+            {
+                await AuthStateProvider.RefreshTokenAsync();
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception as needed, e.g., log it or show a message to the user
+                Console.WriteLine($"Error refreshing token: {ex.Message}");
+
+                await AuthStateProvider.LogoutAsync();
+
+                NavigationManager.NavigateTo("/");
+            }
+    }
+
+    }
+
+}

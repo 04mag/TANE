@@ -8,16 +8,33 @@
 
 @page "/login"
 
-<h3>Login</h3>
+<AuthorizeView>
+    <Authorized>
+        <p>Du er allerede logget ind</p>
+    </Authorized>
 
-<RadzenCard class="rz-my-12 rz-mx-auto rz-p-4 rz-p-md-12" style="max-width: 600px;">
+    <NotAuthorized>
+        <RadzenStack Gap="0" class="rz-my-12 rz-mx-auto rz-border-radius-6 rz-shadow-10" Style="width: 100%; max-width: 400px; overflow: hidden;">
+            <RadzenCard class="rz-shadow-0 rz-border-radius-0 rz-background-color-success-darker rz-p-12" style="text-align: center;">
+                <RadzenText TextStyle="TextStyle.DisplayH3" TagName="TagName.H2" class="rz-color-on-success-darker rz-mb-0">Login</RadzenText>
+            </RadzenCard>
+            <RadzenCard class="rz-shadow-0 rz-p-12">
+                <RadzenTemplateForm Context="NameForNoConflict" Data=@("SimpleLogin")>
+                    <RadzenLogin AllowRegister="false" AllowResetPassword="false" UserText="Email" Username="Test" Password="Test1234!" Login="@(args => OnLogin(args))" />
+                    <RadzenText class="mt-2">@ErrorMessage</RadzenText>
+                </RadzenTemplateForm>
+            </RadzenCard>
+        </RadzenStack>
+    </NotAuthorized>
 
-    <RadzenTemplateForm Data=@("SimpleLogin")>
-        <RadzenLogin AllowRegister="false" AllowResetPassword="false" Login="@(args => OnLogin(args))"/>
-        <RadzenText>@ErrorMessage</RadzenText>
-    </RadzenTemplateForm>
+    <Authorizing>
+        <p>Checking auth state...</p>
+    </Authorizing>
 
-</RadzenCard>
+</AuthorizeView>
+
+
+
 
 @code {
     public string ErrorMessage { get; set; } = string.Empty;
@@ -34,6 +51,5 @@
         {
             ErrorMessage = ex.Message;
         }
-
     }
 }
