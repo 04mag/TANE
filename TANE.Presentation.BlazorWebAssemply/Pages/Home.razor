@@ -5,6 +5,8 @@
 
 <PageTitle>Home</PageTitle>
 
+<TokenHandler />
+
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
@@ -24,12 +26,3 @@ Welcome to your new app.
     </Authorizing>
 </AuthorizeView>
 
-@code{
-    protected override async Task OnInitializedAsync()
-    {
-        if (AuthStateProvider.CurrentUser != null && AuthStateProvider.CurrentUser.Expiration.ToLocalTime() < DateTime.Now)
-        {
-            await AuthStateProvider.RefreshTokenAsync();
-        }
-    }
-}

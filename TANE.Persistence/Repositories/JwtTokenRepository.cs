@@ -65,7 +65,7 @@ namespace TANE.Persistence.Repositories
                 }
                 else if (result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
-                    throw new NotAuthorizedException("Credentials provided were invalid");
+                    throw new NotAuthorizedException("Invalid credentials");
                 }
                 else
                 {
