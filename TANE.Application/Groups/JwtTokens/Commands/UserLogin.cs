@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,12 +20,39 @@ namespace TANE.Application.Groups.JwtTokens.Commands
             _jwtTokenRepository = jwtTokenRepository;
         }
 
-        public async Task<JwtToken> LoginAsync(string email, string password)
+        public async Task<User> LoginAsync(string email, string password)
         {
             try
             {
-                var jwtToken = await _jwtTokenRepository.UserLogin(email, password);
-                return jwtToken;
+                var result = await _jwtTokenRepository.UserLogin(email, password);
+
+                var encryptedToken = result.Token;
+                
+                var handler = new JwtSecurityTokenHandler();
+
+                var decryptedToken = handler.ReadJwtToken(encryptedToken);
+
+                var claims = decryptedToken.Claims.ToList();
+
+                var useremail = claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name")?.Value;
+                var userroles = claims.Where(c => c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.ToList();
+
+
+                //setup user object
+                User user = new User
+                {
+                    Email = useremail,
+                    Token = result.Token,
+                    RefreshToken = result.RefreshToken,
+                    Expiration = result.Expiration
+                };
+
+                foreach (var role in userroles)
+                {
+                    user.Roles.Add(role.Value);
+                }
+
+                return user;
             }
             catch (NotAuthorizedException ex)
             {

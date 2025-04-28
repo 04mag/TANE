@@ -1,9 +1,12 @@
-using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Radzen;
 using TANE.Application.Configuration;
+using TANE.Application.Groups.JwtTokens.Commands.Interfaces;
 using TANE.Persistence.Configuration;
+using TANE.Presentation.BlazorWebAssemply.Authentication;
+using TANE.Presentation.BlazorWebAssemply.Services;
 
 namespace TANE.Presentation.BlazorWebAssemply
 {
@@ -17,13 +20,22 @@ namespace TANE.Presentation.BlazorWebAssemply
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
+            builder.Services.AddAuthorizationCore();
+
             //Add layer services
             builder.Services.RegisterApplicationLayer();
             builder.Services.RegisterPersistenceLayer();
 
             builder.Services.AddRadzenComponents();
 
-            builder.Services.AddBlazoredLocalStorage();
+            builder.Services.AddScoped<BrowserStorageService>();
+
+            builder.Services.AddScoped<CustomStateProvider>();
+
+            builder.Services.AddScoped<AuthenticationStateProvider>(s => 
+                s.GetRequiredService<CustomStateProvider>());
+
+
 
             await builder.Build().RunAsync();
         }

@@ -9,6 +9,6 @@ namespace TANE.Application.Groups.JwtTokens.Commands.Interfaces
 {
     public interface IUserLogin
     {
-        Task<JwtToken> LoginAsync(string email, string password);
+        Task<User> LoginAsync(string email, string password);
     }
 }
