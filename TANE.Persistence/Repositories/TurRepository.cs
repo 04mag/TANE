@@ -10,27 +10,27 @@ namespace TANE.Persistence.Repositories
 {
     internal class TurRepository : ITurRepository
     {
-        public Task<Tur> CreateTur(Tur tur)
+        public Task<Tur> CreateTur(Tur tur, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> DeleteTur(int id)
+        public Task<bool> DeleteTur(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<Tur>> ReadAllTure()
+        public Task<List<Tur>> ReadAllTure(string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Tur> ReadTurById(int id)
+        public Task<Tur> ReadTurById(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Tur> UpdateTur(Tur tur)
+        public Task<Tur> UpdateTur(Tur tur, string jwtToken)
         {
             throw new NotImplementedException();
         }
