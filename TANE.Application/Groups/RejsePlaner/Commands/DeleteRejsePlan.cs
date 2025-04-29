@@ -17,7 +17,7 @@ namespace TANE.Application.Groups.RejsePlaner.Commands
             _rejsePlanRepository = rejsePlanRepository;
         }
 
-        public async Task<bool> DeleteRejsePlanAsync(int Id)
+        public async Task<bool> DeleteRejsePlanAsync(int Id, string jwtToken)
         {
             throw new NotImplementedException();
         }

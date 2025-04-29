@@ -18,7 +18,7 @@ namespace TANE.Application.Groups.DagSkabeloner.Commands
             _dagSkabelonRepository = dagSkabelonRepository;
         }
 
-        public async Task<DagSkabelon> UpdateDagSkabelonAsync(DagSkabelon dagSkabelon)
+        public async Task<DagSkabelon> UpdateDagSkabelonAsync(DagSkabelon dagSkabelon, string jwtToken)
         {
             throw new NotImplementedException();
         }

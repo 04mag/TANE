@@ -9,6 +9,6 @@ namespace TANE.Application.Groups.Dage.Commands.Interfaces
 {
     internal interface IUpdateDag
     {
-        Task<Dag> UpdateDagAsync(Dag dag);
+        Task<Dag> UpdateDagAsync(Dag dag, string jwtToken);
     }
 }

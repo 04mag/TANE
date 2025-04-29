@@ -8,6 +8,6 @@ namespace TANE.Application.Groups.RejsePlanSkabeloner.Commands.Interfaces
 {
     internal interface IDeleteRejsePlanSkabelon
     {
-        Task<bool> DeleteRejsePlanSkabelonAsync(int id);
+        Task<bool> DeleteRejsePlanSkabelonAsync(int id, string jwtToken);
     }
 }

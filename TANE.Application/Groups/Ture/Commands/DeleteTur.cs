@@ -17,7 +17,7 @@ namespace TANE.Application.Groups.Ture.Commands
             _turRepository = turRepository;
         }
 
-        public async Task<bool> DeleteTurAsync(int turId)
+        public async Task<bool> DeleteTurAsync(int turId, string jwtToken)
         {
             throw new NotImplementedException();
         }

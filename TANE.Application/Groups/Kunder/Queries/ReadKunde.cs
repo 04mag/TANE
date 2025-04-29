@@ -13,12 +13,12 @@ namespace TANE.Application.Groups.Kunder.Queries
             _kundeRepository = kundeRepository;
         }
 
-        public async Task<List<Kunde>> GetAllKunderAsync()
+        public async Task<List<Kunde>> GetAllKunderAsync(string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<Kunde> GetKundeByIdAsync(int kundeId)
+        public async Task<Kunde> GetKundeByIdAsync(int kundeId, string jwtToken)
         {
             throw new NotImplementedException();
         }

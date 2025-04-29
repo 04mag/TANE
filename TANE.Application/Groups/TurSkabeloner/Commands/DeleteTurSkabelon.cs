@@ -15,7 +15,7 @@ namespace TANE.Application.Groups.TurSkabeloner.Commands
         {
             _turSkabelonRepository = turSkabelonRepository;
         }
-        public async Task<bool> DeleteTurSkabelonAsync(int turSkabelonId)
+        public async Task<bool> DeleteTurSkabelonAsync(int turSkabelonId, string jwtToken)
         {
             throw new NotImplementedException();
         }

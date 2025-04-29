@@ -9,7 +9,7 @@ namespace TANE.Application.Groups.RejsePlaner.Queries.Interfaces
 {
     internal interface IReadRejsePlan
     {
-        Task<RejsePlan> ReadRejsePlanByIdAsync(int id);
-        Task<List<RejsePlan>> ReadRejsePlanerAsync();
+        Task<RejsePlan> ReadRejsePlanByIdAsync(int id, string jwtToken);
+        Task<List<RejsePlan>> ReadRejsePlanerAsync(string jwtToken);
     }
 }

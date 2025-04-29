@@ -8,6 +8,6 @@ namespace TANE.Application.Groups.RejsePlaner.Commands.Interfaces
 {
     internal interface IDeleteRejsePlan
     {
-        Task<bool> DeleteRejsePlanAsync(int Id);
+        Task<bool> DeleteRejsePlanAsync(int Id, string jwtToken);
     }
 }

@@ -17,7 +17,7 @@ namespace TANE.Application.Groups.DagSkabeloner.Commands
             _dagSkabelonRepository = dagSkabelonRepository;
         }
 
-        public async Task<bool> DeleteDagSkabelonAsync(int id)
+        public async Task<bool> DeleteDagSkabelonAsync(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }

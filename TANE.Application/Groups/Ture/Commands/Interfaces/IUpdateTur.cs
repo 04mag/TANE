@@ -9,6 +9,6 @@ namespace TANE.Application.Groups.Ture.Commands.Interfaces
 {
     internal interface IUpdateTur
     {
-        Task<Tur> UpdateTurAsync(Tur tur);
+        Task<Tur> UpdateTurAsync(Tur tur, string jwtToken);
     }
 }

@@ -18,7 +18,7 @@ namespace TANE.Application.Groups.Kunder.Commands
             _kundeRepository = kundeRepository;
         }
 
-        public async Task<Kunde> UpdateKundeAsync(Kunde kunde)
+        public async Task<Kunde> UpdateKundeAsync(Kunde kunde, string jwtToken)
         {
             throw new NotImplementedException();
         }

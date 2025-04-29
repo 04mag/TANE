@@ -9,6 +9,6 @@ namespace TANE.Application.Groups.Kunder.Commands.Interfaces
 {
     internal interface IDeleteKunde
     {
-        Task<bool> DeleteKundeAsync(int kundeId);
+        Task<bool> DeleteKundeAsync(int kundeId, string jwtToken);
     }
 }

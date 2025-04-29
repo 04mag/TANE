@@ -8,6 +8,6 @@ namespace TANE.Application.Groups.Ture.Commands.Interfaces
 {
     internal interface IDeleteTur
     {
-        Task<bool> DeleteTurAsync(int id);
+        Task<bool> DeleteTurAsync(int id, string jwtToken);
     }
 }
