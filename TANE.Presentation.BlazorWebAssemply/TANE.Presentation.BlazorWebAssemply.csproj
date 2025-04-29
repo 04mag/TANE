@@ -18,4 +18,12 @@
     <ProjectReference Include="..\TANE.Persistence\TANE.Persistence.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Pages\Kunder\" />
+    <Folder Include="Pages\RejsePlaner\" />
+    <Folder Include="Pages\Skabeloner\DagSkabeloner\" />
+    <Folder Include="Pages\Skabeloner\TurSkabeloner\" />
+    <Folder Include="Pages\Skabeloner\RejsePlanSkabeloner\" />
+  </ItemGroup>
+
 </Project>
