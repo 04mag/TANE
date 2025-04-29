@@ -1,0 +1,25 @@
+﻿@using TANE.Presentation.BlazorWebAssemply.Authentication
+@inject CustomStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+@page "/logout"
+
+<p>@LogOutText</p>
+
+@code {
+    public string LogOutText { get; set; } = "Logger ud...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await AuthStateProvider.LogoutAsync();
+
+            LogOutText = "Du er nu logget ud";
+        }
+        catch (Exception)
+        {
+
+        }
+    }
+}

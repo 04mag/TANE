@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TANE.Domain.Entities;
 
 namespace TANE.Application.Groups.JwtTokens.Commands.Interfaces
 {
-    internal interface IRefreshToken
+    public interface IRefreshToken
     {
-        Task<string> RefreshTokenAsync(string token, string refreshToken);
+        Task<JwtToken> RefreshTokenAsync(string token, string refreshToken);
     }
 }

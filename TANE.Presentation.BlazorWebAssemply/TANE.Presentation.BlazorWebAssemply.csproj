@@ -8,8 +8,14 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.15" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="8.0.15" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.15" PrivateAssets="all" />
     <PackageReference Include="Radzen.Blazor" Version="6.6.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TANE.Application\TANE.Application.csproj" />
+    <ProjectReference Include="..\TANE.Persistence\TANE.Persistence.csproj" />
   </ItemGroup>
 
 </Project>
