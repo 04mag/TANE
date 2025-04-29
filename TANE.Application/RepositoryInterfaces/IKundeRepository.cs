@@ -9,10 +9,10 @@ namespace TANE.Application.RepositoryInterfaces
 {
     public interface IKundeRepository
     {
-        Task<List<Kunde>> ReadAllKunderAsync();
-        Task<Kunde> ReadKundeByIdAsync(int id);
-        Task<Kunde> CreateKundeAsync(Kunde kunde);
-        Task<Kunde> UpdateKundeAsync(Kunde kunde);
-        Task<bool> DeleteKundeAsync(int id);
+        Task<List<Kunde>> ReadAllKunderAsync(string jwtToken);
+        Task<Kunde> ReadKundeByIdAsync(int id, string jwtToken);
+        Task<Kunde> CreateKundeAsync(Kunde kunde, string jwtToken);
+        Task<Kunde> UpdateKundeAsync(Kunde kunde, string jwtToken);
+        Task<bool> DeleteKundeAsync(int id, string jwtToken);
     }
 }
