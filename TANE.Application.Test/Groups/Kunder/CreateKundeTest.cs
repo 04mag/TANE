@@ -7,6 +7,8 @@ namespace TANE.Application.Test.Groups.Kunder
 {
     public class CreateKundeTest
     {
+        private static string jwtToken = "test-token";
+
         [Fact]
         public async Task CreateKunde_ValidInput()
         {
@@ -15,7 +17,7 @@ namespace TANE.Application.Test.Groups.Kunder
             var kundeRepository = new Mock<IKundeRepository>();
 
             // Setup the mock to return a Kunde object when CreateKundeAsync is called
-            kundeRepository.Setup(repo => repo.CreateKundeAsync(It.IsAny<Kunde>()))
+            kundeRepository.Setup(repo => repo.CreateKundeAsync(It.IsAny<Kunde>(), jwtToken))
                 .ReturnsAsync((Kunde kunde) => kunde);
 
             CreateKunde createKundeCommand = new CreateKunde(kundeRepository.Object);
@@ -23,7 +25,7 @@ namespace TANE.Application.Test.Groups.Kunder
             var kunde = new Kunde("TestFornavn", "TestEfternavn", "TestEmail@mail.dk", "TestTlfNummer");
 
             // Act
-            var result = await createKundeCommand.CreateKundeAsync(kunde);
+            var result = await createKundeCommand.CreateKundeAsync(kunde, jwtToken);
 
             // Assert
             Assert.NotNull(result);
@@ -44,7 +46,7 @@ namespace TANE.Application.Test.Groups.Kunder
             var KundeInvaildEmail = new Kunde("TestFornavn", "TestEfternavn", "invalidemail.dk", "TestTlfNummer");
 
             // Act
-            Func<Task> act = async () => await createKundeCommand.CreateKundeAsync(KundeInvaildEmail);
+            Func<Task> act = async () => await createKundeCommand.CreateKundeAsync(KundeInvaildEmail, jwtToken);
 
             // Assert
             var exception = await Assert.ThrowsAsync<ArgumentException>(act);

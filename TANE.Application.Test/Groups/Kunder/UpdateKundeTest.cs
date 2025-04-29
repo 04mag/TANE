@@ -7,6 +7,7 @@ namespace TANE.Application.Test.Groups.Kunder
 {
     public class UpdateKundeTest
     {
+        private static string jwtToken = "test-token";
 
         [Fact]
         // This test is to check if the method calls the repository with a valid Kunde object
@@ -18,15 +19,15 @@ namespace TANE.Application.Test.Groups.Kunder
 
             var validKunde = new Kunde("test", "tester", "test@test.com", "12345678");
 
-            kundeRepository.Setup(repo => repo.UpdateKundeAsync(validKunde))
+            kundeRepository.Setup(repo => repo.UpdateKundeAsync(validKunde, jwtToken))
                 .ReturnsAsync(validKunde); // Set it to return the validKunde object
 
             // Act
-            await updateKundeCommand.UpdateKundeAsync(validKunde);
+            await updateKundeCommand.UpdateKundeAsync(validKunde, jwtToken);
 
             // Assert
             //tjekker at REPO ikke bliver kaldt
-            kundeRepository.Verify(repo => repo.UpdateKundeAsync(It.IsAny<Kunde>()), Times.Never);
+            kundeRepository.Verify(repo => repo.UpdateKundeAsync(It.IsAny<Kunde>(), jwtToken), Times.Never);
         }
 
         [Fact]
@@ -40,14 +41,14 @@ namespace TANE.Application.Test.Groups.Kunder
             var invalidKunde = new Kunde("tests", "test", "invalidemail.dk", "12345678");
 
             //act 
-            Func<Task> act = async () => await updateKundeCommand.UpdateKundeAsync(invalidKunde);
+            Func<Task> act = async () => await updateKundeCommand.UpdateKundeAsync(invalidKunde, jwtToken);
 
             //Assert
             var exception = await Assert.ThrowsAsync<ArgumentException>(act);
             Assert.Equal("Email er ikke valid", exception.Message);
 
             //tjekker at REPO ikke bliver kaldt
-            kundeRepository.Verify(repo => repo.UpdateKundeAsync(It.IsAny<Kunde>()), Times.Never); 
+            kundeRepository.Verify(repo => repo.UpdateKundeAsync(It.IsAny<Kunde>(), jwtToken), Times.Never); 
         }
 
     }

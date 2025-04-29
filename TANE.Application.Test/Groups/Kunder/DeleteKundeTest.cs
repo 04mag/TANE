@@ -7,6 +7,8 @@ namespace TANE.Application.Test.Groups.Kunder
 {
     public class DeleteKundeTest
     {
+        private static string jwtToken = "test-token";
+
         [Fact]
         public async Task DeleteKunde_VaildInput()
         {
@@ -14,13 +16,13 @@ namespace TANE.Application.Test.Groups.Kunder
             var kundeRepository = new Mock<IKundeRepository>();
 
             // Setup the mock to return a Kunde object when DeleteKundeAsync is called
-            kundeRepository.Setup(repo => repo.DeleteKundeAsync(It.IsAny<int>()))
+            kundeRepository.Setup(repo => repo.DeleteKundeAsync(It.IsAny<int>(), jwtToken))
                 .ReturnsAsync((int id) => true);
 
             DeleteKunde deleteKundeCommand = new DeleteKunde(kundeRepository.Object);
             
             // Act
-            var result = await deleteKundeCommand.DeleteKundeAsync(1);
+            var result = await deleteKundeCommand.DeleteKundeAsync(1, jwtToken);
 
             // Assert
             Assert.True(result);
@@ -37,7 +39,7 @@ namespace TANE.Application.Test.Groups.Kunder
             DeleteKunde deleteKundeCommand = new DeleteKunde(kundeRepository.Object);
 
             // Act
-            Func<Task> act = async () => await deleteKundeCommand.DeleteKundeAsync(1);
+            Func<Task> act = async () => await deleteKundeCommand.DeleteKundeAsync(1, jwtToken);
 
             // Assert
             var exception = await Assert.ThrowsAsync<ArgumentException>(act);

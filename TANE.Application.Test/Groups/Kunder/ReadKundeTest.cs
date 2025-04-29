@@ -8,6 +8,8 @@ namespace TANE.Application.Test.Groups.Kunder
 {
     public class ReadKundeTest
     {
+        private static string jwtToken = "test-token";
+
         [Fact]
         // This test is to check if the method returns a Kunde object when a valid ID is provided
         public async Task GetKundeById_ValidId_ReturnsKunde()
@@ -19,11 +21,11 @@ namespace TANE.Application.Test.Groups.Kunder
             var kundeId = 1; 
             var expectedKunde = new Kunde("test", "test", "test@example.com", "12345678");
 
-            kundeRepository.Setup(repo => repo.ReadKundeByIdAsync(kundeId))
+            kundeRepository.Setup(repo => repo.ReadKundeByIdAsync(kundeId, jwtToken))
                 .ReturnsAsync(expectedKunde);
 
             // Act
-            var result = await getKundeCommand.GetKundeByIdAsync(kundeId);
+            var result = await getKundeCommand.GetKundeByIdAsync(kundeId, jwtToken);
 
             // Assert
             Assert.NotNull(result);
@@ -44,11 +46,11 @@ namespace TANE.Application.Test.Groups.Kunder
                 new Kunde("tetser", "testts", "testeetre@example.com", "87654321")
             };
 
-            kundeRepository.Setup(repo => repo.ReadAllKunderAsync())
+            kundeRepository.Setup(repo => repo.ReadAllKunderAsync(jwtToken))
                 .ReturnsAsync(expectedKunder);
 
             // Act
-            var result = await getKundeCommand.GetAllKunderAsync();
+            var result = await getKundeCommand.GetAllKunderAsync(jwtToken);
 
             // Assert
             Assert.NotNull(result);
@@ -65,7 +67,7 @@ namespace TANE.Application.Test.Groups.Kunder
             var invalidKundeId = 12; // Assuming 12 is an invalid ID for the test case
 
             // Act
-            Func<Task> act = async () => await getKundeCommand.GetKundeByIdAsync(invalidKundeId);
+            Func<Task> act = async () => await getKundeCommand.GetKundeByIdAsync(invalidKundeId, jwtToken);
 
             var exception = await Assert.ThrowsAsync<ArgumentException>(act);
 
