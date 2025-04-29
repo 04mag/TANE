@@ -19,7 +19,7 @@ namespace TANE.Application.Test.Groups.Kunder
             var validKunde = new Kunde("test", "tester", "test@test.com", "12345678");
 
             kundeRepository.Setup(repo => repo.UpdateKundeAsync(validKunde))
-                .Returns(Task.CompletedTask); //fejl her
+                .ReturnsAsync(validKunde); // Set it to return the validKunde object
 
             // Act
             await updateKundeCommand.UpdateKundeAsync(validKunde);
