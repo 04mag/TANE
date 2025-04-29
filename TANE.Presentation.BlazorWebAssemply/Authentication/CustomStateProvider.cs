@@ -33,11 +33,11 @@ namespace TANE.Presentation.BlazorWebAssemply.Authentication
                 {
                     CurrentUser = new User
                     {
-                        Email = authState.User.Identity?.Name,
-                        Roles = authState.User.FindFirst(ClaimTypes.Role)?.Value.Split(",").ToList(),
-                        Token = authState.User.FindFirst("Token")?.Value,
-                        RefreshToken = authState.User.FindFirst("RefreshToken")?.Value,
-                        Expiration = DateTime.Parse(authState.User.FindFirst("Expiration")?.Value)
+                        Email = authState.User.Identity?.Name!,
+                        Roles = authState.User.FindFirst(ClaimTypes.Role)?.Value.Split(",").ToList()!,
+                        Token = authState.User.FindFirst("Token")?.Value!,
+                        RefreshToken = authState.User.FindFirst("RefreshToken")?.Value!,
+                        Expiration = DateTime.Parse(authState.User.FindFirst("Expiration")?.Value!)
                     };
                 }
                 return;
