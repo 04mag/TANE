@@ -9,6 +9,6 @@ namespace TANE.Application.Groups.Dage.Commands.Interfaces
 {
     internal interface ICreateDag
     {
-        Task<Dag> CreateDagAsync(Dag dag);
+        Task<Dag> CreateDagAsync(Dag dag, string jwtToken);
     }
 }

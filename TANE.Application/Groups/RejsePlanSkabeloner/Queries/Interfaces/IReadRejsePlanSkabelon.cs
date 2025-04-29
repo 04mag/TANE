@@ -9,7 +9,7 @@ namespace TANE.Application.Groups.RejsePlanSkabeloner.Queries.Interfaces
 {
     internal interface IReadRejsePlanSkabelon
     {
-        Task<RejsePlanSkabelon> ReadRejsePlanSkabelonByIdAsync(int id);
-        Task<List<RejsePlanSkabelon>> ReadRejsePlanSkabelonerAsync();
+        Task<RejsePlanSkabelon> ReadRejsePlanSkabelonByIdAsync(int id, string jwtToken);
+        Task<List<RejsePlanSkabelon>> ReadRejsePlanSkabelonerAsync(string jwtToken);
     }
 }

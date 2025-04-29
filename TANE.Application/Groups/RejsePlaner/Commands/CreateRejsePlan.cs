@@ -18,7 +18,7 @@ namespace TANE.Application.Groups.RejsePlaner.Commands
             _rejsePlanRepository = rejsePlanRepository;
         }
 
-        public async Task<RejsePlan> CreateRejsePlanAsync(RejsePlan rejsePlan)
+        public async Task<RejsePlan> CreateRejsePlanAsync(RejsePlan rejsePlan, string jwtToken)
         {
             throw new NotImplementedException();
         }

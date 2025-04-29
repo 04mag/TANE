@@ -18,7 +18,7 @@ namespace TANE.Application.Groups.RejsePlanSkabeloner.Commands
             _rejsePlanSkabelonRepository = rejsePlanSkabelonRepository;
         }
 
-        public async Task<RejsePlanSkabelon> CreateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon)
+        public async Task<RejsePlanSkabelon> CreateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon, string jwtToken)
         {
             throw new NotImplementedException();
         }

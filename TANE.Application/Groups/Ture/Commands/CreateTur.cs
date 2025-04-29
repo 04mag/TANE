@@ -18,7 +18,7 @@ namespace TANE.Application.Groups.Ture.Commands
             _turRepository = turRepository;
         }
 
-        public async Task<Tur> CreateTurAsync(Tur tur)
+        public async Task<Tur> CreateTurAsync(Tur tur, string jwtToken)
         {
             throw new NotImplementedException();
         }

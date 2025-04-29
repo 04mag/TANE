@@ -9,7 +9,7 @@ namespace TANE.Application.Groups.DagSkabeloner.Queries.Interfaces
 {
     internal interface IReadDagSkabelon
     {
-        Task<DagSkabelon> ReadDagSkabelonByIdAsync(int id);
-        Task<List<DagSkabelon>> ReadAllDagSkabelonerAsync();
+        Task<DagSkabelon> ReadDagSkabelonByIdAsync(int id, string jwtToken);
+        Task<List<DagSkabelon>> ReadAllDagSkabelonerAsync(string jwtToken);
     }
 }

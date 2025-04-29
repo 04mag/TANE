@@ -9,6 +9,6 @@ namespace TANE.Application.Groups.Dage.Commands.Interfaces
 {
     internal interface IDeleteDag
     {
-        Task<bool> DeleteDagAsync(int id);
+        Task<bool> DeleteDagAsync(int id, string jwtToken);
     }
 }

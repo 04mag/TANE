@@ -18,12 +18,12 @@ namespace TANE.Application.Groups.Dage.Queries
             _dagRepository = dagRepository;
         }
 
-        public async Task<Dag> ReadDagAsync(int id)
+        public async Task<Dag> ReadDagAsync(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<List<Dag>> ReadDageAsync()
+        public async Task<List<Dag>> ReadDageAsync(string jwtToken)
         {
             throw new NotImplementedException();
         }

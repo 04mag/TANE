@@ -9,7 +9,7 @@ namespace TANE.Application.Groups.TurSkabeloner.Queries.Interfaces
 {
     internal interface IReadTurSkabelon
     {
-        Task<TurSkabelon> ReadTurSkabelonByIdAsync(int id);
-        Task<List<TurSkabelon>> ReadAllTurSkabelonerAsync();
+        Task<TurSkabelon> ReadTurSkabelonByIdAsync(int id, string jwtToken);
+        Task<List<TurSkabelon>> ReadAllTurSkabelonerAsync(string jwtToken);
     }
 }

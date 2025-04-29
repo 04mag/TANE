@@ -9,6 +9,6 @@ namespace TANE.Application.Groups.Kunder.Commands.Interfaces
 {
     internal interface IUpdateKunde
     {
-        Task<Kunde> UpdateKundeAsync(Kunde kunde);
+        Task<Kunde> UpdateKundeAsync(Kunde kunde, string jwtToken);
     }
 }

@@ -17,7 +17,7 @@ namespace TANE.Application.Groups.Dage.Commands
             _dagRepository = dagRepository;
         }
 
-        public async Task<bool> DeleteDagAsync(int id)
+        public async Task<bool> DeleteDagAsync(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }

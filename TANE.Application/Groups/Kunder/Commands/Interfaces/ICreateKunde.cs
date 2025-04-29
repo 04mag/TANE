@@ -9,6 +9,6 @@ namespace TANE.Application.Groups.Kunder.Commands.Interfaces
 {
     internal interface ICreateKunde
     {
-        Task<Kunde> CreateKundeAsync(Kunde kunde);
+        Task<Kunde> CreateKundeAsync(Kunde kunde, string jwtToken);
     }
 }
