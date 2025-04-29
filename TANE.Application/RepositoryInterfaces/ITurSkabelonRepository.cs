@@ -9,10 +9,10 @@ namespace TANE.Application.RepositoryInterfaces
 {
     public interface ITurSkabelonRepository
     {
-        Task<TurSkabelon> CreateTurSkabelon(TurSkabelon tur);
-        Task<TurSkabelon> UpdateTurSkabelon(TurSkabelon tur);
-        Task<bool> DeleteTur(int id);
-        Task<TurSkabelon> ReadTurSkabelonById(int id);
-        Task<List<TurSkabelon>> ReadAllTurSkabeloner();
+        Task<TurSkabelon> CreateTurSkabelon(TurSkabelon tur, string jwtToken);
+        Task<TurSkabelon> UpdateTurSkabelon(TurSkabelon tur, string jwtToken);
+        Task<bool> DeleteTur(int id, string jwtToken);
+        Task<TurSkabelon> ReadTurSkabelonById(int id, string jwtToken);
+        Task<List<TurSkabelon>> ReadAllTurSkabeloner(string jwtToken);
     }
 }
