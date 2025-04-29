@@ -10,27 +10,27 @@ namespace TANE.Persistence.Repositories
 {
     internal class KundeRepository : IKundeRepository
     {
-        public Task<Kunde> CreateKundeAsync(Kunde kunde)
+        public Task<Kunde> CreateKundeAsync(Kunde kunde, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> DeleteKundeAsync(int id)
+        public Task<bool> DeleteKundeAsync(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<Kunde>> ReadAllKunderAsync()
+        public Task<List<Kunde>> ReadAllKunderAsync(string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Kunde> ReadKundeByIdAsync(int id)
+        public Task<Kunde> ReadKundeByIdAsync(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Kunde> UpdateKundeAsync(Kunde kunde)
+        public Task<Kunde> UpdateKundeAsync(Kunde kunde, string jwtToken)
         {
             throw new NotImplementedException();
         }

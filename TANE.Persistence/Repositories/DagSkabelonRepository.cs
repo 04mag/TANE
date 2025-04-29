@@ -10,27 +10,27 @@ namespace TANE.Persistence.Repositories
 {
     internal class DagSkabelonRepository : IDagSkabelonRepository
     {
-        public Task<DagSkabelon> CreateDagSkabelonAsync(DagSkabelon dagSkabelon)
+        public Task<DagSkabelon> CreateDagSkabelonAsync(DagSkabelon dagSkabelon, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> DeleteDagSkabelonAsync(int id)
+        public Task<bool> DeleteDagSkabelonAsync(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<DagSkabelon>> ReadAllDagSkabelonerAsync()
+        public Task<List<DagSkabelon>> ReadAllDagSkabelonerAsync(string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<DagSkabelon> ReadDagSkabelonByIdAsync(int id)
+        public Task<DagSkabelon> ReadDagSkabelonByIdAsync(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<DagSkabelon> UpdateDagSkabelonAsync(DagSkabelon dagSkabelon)
+        public Task<DagSkabelon> UpdateDagSkabelonAsync(DagSkabelon dagSkabelon, string jwtToken)
         {
             throw new NotImplementedException();
         }

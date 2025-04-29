@@ -10,27 +10,27 @@ namespace TANE.Persistence.Repositories
 {
     internal class DagRepository : IDagRepository
     {
-        public Task<Dag> CreateDagAsync(Dag dag)
+        public Task<Dag> CreateDagAsync(Dag dag, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> DeleteDagAsync(int id)
+        public Task<bool> DeleteDagAsync(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<Dag>> ReadAllDagsAsync()
+        public Task<List<Dag>> ReadAllDagsAsync(string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Dag> ReadDagByIdAsync(int id)
+        public Task<Dag> ReadDagByIdAsync(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Dag> UpdateDagAsync(Dag dag)
+        public Task<Dag> UpdateDagAsync(Dag dag, string jwtToken)
         {
             throw new NotImplementedException();
         }
