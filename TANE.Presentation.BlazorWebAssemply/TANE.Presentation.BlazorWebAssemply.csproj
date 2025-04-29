@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Configuration\" />
     <Folder Include="Pages\Kunder\" />
     <Folder Include="Pages\RejsePlaner\" />
     <Folder Include="Pages\Skabeloner\TurSkabeloner\" />

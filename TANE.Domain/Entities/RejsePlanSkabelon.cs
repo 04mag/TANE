@@ -15,5 +15,10 @@ namespace TANE.Domain.Entities
         {
             return TurSkabeloner.Sum(t => t.GetPris());
         }
+
+        public int GetAntalDage()
+        {
+            return TurSkabeloner.Sum(t => t.GetAntalDage());
+        }
     }
 }

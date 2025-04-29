@@ -1,0 +1,77 @@
+﻿@using TANE.Domain.Entities
+
+<div class="rz-p-0 rz-p-md-12">
+    <RadzenTemplateForm TItem="DagSkabelon" Data=@Skabelon Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+        <RadzenStack Gap="1rem" class="rz-p-sm-12">
+
+            <RadzenFormField Text="Titel" Variant="@variant">
+                <ChildContent>
+                    <RadzenTextBox Name="Titel" @bind-Value=@Skabelon.Titel />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="Titel" Text="Titel skal udfyldes." />
+                </Helper>
+            </RadzenFormField>
+
+            
+            <RadzenFormField Text="Beskrivelse" Variant="@variant">
+                <ChildContent>
+                    <RadzenTextArea Name="Beskrivelse" @bind-Value="@Skabelon.Beskrivelse" Rows="4" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="Beskrivelse" Text="Beskrivelse skal udfyldes." />
+                </Helper>
+            </RadzenFormField>
+
+            <RadzenFormField Text="Aktiviteter" Variant="@variant">
+                <ChildContent>
+                    <RadzenTextArea Name="Aktiviteter" @bind-Value="@Skabelon.Aktiviteter" Rows="4" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="Aktiviteter" Text="Aktiviteter skal udfyldes." />
+                </Helper>
+            </RadzenFormField>
+
+            <RadzenFormField Text="Måltider" Variant="@variant">
+                <ChildContent>
+                    <RadzenTextArea Name="Måltider" @bind-Value="@Skabelon.Måltider" Rows="4" />
+                </ChildContent>
+            </RadzenFormField>
+
+            <RadzenFormField Text="Overnatning" Variant="@variant">
+                <ChildContent>
+                    <RadzenTextBox Name="Overnatning" @bind-Value=@Skabelon.Overnatning />
+                </ChildContent>
+            </RadzenFormField>
+
+            <RadzenFormField Text="Pris (Dkk)" Variant="@variant">
+                <ChildContent>
+                    <RadzenNumeric Name="Pris" @bind-Value="@Skabelon.Pris" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="Pris" Text="Pris skal udfyldes." />
+                    <RadzenNumericRangeValidator Component="Pris" Min="0" Text="Pris må ikke være mindre end 0." />
+                </Helper>
+            </RadzenFormField>
+
+
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Submit" ></RadzenButton>
+        </RadzenStack>
+    </RadzenTemplateForm>
+</div>
+
+@code {
+    public DagSkabelon Skabelon { get; set; } = new DagSkabelon();
+
+    Variant variant = Variant.Flat;
+
+    void OnSubmit(DagSkabelon model)
+    {
+        Console.WriteLine($"Titel: {Skabelon.Titel}\nBeskrivelse: {Skabelon.Beskrivelse}\nAktiviteter: {Skabelon.Aktiviteter}\nMåltider: {Skabelon.Måltider}\nOvernatning: {Skabelon.Overnatning}\nPris: {Skabelon.Pris}");
+    }
+
+    void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    {
+        
+    }
+}
