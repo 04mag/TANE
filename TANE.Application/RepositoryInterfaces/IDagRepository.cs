@@ -9,10 +9,10 @@ namespace TANE.Application.RepositoryInterfaces
 {
     public interface IDagRepository
     {
-        Task<Dag> CreateDagAsync(Dag dag);
-        Task<Dag> UpdateDagAsync(Dag dag);
-        Task<bool> DeleteDagAsync(int id);
-        Task<Dag> ReadDagByIdAsync(int id);
-        Task<List<Dag>> ReadAllDagsAsync();
+        Task<Dag> CreateDagAsync(Dag dag, string jwtToken);
+        Task<Dag> UpdateDagAsync(Dag dag, string jwtToken);
+        Task<bool> DeleteDagAsync(int id, string jwtToken);
+        Task<Dag> ReadDagByIdAsync(int id, string jwtToken);
+        Task<List<Dag>> ReadAllDagsAsync(string jwtToken);
     }
 }

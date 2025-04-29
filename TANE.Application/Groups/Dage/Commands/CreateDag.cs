@@ -18,7 +18,7 @@ namespace TANE.Application.Groups.Dage.Commands
             _dagRepository = dagRepository;
         }
 
-        public async Task<Dag> CreateDagAsync(Dag dag)
+        public async Task<Dag> CreateDagAsync(Dag dag, string jwtToken)
         {
             throw new NotImplementedException();
         }

@@ -9,10 +9,10 @@ namespace TANE.Application.RepositoryInterfaces
 {
     public interface IRejsePlanSkabelonRepository
     {
-        Task<List<RejsePlanSkabelon>> ReadAllRejsePlanSkabelonerAsync();
-        Task<RejsePlanSkabelon> ReadRejsePlanSkabelonByIdAsync(int id);
-        Task CreateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon);
-        Task UpdateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon);
-        Task DeleteRejsePlanSkabelonAsync(int id);
+        Task<List<RejsePlanSkabelon>> ReadAllRejsePlanSkabelonerAsync(string jwtToken);
+        Task<RejsePlanSkabelon> ReadRejsePlanSkabelonByIdAsync(int id, string jwtToken);
+        Task CreateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon, string jwtToken);
+        Task UpdateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon, string jwtToken);
+        Task DeleteRejsePlanSkabelonAsync(int id, string jwtToken);
     }
 }

@@ -8,6 +8,6 @@ namespace TANE.Application.Groups.TurSkabeloner.Commands.Interfaces
 {
     internal interface IDeleteTurSkabelon
     {
-        Task<bool> DeleteTurSkabelonAsync(int id);
+        Task<bool> DeleteTurSkabelonAsync(int id, string jwtToken);
     }
 }

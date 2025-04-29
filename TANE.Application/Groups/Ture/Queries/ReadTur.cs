@@ -18,12 +18,12 @@ namespace TANE.Application.Groups.Ture.Queries
             _turRepository = turRepository;
         }
 
-        public async Task<Tur> ReadTurByIdAsync(int id)
+        public async Task<Tur> ReadTurByIdAsync(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<List<Tur>> ReadAllTureAsync()
+        public async Task<List<Tur>> ReadAllTureAsync(string jwtToken)
         {
             throw new NotImplementedException();
         }

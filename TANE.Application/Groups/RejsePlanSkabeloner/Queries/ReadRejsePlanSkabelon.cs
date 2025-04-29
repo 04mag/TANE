@@ -18,12 +18,12 @@ namespace TANE.Application.Groups.RejsePlanSkabeloner.Queries
             _rejsePlanSkabelonRepository = rejsePlanSkabelonRepository;
         }
 
-        public async Task<RejsePlanSkabelon> ReadRejsePlanSkabelonByIdAsync(int id)
+        public async Task<RejsePlanSkabelon> ReadRejsePlanSkabelonByIdAsync(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<List<RejsePlanSkabelon>> ReadRejsePlanSkabelonerAsync()
+        public async Task<List<RejsePlanSkabelon>> ReadRejsePlanSkabelonerAsync(string jwtToken)
         {
             throw new NotImplementedException();
         }

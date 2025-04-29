@@ -9,6 +9,6 @@ namespace TANE.Application.Groups.RejsePlaner.Commands.Interfaces
 {
     internal interface ICreateRejsePlan
     {
-        Task<RejsePlan> CreateRejsePlanAsync(RejsePlan rejsePlan);
+        Task<RejsePlan> CreateRejsePlanAsync(RejsePlan rejsePlan, string jwtToken);
     }
 }

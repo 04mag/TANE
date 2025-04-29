@@ -18,12 +18,12 @@ namespace TANE.Application.Groups.DagSkabeloner.Queries
             _dagSkabelonRepository = dagSkabelonRepository;
         }
 
-        public async Task<List<DagSkabelon>> ReadAllDagSkabelonerAsync()
+        public async Task<List<DagSkabelon>> ReadAllDagSkabelonerAsync(string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<DagSkabelon> ReadDagSkabelonByIdAsync(int id)
+        public async Task<DagSkabelon> ReadDagSkabelonByIdAsync(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }

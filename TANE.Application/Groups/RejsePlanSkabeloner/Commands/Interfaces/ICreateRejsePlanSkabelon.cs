@@ -9,6 +9,6 @@ namespace TANE.Application.Groups.RejsePlanSkabeloner.Commands.Interfaces
 {
     internal interface ICreateRejsePlanSkabelon
     {
-        Task<RejsePlanSkabelon> CreateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon);
+        Task<RejsePlanSkabelon> CreateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon, string jwtToken);
     }
 }

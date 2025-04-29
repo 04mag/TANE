@@ -9,6 +9,6 @@ namespace TANE.Application.Groups.Ture.Commands.Interfaces
 {
     internal interface ICreateTur
     {
-        Task<Tur> CreateTurAsync(Tur tur);
+        Task<Tur> CreateTurAsync(Tur tur, string jwtToken);
     }
 }

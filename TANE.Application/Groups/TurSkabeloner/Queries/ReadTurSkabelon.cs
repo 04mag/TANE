@@ -18,12 +18,12 @@ namespace TANE.Application.Groups.TurSkabeloner.Queries
             _turSkabelonRepository = turSkabelonRepository;
         }
 
-        public async Task<List<TurSkabelon>> ReadAllTurSkabelonerAsync()
+        public async Task<List<TurSkabelon>> ReadAllTurSkabelonerAsync(string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<TurSkabelon> ReadTurSkabelonByIdAsync(int id)
+        public async Task<TurSkabelon> ReadTurSkabelonByIdAsync(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }

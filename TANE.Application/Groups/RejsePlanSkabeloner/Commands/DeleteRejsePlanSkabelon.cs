@@ -17,7 +17,7 @@ namespace TANE.Application.Groups.RejsePlanSkabeloner.Commands
             _rejsePlanSkabelonRepository = rejsePlanSkabelonRepository;
         }
 
-        public async Task<bool> DeleteRejsePlanSkabelonAsync(int id)
+        public async Task<bool> DeleteRejsePlanSkabelonAsync(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }
