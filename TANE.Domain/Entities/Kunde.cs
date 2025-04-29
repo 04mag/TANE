@@ -21,7 +21,7 @@ namespace TANE.Domain.Entities
         
         [StringLength(20, ErrorMessage = "Telefonnummer må ikke være længere end 20 tegn")]
         public string TlfNummer { get; set; } = string.Empty;
-
+        [Timestamp]
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
 
 
