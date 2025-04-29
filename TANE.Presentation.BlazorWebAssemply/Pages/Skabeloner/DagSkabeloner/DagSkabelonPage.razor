@@ -1,0 +1,33 @@
+﻿@using TANE.Application.Groups.DagSkabeloner.Queries
+@using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.DagSkabeloner.Components
+
+@inject IReadDagSkabelon ReadDagSkabelon
+
+@page "/skabeloner/dag-skabeloner/oversigt"
+
+<PageTitle>Dag Skabeloner</PageTitle>
+
+<DagSkabelonComponent InjectedSkabeloner="DagSkabeloner" OnEditSkabelon="OnRowEditPressed" OnDeleteSkabelon="OnRowDeletePressed"/>
+
+@code {
+    public List<DagSkabelon> DagSkabeloner { get; set; } = new List<DagSkabelon>();
+
+    private async Task OnRowEditPressed(DagSkabelon dagSkabelon)
+    {
+        Console.WriteLine($"Edit pressed for: {dagSkabelon.Id}");
+    }
+
+    private async Task OnRowDeletePressed(DagSkabelon dagSkabelon)
+    {
+        Console.WriteLine($"Delete pressed for: {dagSkabelon.Id}");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync("test");
+    }
+}
