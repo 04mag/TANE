@@ -7,7 +7,7 @@ using TANE.Domain.Entities;
 
 namespace TANE.Application.Groups.Dage.Queries.Interfaces
 {
-    internal interface IReadDag
+    public interface IReadDag
     {
         Task<Dag> ReadDagAsync(int id, string jwtToken);
         Task<List<Dag>> ReadDageAsync(string jwtToken);

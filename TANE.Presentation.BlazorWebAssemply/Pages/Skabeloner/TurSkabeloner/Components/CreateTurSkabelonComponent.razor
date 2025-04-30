@@ -1,1 +1,97 @@
-﻿
+﻿@using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.DagSkabeloner.Components
+
+@inject IReadDagSkabelon ReadDagSkabelon
+
+<div class="rz-p-0 rz-p-md-12">
+
+    @if (showAddDagSkabelon)
+    {
+        <DagSkabelonListComponent InjectedSkabeloner="DagSkabeloner" OnSelectSkabelon="OnDagSkabelonRowSelect"/>
+    }
+    
+    @if (!showAddDagSkabelon)
+    {
+        <h4>Opret Ny Tur Skabelon</h4>
+        <RadzenTemplateForm TItem="TurSkabelon" Data=@TurSkabelon Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+            <RadzenStack Gap="1rem" class="rz-p-sm-12">
+
+                <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
+                    <ChildContent>
+                        <RadzenTextBox Name="Titel" @bind-Value=@TurSkabelon.Titel />
+                    </ChildContent>
+                    <Helper>
+                        <RadzenRequiredValidator Component="Titel" Text="Titel skal udfyldes." />
+                    </Helper>
+                </RadzenFormField>
+
+
+                <RadzenFormField Text="Beskrivelse" Variant="@ThemeConfig.FormVariant">
+                    <ChildContent>
+                        <RadzenTextArea Name="Beskrivelse" @bind-Value="@TurSkabelon.Beskrivelse" Rows="4" />
+                    </ChildContent>
+                    <Helper>
+                        <RadzenRequiredValidator Component="Beskrivelse" Text="Beskrivelse skal udfyldes." />
+                    </Helper>
+                </RadzenFormField>
+
+                <br />
+
+                <h4>Dage:</h4>
+                <DagSkabelonListComponent InjectedSkabeloner="TurSkabelon.DagSkabeloner" OnDeleteSkabelon="OnDagSkabelonDelete"/>
+                <div style="text-align: right; width: 100%;">
+                    <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium" Style="width: 150px" Text="Tilføj Dag" Click="@(() => showAddDagSkabelon = !showAddDagSkabelon)"></RadzenButton>
+                </div>
+
+                <br />
+
+                <RadzenButton ButtonType="ButtonType.Submit" Text="Opret tur skabelon"></RadzenButton>
+            </RadzenStack>
+        </RadzenTemplateForm>
+    }
+
+</div>
+
+@code{
+    bool showAddDagSkabelon = false;
+
+    public TurSkabelon TurSkabelon { get; set; } = new TurSkabelon();
+
+    public List<DagSkabelon> DagSkabeloner { get; set; } = new List<DagSkabelon>();
+
+    Variant variant = Variant.Flat;
+
+    void OnSubmit(TurSkabelon model)
+    {
+        Console.WriteLine($"Titel: {TurSkabelon.Titel}\nBeskrivelse: {TurSkabelon.Beskrivelse}");
+
+        foreach (var dagSkabelon in TurSkabelon.DagSkabeloner)
+        {
+            Console.WriteLine($"Dag: {dagSkabelon.Titel}");
+        }
+    }
+
+    void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    {
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync("test");
+    }
+
+    private void OnDagSkabelonRowSelect(DagSkabelon dagSkabelon)
+    {
+        TurSkabelon.DagSkabeloner.Add(dagSkabelon);
+
+        showAddDagSkabelon = !showAddDagSkabelon;
+    }
+
+    private void OnDagSkabelonDelete(DagSkabelon dagSkabelon)
+    {
+        TurSkabelon.DagSkabeloner.Remove(dagSkabelon);
+    }
+}

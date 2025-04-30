@@ -4,7 +4,7 @@
 <RadzenTextBox @bind-Value="searchText" @oninput=@HandleInput Placeholder="Søg efter titel" Style="width: 100%" />
 
 <RadzenDataGrid AllowFiltering="true" AllowColumnResize="false" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
-                Data="@Skabeloner" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single" @bind-Value=@SelectedSkabeloner>
+Data="@Skabeloner" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single" @bind-Value=@SelectedSkabeloner>
     <Columns>
         <RadzenDataGridColumn Property="@nameof(DagSkabelon.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" />
         <RadzenDataGridColumn Property="@nameof(DagSkabelon.Titel)" Title="Titel" Frozen="false" Width="200" />
@@ -40,7 +40,7 @@
 
     [Parameter]
     public EventCallback<DagSkabelon> OnDeleteSkabelon { get; set; }
-    
+
     bool allowVirtualization = false;
 
     string searchText = string.Empty;
@@ -87,15 +87,21 @@
     async Task SelectRow(DagSkabelon dagskabelon)
     {
         await OnSelectSkabelon.InvokeAsync(dagskabelon);
+
+        Skabeloner = InjectedSkabeloner.AsQueryable();
     }
 
     async Task EditRow(DagSkabelon dagskabelon)
     {
         await OnEditSkabelon.InvokeAsync(dagskabelon);
+
+        Skabeloner = InjectedSkabeloner.AsQueryable();
     }
 
     async Task DeleteRow(DagSkabelon dagskabelon)
     {
         await OnDeleteSkabelon.InvokeAsync(dagskabelon);
+
+        Skabeloner = InjectedSkabeloner.AsQueryable();
     }
 }
