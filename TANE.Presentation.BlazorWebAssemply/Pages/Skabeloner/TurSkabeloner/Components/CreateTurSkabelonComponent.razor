@@ -1,9 +1,7 @@
-﻿@using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces
+﻿@using System.Collections.ObjectModel
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.DagSkabeloner.Components
-
-@inject IReadDagSkabelon ReadDagSkabelon
 
 <div class="rz-p-0 rz-p-md-12">
 
@@ -11,7 +9,7 @@
     {
         <DagSkabelonListComponent InjectedSkabeloner="DagSkabeloner" OnSelectSkabelon="OnDagSkabelonRowSelect"/>
     }
-    
+
     @if (!showAddDagSkabelon)
     {
         <h4>Opret Ny Tur Skabelon</h4>
@@ -40,14 +38,14 @@
                 <br />
 
                 <h4>Dage:</h4>
-                <DagSkabelonListComponent InjectedSkabeloner="TurSkabelon.DagSkabeloner" OnDeleteSkabelon="OnDagSkabelonDelete"/>
+                <DagSkabelonReorderListComponent InjectedSkabeloner="ObservableDagSkabeloner" OnDeleteSkabelon="OnDagSkabelonDelete" />
                 <div style="text-align: right; width: 100%;">
                     <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium" Style="width: 150px" Text="Tilføj Dag" Click="@(() => showAddDagSkabelon = !showAddDagSkabelon)"></RadzenButton>
                 </div>
 
                 <br />
 
-                <RadzenButton ButtonType="ButtonType.Submit" Text="Opret tur skabelon"></RadzenButton>
+                <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Text="Opret tur skabelon"></RadzenButton>
             </RadzenStack>
         </RadzenTemplateForm>
     }
@@ -55,16 +53,52 @@
 </div>
 
 @code{
+
+    [Parameter, EditorRequired]
+    public List<DagSkabelon> InjectedDagSkabeloner { get; set; } = new List<DagSkabelon>();
+
     bool showAddDagSkabelon = false;
+
+    private ObservableCollection<DagSkabelon> SelectedDagSkabelonerVar = new ObservableCollection<DagSkabelon>();
+
+    public ObservableCollection<DagSkabelon> ObservableDagSkabeloner
+    {
+        get
+        {
+            return SelectedDagSkabelonerVar;
+        }
+        set 
+        { 
+            SelectedDagSkabelonerVar = value;
+        }
+    }
 
     public TurSkabelon TurSkabelon { get; set; } = new TurSkabelon();
 
-    public List<DagSkabelon> DagSkabeloner { get; set; } = new List<DagSkabelon>();
+    private List<DagSkabelon> DagSkabelonerVar = new List<DagSkabelon>();
 
-    Variant variant = Variant.Flat;
+    public List<DagSkabelon> DagSkabeloner
+    {
+        get
+        {
+            // Return DagSkabelonerVar excluding entities already in ObservableDagSkabeloner
+            return DagSkabelonerVar.Where(d => !ObservableDagSkabeloner.Any(o => o.Id == d.Id)).ToList();
+        }
+        set
+        {
+            DagSkabelonerVar = value;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        DagSkabeloner = InjectedDagSkabeloner;
+    }
 
     void OnSubmit(TurSkabelon model)
     {
+        TurSkabelon.DagSkabeloner = ObservableDagSkabeloner.ToList();
+
         Console.WriteLine($"Titel: {TurSkabelon.Titel}\nBeskrivelse: {TurSkabelon.Beskrivelse}");
 
         foreach (var dagSkabelon in TurSkabelon.DagSkabeloner)
@@ -78,20 +112,15 @@
 
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync("test");
-    }
-
     private void OnDagSkabelonRowSelect(DagSkabelon dagSkabelon)
     {
-        TurSkabelon.DagSkabeloner.Add(dagSkabelon);
+        ObservableDagSkabeloner.Add(dagSkabelon);
 
         showAddDagSkabelon = !showAddDagSkabelon;
     }
 
     private void OnDagSkabelonDelete(DagSkabelon dagSkabelon)
     {
-        TurSkabelon.DagSkabeloner.Remove(dagSkabelon);
+        ObservableDagSkabeloner.Remove(dagSkabelon);
     }
 }
