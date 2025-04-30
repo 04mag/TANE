@@ -1,0 +1,124 @@
+﻿@using TANE.Rejseplan.Application.Dtos
+@using System.Collections.ObjectModel
+@using TANE.Application.RepositoryInterfaces
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Configuration
+
+<div class="rz-p-0 rz-p-md-12">
+
+    @if (showAddDag)
+    {
+        <DagListComponent Injected="Dag" OnSelect="OnDagRowSelect"/>
+    }
+
+    @if (!showAddDag)
+    {
+        <h4>Opret Ny Tur </h4>
+        <RadzenTemplateForm TItem="TurCreateDto" Data=@Tur Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+            <RadzenStack Gap="1rem" class="rz-p-sm-12">
+
+                <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
+                    <ChildContent>
+                        <RadzenTextBox Name="Titel" @bind-Value=@Tur.Titel />
+                    </ChildContent>
+                    <Helper>
+                        <RadzenRequiredValidator Component="Titel" Text="Titel skal udfyldes." />
+                    </Helper>
+                </RadzenFormField>
+
+
+                <RadzenFormField Text="Beskrivelse" Variant="@ThemeConfig.FormVariant">
+                    <ChildContent>
+                        <RadzenTextArea Name="Beskrivelse" @bind-Value="@Tur.Beskrivelse" Rows="4" />
+                    </ChildContent>
+                    <Helper>
+                        <RadzenRequiredValidator Component="Beskrivelse" Text="Beskrivelse skal udfyldes." />
+                    </Helper>
+                </RadzenFormField>
+
+                <br />
+
+                <h4>Dage:</h4>
+                <DagReorderListComponent Injected="ObservableDag" OnDelete="OnDagDelete" />
+                <div style="text-align: right; width: 100%;">
+                    <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium" Style="width: 150px" Text="Tilføj Dag" Click="@(() => showAddDag = !showAddDag)"></RadzenButton>
+                </div>
+
+                <br />
+
+                <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Text="Opret tur "></RadzenButton>
+            </RadzenStack>
+        </RadzenTemplateForm>
+    }
+
+</div>
+
+@code{
+
+    [Parameter, EditorRequired]
+    public List<DagReadDto> InjectedDag { get; set; } = new List<DagReadDto>();
+
+    ITurRepository _turRepository;
+
+    bool showAddDag = false;
+
+    private ObservableCollection<DagReadDto> SelectedDagVar = new ObservableCollection<DagReadDto>();
+
+    public ObservableCollection<DagReadDto> ObservableDag
+    {
+        get
+        {
+            return SelectedDagVar;
+        }
+        set 
+        { 
+            SelectedDagVar = value;
+        }
+    }
+
+    public TurCreateDto Tur { get; set; } = new TurCreateDto();
+
+    private List<DagReadDto> DagVar = new List<DagReadDto>();
+
+    public List<DagReadDto> Dag
+    {
+        get
+        {
+            // Return DagVar excluding entities already in ObservableDag
+            return DagVar.Where(d => !ObservableDag.Any(o => o.Id == d.Id)).ToList();
+        }
+        set
+        {
+            DagVar = value;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        Dag = InjectedDag;
+    }
+
+    void OnSubmit()
+    {
+
+        Console.WriteLine($"Titel: {Tur.Titel}\nBeskrivelse: {Tur.Beskrivelse}");
+        _turRepository.CreateTur(Tur, "jwtToken");
+    }
+
+    void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    {
+
+    }
+
+    private void OnDagRowSelect(DagReadDto dag)
+    {
+        ObservableDag.Add(dag);
+
+        showAddDag = !showAddDag;
+    }
+
+    private void OnDagDelete(DagReadDto dag)
+    {
+        ObservableDag.Remove(dag);
+    }
+}

@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using AutoMapper;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
 using TANE.Rejseplan.Application.Dtos;
@@ -14,12 +13,10 @@ namespace TANE.Persistence.Repositories
     internal class RejsePlanRepository : IRejsePlanRepository
     {
         private readonly HttpClient _http;
-        private readonly IMapper _mapper;
 
-        public RejsePlanRepository(HttpClient http, IMapper mapper)
+        public RejsePlanRepository(HttpClient http)
         {
             _http = http;
-            _mapper = mapper;
         }
 
         private void SetJwtToken(string jwtToken)
@@ -30,8 +27,7 @@ namespace TANE.Persistence.Repositories
         public async Task<bool> CreateRejsePlan(RejsePlan rejsePlan, string jwtToken)
         {
             SetJwtToken(jwtToken);
-            var dto = _mapper.Map<RejseplanCreateDto>(rejsePlan);
-            var response = await _http.PostAsJsonAsync("rejseplan", dto);
+            var response = await _http.PostAsJsonAsync("rejseplan", rejsePlan);
             return response.IsSuccessStatusCode;
         }
 
@@ -42,18 +38,18 @@ namespace TANE.Persistence.Repositories
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<List<RejsePlan>> ReadAllRejsePlans(string jwtToken)
+        public async Task<List<RejseplanReadDto>> ReadAllRejsePlans(string jwtToken)
         {
             SetJwtToken(jwtToken);
             var dtos = await _http.GetFromJsonAsync<List<RejseplanReadDto>>("rejseplan");
-            return _mapper.Map<List<RejsePlan>>(dtos);
+            return dtos;
         }
 
-        public async Task<RejsePlan> ReadRejsePlanById(int rejsePlanId, string jwtToken)
+        public async Task<RejseplanReadDto> ReadRejsePlanById(int rejsePlanId, string jwtToken)
         {
             SetJwtToken(jwtToken);
             var dto = await _http.GetFromJsonAsync<RejseplanReadDto>($"rejseplan/{rejsePlanId}");
-            return _mapper.Map<RejsePlan>(dto);
+            return dto;
         }
 
         public async Task<bool> UpdateRejsePlan(int id, RejseplanUpdateDto dto, string jwtToken)

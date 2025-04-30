@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TANE.Domain.Entities;
+using TANE.Rejseplan.Application.Dtos;
 
 namespace TANE.Application.Groups.Dage.Queries.Interfaces
 {
     public interface IReadDag
     {
-        Task<Dag> ReadDagAsync(int id, string jwtToken);
-        Task<List<Dag>> ReadDageAsync(string jwtToken);
+        Task<DagReadDto> ReadDagAsync(int id, string jwtToken);
+        Task<List<DagReadDto>> ReadDageAsync(string jwtToken);
     }
 }

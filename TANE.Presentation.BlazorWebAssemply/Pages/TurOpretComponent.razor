@@ -1,0 +1,129 @@
+﻿using Radzen.Blazor.Markdown;
+using Radzen.Blazor;
+using Radzen;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Drawing;
+using System.Xml.Linq;
+using TANE.Domain.Entities;
+
+@using TANE.Rejseplan.Application.Dtos
+@using System.Collections.ObjectModel
+@using TANE.Application.RepositoryInterfaces
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Configuration
+
+<div class= "rz-p-0 rz-p-md-12" >
+
+    @if(showAddTur)
+    {
+        <TurListComponent Injected = "Tur" OnSelect = "OnTurRowSelect" />
+    }
+
+    @if (showAddTur)
+    {
+        <h4>Opret Ny Rejseplan</h4>
+        <RadzenTemplateForm TItem="TurCreateDto" Data="@Tur" Submit="@OnSubmit" InvalidSubmit="@OnInvalidSubmit">
+            <RadzenStack Gap="1rem" Class="rz-p-sm-12">
+        
+                <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
+                    <ChildContent>
+                        <RadzenTextBox Name="Titel" @bind-Value="@Tur.Titel" />
+                    </ChildContent>
+                    <Helper>
+                        <RadzenRequiredValidator Component="Titel" Text="Titel skal udfyldes." />
+                    </Helper>
+                </RadzenFormField>
+
+                <RadzenFormField Text="Beskrivelse" Variant="@ThemeConfig.FormVariant">
+                    <ChildContent>
+                        <RadzenTextArea Name="Beskrivelse" @bind-Value="@Tur.Beskrivelse" Rows="4" />
+                    </ChildContent>
+                    <Helper>
+                        <RadzenRequiredValidator Component="Beskrivelse" Text="Beskrivelse skal udfyldes." />
+                    </Helper>
+                </RadzenFormField>
+
+                <h4>Ture:</h4>
+                <TurReorderListComponent Injected="ObservableTur" OnDelete="OnTurDelete" />
+
+                <div style="text-align:right; width:100%;">
+                    <RadzenButton
+                        ButtonType="ButtonType.Submit"
+                        Size="ButtonSize.Medium"
+                        Style="width: 150px"
+                        Text="Tilføj Tur">
+                    </RadzenButton>
+                </div>
+
+                <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Text="Opret tur" />
+            </RadzenStack>
+        </RadzenTemplateForm>
+    }
+</div>
+
+@code{
+    [Parameter, EditorRequired]
+        public List<TurReadDto> InjectedTur { get; set; } = new List<TurReadDto>();
+
+    bool showAddTur = false;
+    
+    private ObservableCollection<TurReadDto> SelectedTurVar = new ObservableCollection<TurReadDto>();
+
+    ITurRepository _turRepository;
+    public ObservableCollection<TurReadDto> ObservableTur
+        {
+    get
+    {
+        return SelectedTurVar;
+    }
+    set
+    {
+        SelectedTurVar = value;
+    }
+}
+
+    public TurCreateDto Tur { get; set; } = new TurCreateDto();
+
+    private List<TurReadDto> TurVar = new List<TurReadDto>();
+    public List<TurReadDto> Ture
+    {
+    get
+    {
+        // Return TurVar excluding entities already in ObservableTur
+        return TurVar.Where(d => !ObservableTur.Any(o => o.Id == d.Id)).ToList();
+    }
+    set
+    {
+        TurVar = value;
+    }
+}
+
+protected override void OnInitialized()
+{
+    Ture = InjectedTur;
+}
+
+void OnSubmit(TurCreateDto model)
+{
+    _turRepository.CreateTur(model, "JwtToken");
+}
+
+void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+{
+
+}
+
+private void OnTurRowSelect(TurReadDto dag)
+{
+    ObservableTur.Add(dag);
+
+    showAddTur = !showAddTur;
+}
+
+private void OnTurDelete(TurReadDto dag)
+{
+    ObservableTur.Remove(dag);
+}
+}

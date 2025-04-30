@@ -1,0 +1,22 @@
+﻿@using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
+@using TANE.Rejseplan.Application.Dtos
+@using TANE.Application.Groups.Dage.Queries.Interfaces
+
+@inject IReadDag ReadDage
+
+@page "/tur/create"
+
+<CreateTurComponent InjectedDage="Dage"/>
+
+@code {
+
+    public List<DagReadDto> Dage { get; set; } = new List<DagReadDto>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Dage = await ReadDage.ReadDageAsync("test-token");
+    }
+}

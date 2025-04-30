@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Radzen;
 using TANE.Application.Configuration;
+using TANE.Application.Groups.Dage.Queries;
+using TANE.Application.Groups.Dage.Queries.Interfaces;
 using TANE.Application.Groups.JwtTokens.Commands.Interfaces;
 using TANE.Application.Groups.TurSkabeloner.Queries.Interfaces;
 using TANE.Application.Groups.TurSkabeloner.Queries;
@@ -20,6 +22,8 @@ namespace TANE.Presentation.BlazorWebAssemply
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
             builder.Services.AddScoped<IReadTurSkabelon, ReadTurSkabelon>();
+            builder.Services.AddScoped<IReadDag, ReadDag>();
+
 
             builder.Services.AddScoped(sp => new HttpClient
                 { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });

@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using AutoMapper;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
 using TANE.Rejseplan.Application.Dtos;
@@ -14,12 +13,10 @@ namespace TANE.Persistence.Repositories
     internal class DagRepository : IDagRepository
     {
         private readonly HttpClient _http;
-        private readonly IMapper _mapper;
 
-        public DagRepository(HttpClient http, IMapper mapper)
+        public DagRepository(HttpClient http)
         {
             _http = http;
-            _mapper = mapper;
         }
 
         private void SetJwtToken(string jwtToken)
@@ -30,8 +27,8 @@ namespace TANE.Persistence.Repositories
         public async Task<bool> CreateDagAsync(DagCreateDto dag, string jwtToken)
         {
             SetJwtToken(jwtToken);
-            var dto = _mapper.Map<DagCreateDto>(dag);
-            var response = await _http.PostAsJsonAsync("dag", dto);
+           
+            var response = await _http.PostAsJsonAsync("dag", dag);
             return response.IsSuccessStatusCode;
         }
 
@@ -46,7 +43,7 @@ namespace TANE.Persistence.Repositories
         {
             SetJwtToken(jwtToken);
             var dtos = await _http.GetFromJsonAsync<List<DagReadDto>>("dag");
-            return _mapper.Map<List<DagReadDto>>(dtos);
+            return dtos;
         }
 
         public async Task<DagReadDto> ReadDagByIdAsync(int dagId, string jwtToken)
