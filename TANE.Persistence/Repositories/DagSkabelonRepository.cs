@@ -10,6 +10,94 @@ namespace TANE.Persistence.Repositories
 {
     internal class DagSkabelonRepository : IDagSkabelonRepository
     {
+        public List<DagSkabelon> DagSkabeloner { get; set; } = new List<DagSkabelon>();
+        public DagSkabelonRepository()
+        {
+            DagSkabeloner.Add(
+            new DagSkabelon
+            {
+                Id = 1,
+                Titel = "Dag Skabelon 1",
+                Beskrivelse = "Beskrivelse 1",
+                Måltider = "Måltider 1",
+                Aktiviteter = "Aktiviteter 1",
+                Pris = 765
+            }
+        );
+
+            DagSkabeloner.Add(
+                new DagSkabelon
+                {
+                    Id = 2,
+                    Titel = "Dag Skabelon 2",
+                    Beskrivelse = "Beskrivelse 2",
+                    Måltider = "Måltider 2",
+                    Aktiviteter = "Aktiviteter 2",
+                    Pris = 299.95
+                }
+            );
+
+            DagSkabeloner.Add(
+                new DagSkabelon
+                {
+                    Id = 3,
+                    Titel = "Dag Skabelon 3",
+                    Beskrivelse = "Beskrivelse 3",
+                    Måltider = "Måltider 3",
+                    Aktiviteter = "Aktiviteter 3",
+                    Pris = 235
+                }
+            );
+
+            DagSkabeloner.Add(
+                new DagSkabelon
+                {
+                    Id = 4,
+                    Titel = "Dag Skabelon 4",
+                    Beskrivelse = "Beskrivelse 4",
+                    Måltider = "Måltider 4",
+                    Aktiviteter = "Aktiviteter 4",
+                    Pris = 123.45
+                }
+            );
+
+            DagSkabeloner.Add(
+                new DagSkabelon
+                {
+                    Id = 5,
+                    Titel = "Dag Skabelon 5",
+                    Beskrivelse = "Beskrivelse 5",
+                    Måltider = "Måltider 5",
+                    Aktiviteter = "Aktiviteter 5",
+                    Pris = 456.78
+                }
+            );
+
+            DagSkabeloner.Add(
+                new DagSkabelon
+                {
+                    Id = 6,
+                    Titel = "Dag Skabelon 6",
+                    Beskrivelse = "Beskrivelse 6",
+                    Måltider = "Måltider 6",
+                    Aktiviteter = "Aktiviteter 6",
+                    Pris = 987.65
+                }
+            );
+
+            DagSkabeloner.Add(
+                new DagSkabelon
+                {
+                    Id = 7,
+                    Titel = "Dag Skabelon 7",
+                    Beskrivelse = "Beskrivelse 7",
+                    Måltider = "Måltider 7",
+                    Aktiviteter = "Aktiviteter 7",
+                    Pris = 543.21
+                }
+            );
+        }
+
         public Task<DagSkabelon> CreateDagSkabelonAsync(DagSkabelon dagSkabelon, string jwtToken)
         {
             throw new NotImplementedException();
@@ -22,12 +110,19 @@ namespace TANE.Persistence.Repositories
 
         public Task<List<DagSkabelon>> ReadAllDagSkabelonerAsync(string jwtToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(DagSkabeloner);
         }
 
         public Task<DagSkabelon> ReadDagSkabelonByIdAsync(int id, string jwtToken)
         {
-            throw new NotImplementedException();
+            var result = DagSkabeloner.FirstOrDefault(x => x.Id == id);
+
+            if (result == null)
+            {
+                throw new Exception("DagSkabelon not found");
+            }
+
+            return Task.FromResult(result);
         }
 
         public Task<DagSkabelon> UpdateDagSkabelonAsync(DagSkabelon dagSkabelon, string jwtToken)

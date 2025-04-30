@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TANE.Application.Groups.DagSkabeloner.Commands;
+using TANE.Application.Groups.DagSkabeloner.Commands.Interfaces;
+using TANE.Application.Groups.DagSkabeloner.Queries;
+using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces;
 using TANE.Application.Groups.JwtTokens.Commands;
 using TANE.Application.Groups.JwtTokens.Commands.Interfaces;
 using TANE.Application.Groups.Kunder.Commands;
@@ -22,6 +26,11 @@ namespace TANE.Application.Configuration
 
 
             services.AddScoped<ICreateKunde, CreateKunde>();
+
+            services.AddScoped<ICreateDagSkabelon, CreateDagSkabelon>();
+            services.AddScoped<IUpdateDagSkabelon, UpdateDagSkabelon>();
+            services.AddScoped<IDeleteDagSkabelon, DeleteDagSkabelon>();
+            services.AddScoped<IReadDagSkabelon, ReadDagSkabelon>();
 
             return services;
         }
