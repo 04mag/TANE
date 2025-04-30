@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using TANE.Rejseplan.Application.Models;
 
 namespace TANE.Rejseplan.Application.Dtos
 {
