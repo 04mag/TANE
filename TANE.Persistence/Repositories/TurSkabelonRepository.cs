@@ -10,6 +10,54 @@ namespace TANE.Persistence.Repositories
 {
     internal class TurSkabelonRepository : ITurSkabelonRepository
     {
+        public List<TurSkabelon> TurSkabeloner { get; set; } = new List<TurSkabelon>();
+
+        public TurSkabelonRepository()
+        {
+            TurSkabeloner.Add(
+                new TurSkabelon
+                {
+                    Id = 1,
+                    Titel = "Dag Skabelon 1",
+                    Beskrivelse = "Beskrivelse 1",
+                    Sekvens = 1,
+                    DagSkabeloner = new List<DagSkabelon>
+                    {
+                        new DagSkabelon
+                        {
+                            Id = 2,
+                            Titel = "Dag Skabelon 2",
+                            Beskrivelse = "Beskrivelse 2",
+                            Måltider = "Måltider 2",
+                            Aktiviteter = "Aktiviteter 2",
+                            Pris = 265
+                        }
+                    }
+                }
+            );
+
+            TurSkabeloner.Add(
+                new TurSkabelon
+                {
+                    Id = 2,
+                    Titel = "Dag Skabelon 2",
+                    Beskrivelse = "Beskrivelse 2",
+                    Sekvens = 2,
+                    DagSkabeloner = new List<DagSkabelon>
+                    {
+                        new DagSkabelon
+                        {
+                            Id = 1,
+                            Titel = "Dag Skabelon 1",
+                            Beskrivelse = "Beskrivelse 1",
+                            Måltider = "Måltider 1",
+                            Aktiviteter = "Aktiviteter 1",
+                            Pris = 765
+                        }
+                    }
+                }
+            );
+        }
         public Task<TurSkabelon> CreateTurSkabelon(TurSkabelon tur, string jwtToken)
         {
             throw new NotImplementedException();
@@ -22,12 +70,19 @@ namespace TANE.Persistence.Repositories
 
         public Task<List<TurSkabelon>> ReadAllTurSkabeloner(string jwtToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(TurSkabeloner);
         }
 
         public Task<TurSkabelon> ReadTurSkabelonById(int id, string jwtToken)
         {
-            throw new NotImplementedException();
+            var result = TurSkabeloner.FirstOrDefault(x => x.Id == id);
+
+            if (result == null)
+            {
+                throw new Exception("DagSkabelon not found");
+            }
+
+            return Task.FromResult(result);
         }
 
         public Task<TurSkabelon> UpdateTurSkabelon(TurSkabelon tur, string jwtToken)
