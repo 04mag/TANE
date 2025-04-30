@@ -18,7 +18,8 @@ namespace TANE.Presentation.BlazorWebAssemply
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddScoped(sp => new HttpClient
+                { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
             builder.Services.AddAuthorizationCore();
 
@@ -32,11 +33,16 @@ namespace TANE.Presentation.BlazorWebAssemply
 
             builder.Services.AddScoped<CustomStateProvider>();
 
-            builder.Services.AddScoped<AuthenticationStateProvider>(s => 
+            builder.Services.AddScoped<AuthenticationStateProvider>(s =>
                 s.GetRequiredService<CustomStateProvider>());
 
 
-
+            var apiUrl = builder.Configuration["ApiSettings:RejseplanApiUrl"];
+                builder.Services.AddHttpClient<IRejseplanClientService, RejseplanClientService>(client =>
+                {
+                    client.BaseAddress = new Uri(apiUrl);
+                });
+            
             await builder.Build().RunAsync();
         }
     }
