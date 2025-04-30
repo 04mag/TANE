@@ -1,0 +1,78 @@
+﻿@page "/opret-kunde"
+@using Radzen
+@using Radzen.Blazor
+@using TANE.Application.Groups.Kunder.Commands.Interfaces
+@using TANE.Application.Groups.Kunder.Queries.Interfaces
+@using TANE.Domain.Entities
+
+@inject ICreateKunde CreateKundeCommand
+@inject NavigationManager NavManager
+@inject NotificationService NotificationService
+
+<h3>Opret ny kunde</h3>
+
+<EditForm Model="@kunde" OnValidSubmit="handleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="row">
+        <div class="col-md-6">
+            <RadzenTextBox @bind-Value="kunde.Fornavn" Name="Fornavn" Placeholder="Fornavn" Style="width:100%" />
+            <ValidationMessage For="@(() => kunde.Fornavn)" />
+        </div>
+        <div class="col-md-6">
+            <RadzenTextBox @bind-Value="kunde.Efternavn" Name="Efternavn" Placeholder="Efternavn" Style="width:100%" />
+            <ValidationMessage For="@(() => kunde.Efternavn)" />
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-md-6">
+            <RadzenTextBox @bind-Value="kunde.Email" Name="Email" Placeholder="Email" Style="width:100%" />
+            <ValidationMessage For="@(() => kunde.Email)" />
+        </div>
+        <div class="col-md-6">
+            <RadzenTextBox @bind-Value="kunde.TlfNummer" Name="TlfNummer" Placeholder="Telefonnummer" Style="width:100%" />
+            <ValidationMessage For="@(() => kunde.TlfNummer)" />
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <RadzenButton Text="Opret kunde" ButtonStyle="ButtonStyle.Primary" Type="Submit" />
+    </div>
+</EditForm>
+
+
+
+@code {
+	private Kunde kunde = new Kunde();
+
+
+	private async Task handleSubmit()
+	{
+		try
+		{
+			var jwtToken = "mock-valid-token"; // Replace with actual JWT token retrieval logic"
+			await CreateKundeCommand.CreateKundeAsync(kunde, jwtToken);
+			NotificationService.Notify(new NotificationMessage
+				{
+					Severity = NotificationSeverity.Success,
+					Summary = "Success",
+					Detail = "Kunde oprettet",
+					Duration = 4000
+				});
+			NavManager.NavigateTo("/kunder");
+		}
+		catch (Exception ex)
+		{
+			NotificationService.Notify(new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error",
+					Detail = ex.Message,
+					Duration = 4000
+				});
+		}
+	}
+
+}

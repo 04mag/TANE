@@ -19,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Pages\Kunder\" />
     <Folder Include="Pages\RejsePlaner\" />
     <Folder Include="Pages\Skabeloner\DagSkabeloner\" />
     <Folder Include="Pages\Skabeloner\TurSkabeloner\" />

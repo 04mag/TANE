@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using TANE.Application.Groups.JwtTokens.Commands;
 using TANE.Application.Groups.JwtTokens.Commands.Interfaces;
+using TANE.Application.Groups.Kunder.Commands;
+using TANE.Application.Groups.Kunder.Commands.Interfaces;
 
 namespace TANE.Application.Configuration
 {
@@ -16,6 +18,10 @@ namespace TANE.Application.Configuration
             //Registrer application services her
             services.AddScoped<IUserLogin, UserLogin>();
             services.AddScoped<IRefreshToken, RefreshToken>();
+
+
+
+            services.AddScoped<ICreateKunde, CreateKunde>();
 
             return services;
         }
