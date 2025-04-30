@@ -19,7 +19,7 @@ namespace TANE.Application.Groups.Kunder.Commands
 
         public async Task<bool> DeleteKundeAsync(int kundeId, string jwtToken)
         {
-            throw new NotImplementedException();
+            return await _kundeRepository.DeleteKundeAsync(kundeId, jwtToken);
         }
     }
 }
