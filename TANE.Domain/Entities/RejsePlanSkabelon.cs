@@ -11,6 +11,9 @@ namespace TANE.Domain.Entities
         public int  Id { get; set; }
         public List<TurSkabelon> TurSkabeloner { get; set; }
 
+        public string Titel { get; set; } = string.Empty;
+        public string Beskrivelse { get; set; } = string.Empty;
+
         public double GetPris()
         {
             return TurSkabeloner.Sum(t => t.GetPris());
