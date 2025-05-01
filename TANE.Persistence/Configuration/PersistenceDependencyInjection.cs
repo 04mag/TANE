@@ -15,19 +15,34 @@ namespace TANE.Persistence.Configuration
         public static IServiceCollection RegisterPersistenceLayer(this IServiceCollection services)
         {
             //Set base adress (Yarp adress) for http clients
-            var baseAddress = new Uri("https://localhost:7100/"); // Adjust the base address as needed
+            var baseAddress = new Uri("https://localhost:6000/"); // Adjust the base address as needed
 
             // Add your persistence-related services here
 
             //Add http clients
-           services.AddHttpClient(
+            services.AddHttpClient(
                 "auth",
                 client =>
                 {
-                    client.BaseAddress = baseAddress; 
-                    
-                    //Update address to match your Yarp configuration
-                    //client.BaseAddress = new Uri(client.BaseAddress, "auth/");
+                    client.BaseAddress = new Uri(baseAddress, "auth/");
+                });
+            services.AddHttpClient(
+                "rejseplan",
+                client =>
+                {
+                    client.BaseAddress = new Uri(baseAddress, "rejseplan/");
+                });
+            services.AddHttpClient(
+                "skabelon",
+                client =>
+                {
+                    client.BaseAddress = new Uri(baseAddress, "skabelon/");
+                });
+            services.AddHttpClient(
+                "kunde",
+                client =>
+                {
+                    client.BaseAddress = new Uri(baseAddress, "kunde/");
                 });
 
             //Repositories
