@@ -10,7 +10,7 @@ namespace TANE.Application.Groups.Dage.Queries.Interfaces
 {
     public interface IReadDag
     {
-        Task<DagReadDto> ReadDagAsync(int id, string jwtToken);
-        Task<List<DagReadDto>> ReadDageAsync(string jwtToken);
+        Task<DagReadDto> ReadDagAsync(int id);
+        Task<List<DagReadDto>> ReadDageAsync();
     }
 }
