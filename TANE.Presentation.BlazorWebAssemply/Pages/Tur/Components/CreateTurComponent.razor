@@ -3,7 +3,6 @@
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
-@inject ITurRepository turRepository;
 
 <div class="rz-p-0 rz-p-md-12">
 
@@ -55,11 +54,14 @@
 </div>
 
 @code{
+    [Inject] 
+    private ITurRepository _turRepository { get; set; } = default!;
+
 
     [Parameter, EditorRequired]
     public List<DagReadDto> InjectedDage { get; set; } = new List<DagReadDto>();
 
-    ITurRepository _turRepository;
+  
 
     bool showAddDag = false;
 
@@ -97,7 +99,6 @@
     protected override void OnInitialized()
     {
         Dag = InjectedDage;
-        _turRepository = turRepository;
     }
 
     void OnSubmit()

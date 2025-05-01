@@ -13,6 +13,7 @@ using TANE.Persistence.Configuration;
 using TANE.Persistence.Repositories;
 using TANE.Presentation.BlazorWebAssemply.Authentication;
 using TANE.Presentation.BlazorWebAssemply.Services;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 
 namespace TANE.Presentation.BlazorWebAssemply
 {
