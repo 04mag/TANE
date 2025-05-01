@@ -1,7 +1,10 @@
-﻿@inject CustomStateProvider AuthStateProvider
+﻿@using TANE.Application.Common.Exceptions
+@using TANE.Application.Groups.JwtTokens.Commands.Interfaces
+@using TANE.Domain.Entities
+@inject CustomStateProvider AuthStateProvider
+@inject ICreateUser CreateUser
 
 @page "/"
-@using TANE.Domain.Entities
 
 <PageTitle>Home</PageTitle>
 
@@ -25,4 +28,45 @@ Welcome to your new app.
         <p>Checking auth state...</p>
     </Authorizing>
 </AuthorizeView>
+
+<button type="button" @onclick="OnClick">Click to register user</button>
+
+<h2>@Status</h2>
+
+@code{
+    public string Status { get; set; } = "Click to add test user";
+
+    private async Task OnClick()
+    {
+        Status = "Creating user...";
+
+        if (AuthStateProvider.CurrentUser != null && AuthStateProvider.CurrentUser.Token != null)
+        {
+            await AuthStateProvider.RefreshTokenAsync();
+
+            try
+            {
+                await CreateUser.CreateUserAsync("TestEmail@mail.dk", "TestPassword1234!", AuthStateProvider.CurrentUser.Token);
+
+                Status = "User created";
+            }
+            catch (NotAuthorizedException ex)
+            {
+                Status = ex.Message;
+            }
+            catch (ConflictException ex)
+            {
+                Status = ex.Message;
+            }
+            catch (Exception ex)
+            {
+                Status = ex.Message;
+            }
+        }
+        else
+        {
+            Status = "You are not logged in";
+        }
+    }
+}
 
