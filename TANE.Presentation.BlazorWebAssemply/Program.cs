@@ -8,7 +8,9 @@ using TANE.Application.Groups.Dage.Queries.Interfaces;
 using TANE.Application.Groups.JwtTokens.Commands.Interfaces;
 using TANE.Application.Groups.TurSkabeloner.Queries.Interfaces;
 using TANE.Application.Groups.TurSkabeloner.Queries;
+using TANE.Application.RepositoryInterfaces;
 using TANE.Persistence.Configuration;
+using TANE.Persistence.Repositories;
 using TANE.Presentation.BlazorWebAssemply.Authentication;
 using TANE.Presentation.BlazorWebAssemply.Services;
 
@@ -27,6 +29,31 @@ namespace TANE.Presentation.BlazorWebAssemply
 
             builder.Services.AddScoped(sp => new HttpClient
                 { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+            builder.Services
+                .AddHttpClient<IDagRepository, DagRepository>(client =>
+                {
+                    client.BaseAddress = new Uri(
+                        builder.Configuration["ApiSettings:RejseplanApiUrl"]
+                    );
+                });
+
+            // Og tilsvarende for de andre repositorier
+            builder.Services
+                .AddHttpClient<ITurRepository, TurRepository>(client =>
+                {
+                    client.BaseAddress = new Uri(
+                        builder.Configuration["ApiSettings:RejseplanApiUrl"]
+                    );
+                });
+
+            builder.Services
+                .AddHttpClient<IRejsePlanRepository, RejsePlanRepository>(client =>
+                {
+                    client.BaseAddress = new Uri(
+                        builder.Configuration["ApiSettings:RejseplanApiUrl"]
+                    );
+                });
 
             builder.Services.AddAuthorizationCore();
 

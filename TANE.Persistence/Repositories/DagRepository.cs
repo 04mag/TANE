@@ -10,7 +10,7 @@ using TANE.Rejseplan.Application.Dtos;
 
 namespace TANE.Persistence.Repositories
 {
-    internal class DagRepository : IDagRepository
+    public class DagRepository : IDagRepository
     {
         private readonly HttpClient _http;
 

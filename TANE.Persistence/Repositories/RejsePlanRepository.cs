@@ -10,7 +10,7 @@ using TANE.Rejseplan.Application.Dtos;
 
 namespace TANE.Persistence.Repositories
 {
-    internal class RejsePlanRepository : IRejsePlanRepository
+    public class RejsePlanRepository : IRejsePlanRepository
     {
         private readonly HttpClient _http;
 

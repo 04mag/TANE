@@ -11,7 +11,7 @@
 
     namespace TANE.Persistence.Repositories
     {
-        internal class TurRepository : ITurRepository
+        public class TurRepository : ITurRepository
         {
             private readonly HttpClient _http;
 
