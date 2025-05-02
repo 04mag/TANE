@@ -5,6 +5,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 using TANE.Application.Common.Exceptions;
+using TANE.Application.Groups.JwtTokens.Commands;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
 
@@ -16,6 +17,33 @@ namespace TANE.Persistence.Repositories
         public JwtTokenRepository(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
+        }
+
+        public async Task<bool> CreateUserAsync(string email, string password, string jwtToken)
+        {
+            using (HttpClient httpClient = _httpClientFactory.CreateClient("auth"))
+            {
+                httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
+
+                var result = await httpClient.PostAsJsonAsync("api/Admin/register", new { email, password });
+
+                if (result.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+                else if (result.StatusCode == System.Net.HttpStatusCode.Unauthorized || result.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                {
+                    throw new NotAuthorizedException("Unauthorized");
+                }
+                else if (result.StatusCode == System.Net.HttpStatusCode.Conflict)
+                {
+                    throw new ConflictException("User already exists");
+                }
+                else
+                {
+                    throw new Exception("Failed to create user");
+                }
+            }
         }
 
         public async Task<JwtToken> RefreshToken(string accessToken, string refreshToken)
@@ -73,5 +101,7 @@ namespace TANE.Persistence.Repositories
                 }
             }
         }
+
+
     }
 }
