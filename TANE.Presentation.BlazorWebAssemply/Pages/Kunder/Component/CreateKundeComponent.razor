@@ -1,0 +1,64 @@
+﻿@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Configuration
+
+<div class=" rz-p-o rz-p-md-12">
+	<h3>Opret ny kunde</h3>
+	<RadzenTemplateForm TItem="Kunde" Data="@kunde" Submit="@OnSubmit" InvalidSubmit=@OnInvalidSubmit>
+		<RadzenStack Gap="1rem" class="rz-p-sm-12">
+			<RadzenFormField Text="Fornavn" Variant="@ThemeConfig.FormVariant">
+				<ChildContent>
+					<RadzenTextBox Name="Fornavn" @bind-Value="@kunde.Fornavn" />
+				</ChildContent>
+				<Helper>
+					<RadzenRequiredValidator Component="Fornavn" Text="Fornavn skal udfyldes." />
+				</Helper>
+			</RadzenFormField>
+			<RadzenFormField Text="Efternavn" Variant="@ThemeConfig.FormVariant">
+				<ChildContent>
+					<CreateKundeComponent />
+					<RadzenTextBox Name="Efternavn" @bind-Value="@kunde.Efternavn" />
+				</ChildContent>
+				<Helper>
+					<RadzenRequiredValidator Component="Efternavn" Text="Efternavn skal udfyldes." />
+				</Helper>
+			</RadzenFormField>
+			<RadzenFormField Text="Email" Variant="@ThemeConfig.FormVariant">
+				<ChildContent>
+					<RadzenTextBox Name="Email" @bind-Value="@kunde.Email" />
+				</ChildContent>
+				<Helper>
+					<RadzenRequiredValidator Component="Email" Text="Email skal udfyldes." />
+					<RadzenEmailValidator Component="Email" Text="Ugyldig email format." />
+				</Helper>
+			</RadzenFormField>
+			<RadzenFormField Text="Telefonnummer" Variant="@ThemeConfig.FormVariant">
+				<ChildContent>
+					<RadzenTextBox Name="TlfNummer" @bind-Value="@kunde.TlfNummer" />
+				</ChildContent>
+				<Helper>
+					<RadzenRequiredValidator Component="TlfNummer" Text="Telefonnummer skal udfyldes." />
+					<RadzenRegexValidator Component="TlfNummer" Pattern="^(\+\d{1,3})?(\ )?(\d{8,20})$" Text="Telefonnummer skal være mellem 8 og 20 cifre og kun indeholde tal" />
+				</Helper>
+			</RadzenFormField>
+
+			<RadzenButton ButtonType="ButtonType.Submit" Text="Opret"></RadzenButton>
+		</RadzenStack>
+	</RadzenTemplateForm>
+</div>
+
+@code {
+
+	public Kunde kunde { get; set; } = new Kunde();
+
+	Variant variant = Variant.Flat;
+
+	void OnSubmit(Kunde model)
+	{
+		Console.WriteLine($"Fornavn: {kunde.Fornavn}\nEfternavn: {kunde.Efternavn}\nEmail: {kunde.Email}\nTlfNummer: {kunde.TlfNummer}");
+	}
+
+	void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+	{
+
+	}
+}
