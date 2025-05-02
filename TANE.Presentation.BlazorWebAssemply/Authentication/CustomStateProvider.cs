@@ -69,7 +69,7 @@ namespace TANE.Presentation.BlazorWebAssemply.Authentication
             }
         }
 
-        public async Task LoginAsync(string username, string password)
+        public async Task<string> LoginAsync(string username, string password)
         {
             try
             {
@@ -80,6 +80,7 @@ namespace TANE.Presentation.BlazorWebAssemply.Authentication
                 var authState = GenerateAuthState(result);
 
                 NotifyAuthenticationStateChanged(Task.FromResult(authState));
+                return result.Token;
             }
             catch (Exception ex)
             {

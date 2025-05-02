@@ -24,37 +24,9 @@ namespace TANE.Presentation.BlazorWebAssemply
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
-            builder.Services.AddScoped<IReadTurSkabelon, ReadTurSkabelon>();
-            builder.Services.AddScoped<IReadDag, ReadDag>();
+         
 
 
-            builder.Services.AddScoped(sp => new HttpClient
-                { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-
-            builder.Services
-                .AddHttpClient<IDagRepository, DagRepository>(client =>
-                {
-                    client.BaseAddress = new Uri(
-                        builder.Configuration["ApiSettings:RejseplanApiUrl"]
-                    );
-                });
-
-            // Og tilsvarende for de andre repositorier
-            builder.Services
-                .AddHttpClient<ITurRepository, TurRepository>(client =>
-                {
-                    client.BaseAddress = new Uri(
-                        builder.Configuration["ApiSettings:RejseplanApiUrl"]
-                    );
-                });
-
-            builder.Services
-                .AddHttpClient<IRejsePlanRepository, RejsePlanRepository>(client =>
-                {
-                    client.BaseAddress = new Uri(
-                        builder.Configuration["ApiSettings:RejseplanApiUrl"]
-                    );
-                });
 
             builder.Services.AddAuthorizationCore();
 
@@ -72,12 +44,6 @@ namespace TANE.Presentation.BlazorWebAssemply
                 s.GetRequiredService<CustomStateProvider>());
 
 
-            var apiUrl = builder.Configuration["ApiSettings:RejseplanApiUrl"];
-                builder.Services.AddHttpClient<IRejseplanClientService, RejseplanClientService>(client =>
-                {
-                    client.BaseAddress = new Uri(apiUrl);
-                });
-            
             await builder.Build().RunAsync();
         }
     }

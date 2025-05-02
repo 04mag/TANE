@@ -49,7 +49,7 @@
             // sæt dit Bearer-token
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
             // DELETE til baseAddress/“rejseplan”/tur
-            var response = await client.DeleteAsync("tur");
+            var response = await client.DeleteAsync($"tur/{turId}");
             return response.IsSuccessStatusCode;
             }
 
@@ -73,13 +73,12 @@
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", jwtToken);
 
-            // Hent og deserialiser direkte til List<TurReadDto>
-            var tur = await client.GetFromJsonAsync<TurReadDto>("tur");
+            // Problemet: du henter altid "…/rejseplan/tur" uden ID
+            var tur = await client.GetFromJsonAsync<TurReadDto>($"tur/{turId}");
 
-            // Hvis API’et returnerer 204 No Content, bliver tours null
             return tur ?? new TurReadDto();
-
         }
+
 
         public async Task<bool> UpdateTur(int id, TurUpdateDto dto, string jwtToken)
         {

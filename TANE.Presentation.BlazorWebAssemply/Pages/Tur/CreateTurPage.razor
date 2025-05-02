@@ -4,7 +4,7 @@
 @using TANE.Rejseplan.Application.Dtos
 @using TANE.Application.Groups.Dage.Queries.Interfaces
 @using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
-
+@inject IJSRuntime JS;
 @inject IReadDag ReadDage
 
 @page "/tur/create"
@@ -18,6 +18,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Dage = await ReadDage.ReadDageAsync("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
+        var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+        
+        Dage = await ReadDage.ReadDageAsync(token);
     }
 }

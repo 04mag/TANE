@@ -5,6 +5,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using TANE.Application.Groups.Dage.Queries.Interfaces;
+using TANE.Application.Groups.Dage.Queries;
+using TANE.Application.Groups.TurSkabeloner.Queries.Interfaces;
+using TANE.Application.Groups.TurSkabeloner.Queries;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Persistence.Repositories;
 
@@ -54,6 +58,8 @@ namespace TANE.Persistence.Configuration
             services.AddScoped<IRejsePlanSkabelonRepository, RejsePlanSkabelonRepository>();
             services.AddScoped<ITurRepository, TurRepository>();
             services.AddScoped<ITurSkabelonRepository, TurSkabelonRepository>();
+            services.AddScoped<IReadTurSkabelon, ReadTurSkabelon>();
+            services.AddScoped<IReadDag, ReadDag>();
 
             return services;
         }

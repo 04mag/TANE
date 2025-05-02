@@ -4,6 +4,9 @@
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 
+@inject HttpClient Http;
+@inject IJSRuntime JS;
+
 <div class="rz-p-0 rz-p-md-12">
 
     @if (showAddDag)
@@ -57,6 +60,7 @@
     [Inject] 
     private ITurRepository _turRepository { get; set; } = default!;
 
+    
 
     [Parameter, EditorRequired]
     public List<DagReadDto> InjectedDage { get; set; } = new List<DagReadDto>();
@@ -96,16 +100,17 @@
         }
     }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         Dage = InjectedDage;
+
     }
 
-    void OnSubmit()
+    async Task OnSubmit()
     {
-
+        var token = await  JS.InvokeAsync<string>("localStorage.getItem", "authToken");
         Console.WriteLine($"Titel: {Tur.Titel}\nBeskrivelse: {Tur.Beskrivelse}");
-        _turRepository.CreateTur(Tur, "jwtToken");
+        _turRepository.CreateTur(Tur, token);
     }
 
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args)

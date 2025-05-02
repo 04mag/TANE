@@ -49,7 +49,7 @@ namespace TANE.Persistence.Repositories
             // sæt dit Bearer-token
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
             // DELETE til baseAddress/“rejseplan”/dag
-            var response = await client.DeleteAsync("dag");
+            var response = await client.DeleteAsync($"dag/{dagId}");
             return response.IsSuccessStatusCode;
         }
 
@@ -74,7 +74,8 @@ namespace TANE.Persistence.Repositories
                 new AuthenticationHeaderValue("Bearer", jwtToken);
 
             // Hent og deserialiser direkte til List<DagReadDto>
-            var dag = await client.GetFromJsonAsync<DagReadDto>("dag");
+            var dag = await client.GetFromJsonAsync<DagReadDto>($"dag/{dagId}");
+
 
             // Hvis API’et returnerer 204 No Content, bliver tours null
             return dag ?? new DagReadDto();
