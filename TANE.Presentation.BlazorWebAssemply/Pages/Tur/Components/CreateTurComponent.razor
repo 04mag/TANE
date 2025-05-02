@@ -67,7 +67,7 @@
 
     private ObservableCollection<DagReadDto> SelectedDagVar = new ObservableCollection<DagReadDto>();
 
-    public ObservableCollection<DagReadDto> ObservableDag
+    public ObservableCollection<DagReadDto> ObservableDage
     {
         get
         {
@@ -83,12 +83,12 @@
 
     private List<DagReadDto> DagVar = new List<DagReadDto>();
 
-    public List<DagReadDto> Dag
+    public List<DagReadDto> Dage
     {
         get
         {
             // Return DagVar excluding entities already in ObservableDag
-            return DagVar.Where(d => !ObservableDag.Any(o => o.Id == d.Id)).ToList();
+            return DagVar.Where(d => !ObservableDage.Any(o => o.Id == d.Id)).ToList();
         }
         set
         {
@@ -98,7 +98,7 @@
 
     protected override void OnInitialized()
     {
-        Dag = InjectedDage;
+        Dage = InjectedDage;
     }
 
     void OnSubmit()
@@ -115,13 +115,13 @@
 
     private void OnDagRowSelect(DagReadDto dag)
     {
-        ObservableDag.Add(dag);
+        ObservableDage.Add(dag);
 
         showAddDag = !showAddDag;
     }
 
     private void OnDagDelete(DagReadDto dag)
     {
-        ObservableDag.Remove(dag);
+        ObservableDage.Remove(dag);
     }
 }

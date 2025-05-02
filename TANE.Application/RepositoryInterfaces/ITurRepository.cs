@@ -17,7 +17,7 @@ namespace TANE.Application.RepositoryInterfaces
         Task<List<TurReadDto>> ReadAllTure(string jwtToken);
         Task AddDagToTurAsync(int turId, int dagId, string jwtToken);
         Task ReorderDageAsync(int turId, DagReorderDto dto, string jwtToken);
-        Task RemoveTurFromTurAsync(int turId, int dagId, string jwtToken);
+        Task RemoveDagFromTurAsync(int turId, int dagId, string jwtToken);
 
     }
 }

@@ -1,4 +1,4 @@
-﻿using Radzen.Blazor.Markdown;
+﻿@* using Radzen.Blazor.Markdown;
 using Radzen.Blazor;
 using Radzen;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -65,44 +65,44 @@ using TANE.Domain.Entities;
 
 @code{
     [Parameter, EditorRequired]
-        public List<TurReadDto> InjectedTur { get; set; } = new List<TurReadDto>();
+    public List<DagReadDto> InjectedDage { get; set; } = new List<DagReadDto>();
 
     bool showAddTur = false;
     
-    private ObservableCollection<TurReadDto> SelectedTurVar = new ObservableCollection<TurReadDto>();
+    private ObservableCollection<DagReadDto> SelectedDagVar = new ObservableCollection<DagReadDto>();
 
     ITurRepository _turRepository;
-    public ObservableCollection<TurReadDto> ObservableTur
+    public ObservableCollection<DagReadDto> ObservableDag
         {
     get
     {
-        return SelectedTurVar;
+        return SelectedDagVar;
     }
     set
     {
-        SelectedTurVar = value;
+        SelectedDagVar = value;
     }
 }
 
     public TurCreateDto Tur { get; set; } = new TurCreateDto();
 
-    private List<TurReadDto> TurVar = new List<TurReadDto>();
-    public List<TurReadDto> Ture
+    private List<DagReadDto> DagVar = new List<DagReadDto>();
+    public List<DagReadDto> Dage
     {
     get
     {
         // Return TurVar excluding entities already in ObservableTur
-        return TurVar.Where(d => !ObservableTur.Any(o => o.Id == d.Id)).ToList();
+            return  DagVar.Where(d => !ObservableDag(o => o.Id == d.Id)).ToList();
     }
     set
     {
-        TurVar = value;
+            DagVar = value;
     }
 }
 
 protected override void OnInitialized()
 {
-    Ture = InjectedTur;
+    Dage = InjectedDage;
 }
 
 void OnSubmit(TurCreateDto model)
@@ -115,15 +115,16 @@ void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
 
 }
 
-private void OnTurRowSelect(TurReadDto dag)
+private void OnTurRowSelect(DagReadDto dag)
 {
-    ObservableTur.Add(dag);
+    ObservableDag.Add(dag);
 
     showAddTur = !showAddTur;
 }
 
-private void OnTurDelete(TurReadDto dag)
+private void OnTurDelete(DagReadDto dag)
 {
-    ObservableTur.Remove(dag);
+    ObservableDag.Remove(dag);
 }
 }
+ *@
