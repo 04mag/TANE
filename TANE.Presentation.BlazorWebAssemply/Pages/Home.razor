@@ -40,7 +40,7 @@ Welcome to your new app.
     {
         Status = "Creating user...";
 
-        if (AuthStateProvider.CurrentUser != null && AuthStateProvider.CurrentUser.Token != null)
+        if (AuthStateProvider.CurrentUser.Token != "")
         {
             await AuthStateProvider.RefreshTokenAsync();
 
