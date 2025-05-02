@@ -7,7 +7,7 @@ using TANE.Domain.Entities;
 
 namespace TANE.Application.Groups.Kunder.Commands.Interfaces
 {
-    internal interface IUpdateKunde
+    public interface IUpdateKunde
     {
         Task<Kunde> UpdateKundeAsync(Kunde kunde, string jwtToken);
     }
