@@ -1,0 +1,106 @@
+﻿@using TANE.Rejseplan.Application.Dtos
+
+<RadzenTextBox @bind-Value="searchText" @oninput=@HandleInput Placeholder="Søg efter titel" Style="width: 100%" />
+
+<RadzenDataGrid AllowFiltering="true" AllowColumnResize="false" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                Data="@tt" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single" @bind-Value=@Selected>
+    <Columns>
+        <RadzenDataGridColumn Property="@nameof(DagReadDto.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" />
+        <RadzenDataGridColumn Property="@nameof(DagReadDto.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px" />
+        <RadzenDataGridColumn Property="@nameof(DagReadDto.Beskrivelse)" Title="Beskrivelse" Width="auto" MinWidth="150px" />
+        <RadzenDataGridColumn Context="Dag" Filterable="false" Sortable="false" Width="auto" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+            <Template Context="Dag">
+                @if (OnSelect.HasDelegate)
+                {
+                    <RadzenButton Icon="file_open" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => SelectRow(Dag))" @onclick:stopPropagation="true" />
+                }
+                @if (OnEdit.HasDelegate)
+                {
+                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" Click="@(args => EditRow(Dag))" @onclick:stopPropagation="true" />
+                }
+                @if (OnDelete.HasDelegate)
+                {
+                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => DeleteRow(Dag))" @onclick:stopPropagation="true" />
+                }
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    [Parameter, EditorRequired]
+    public List<DagReadDto> Injected { get; set; } = new List<DagReadDto>();
+
+    [Parameter]
+    public EventCallback<DagReadDto> OnSelect { get; set; }
+
+    [Parameter]
+    public EventCallback<DagReadDto> OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<DagReadDto> OnDelete { get; set; }
+
+    bool allowVirtualization = false;
+
+    string searchText = string.Empty;
+
+    private IQueryable<DagReadDto> Var = new List<DagReadDto>().AsQueryable();
+
+    public IQueryable<DagReadDto> tt
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(searchText))
+            {
+                return Var;
+            }
+            else
+            {
+                return Var.Where(x => x.Titel.ToLower().Contains(searchText.ToLower()));
+            }
+        }
+        set { Var = value; }
+    }
+
+    public IList<DagReadDto> Selected { get; set; } = new List<DagReadDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+         tt= Injected.AsQueryable();
+
+    Selected = new List<DagReadDto>() { tt.FirstOrDefault()! };
+    }
+
+    private void HandleInput(ChangeEventArgs args)
+    {
+        if (args.Value == null)
+        {
+            searchText = string.Empty;
+            return;
+        }
+        searchText = args.Value.ToString()!;
+    }
+
+async Task SelectRow(DagReadDto dag)
+    {
+        await OnSelect.InvokeAsync(dag);
+
+        tt = Injected.AsQueryable();
+    }
+
+    async Task EditRow(DagReadDto dag)
+    {
+        await OnEdit.InvokeAsync(dag);
+
+        tt = Injected.AsQueryable();
+    }
+
+    async Task DeleteRow(DagReadDto dag)
+    {
+        await OnDelete.InvokeAsync(dag);
+
+        tt = Injected.AsQueryable();
+    }
+}

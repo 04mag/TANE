@@ -4,22 +4,27 @@
 @using TANE.Rejseplan.Application.Dtos
 @using TANE.Application.Groups.Dage.Queries.Interfaces
 @using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
-@inject IJSRuntime JS;
 @inject IReadDag ReadDage
+@inject CustomStateProvider AuthStateProvider
 
 @page "/tur/create"
 
 <CreateTurComponent InjectedDage="Dage"/>
 
 @code {
+    private string? _token;
 
     public List<DagReadDto> Dage { get; set; } = new List<DagReadDto>();
 
 
     protected override async Task OnInitializedAsync()
     {
-        var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+
+    // Nu kan du hente CurrentUser direkte:
+        _token = AuthStateProvider.CurrentUser.Token;
+      
         
-        Dage = await ReadDage.ReadDageAsync(token);
+        Dage = await ReadDage.ReadDageAsync(_token);
     }
 }

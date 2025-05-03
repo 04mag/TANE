@@ -4,8 +4,7 @@
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 
-@inject HttpClient Http;
-@inject IJSRuntime JS;
+@inject CustomStateProvider AuthStateProvider
 
 <div class="rz-p-0 rz-p-md-12">
 
@@ -66,7 +65,7 @@
     public List<DagReadDto> InjectedDage { get; set; } = new List<DagReadDto>();
 
   
-
+    private string? _token;
     bool showAddDag = false;
 
     private ObservableCollection<DagReadDto> SelectedDagVar = new ObservableCollection<DagReadDto>();
@@ -104,13 +103,19 @@
     {
         Dage = InjectedDage;
 
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+
+          // Nu kan du hente CurrentUser direkte:
+        _token = AuthStateProvider.CurrentUser.Token;
     }
+
+    
 
     async Task OnSubmit()
     {
-        var token = await  JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+        
         Console.WriteLine($"Titel: {Tur.Titel}\nBeskrivelse: {Tur.Beskrivelse}");
-        _turRepository.CreateTur(Tur, token);
+        _turRepository.CreateTur(Tur, _token);
     }
 
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args)

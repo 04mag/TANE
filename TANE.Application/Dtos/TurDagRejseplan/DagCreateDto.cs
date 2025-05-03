@@ -10,7 +10,6 @@ namespace TANE.Rejseplan.Application.Dtos
         public List<string> Aktiviteter { get; set; } = new();
         public List<string> Måltider { get; set; } = new();
         public string Overnatning { get; set; }
-        public double Pris { get; set; }
     }
 }
 

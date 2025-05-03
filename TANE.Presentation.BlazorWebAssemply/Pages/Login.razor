@@ -1,13 +1,10 @@
-﻿@using TANE.Application.Common.Exceptions
+﻿﻿@using TANE.Application.Common.Exceptions
 @using TANE.Application.Groups.JwtTokens.Commands.Interfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Authentication
 
-
 @inject CustomStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
-@inject IJSRuntime JS
-
 
 @page "/login"
 
@@ -40,35 +37,19 @@
 
 
 @code {
-
-
     public string ErrorMessage { get; set; } = string.Empty;
 
     private async Task OnLogin(LoginArgs args)
     {
         try
         {
-            var token = await AuthStateProvider.LoginAsync(args.Username, args.Password);
+            await AuthStateProvider.LoginAsync(args.Username, args.Password);
 
-
-            if (!string.IsNullOrWhiteSpace(token))
-            {
-               // 2) Gem token i localStorage
-                await JS.InvokeVoidAsync("localStorage.setItem", "authToken", token);
-
-    // 3) Naviger videre
-                NavigationManager.NavigateTo("/");
-            }
-            else
-            {
-                ErrorMessage = "Login mislykkedes: Ingen token modtaget.";
-            }
+            NavigationManager.NavigateTo("/");
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Login-fejl: {ex.Message}";
+            ErrorMessage = ex.Message;
         }
     }
-
 }
-
