@@ -1,6 +1,7 @@
 ﻿@using System.Collections.ObjectModel
 @using Microsoft.JSInterop
 @using TANE.Domain.Entities
+@using TANE.Rejseplan.Application.Dtos
 @inject IJSRuntime JSRuntime;
 
 <style>
@@ -11,25 +12,25 @@
 </style>
 
 <RadzenDataGrid AllowFiltering="false" AllowColumnResize="false" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="false" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
-                Data="@InjectedSkabeloner" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single"
-                @bind-Value=@selectedTurSkabeloner RowRender="@RowRender">
+                Data="@InjectedDage" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single"
+                @bind-Value=@selectedDage RowRender="@RowRender">
     <Columns>
-        <RadzenDataGridColumn Property="@nameof(TurSkabelon.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" />
-        <RadzenDataGridColumn Property="@nameof(TurSkabelon.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px" />
-        <RadzenDataGridColumn Property="@nameof(TurSkabelon.Beskrivelse)" Title="Beskrivelse" Width="auto" MinWidth="150px" />
-        <RadzenDataGridColumn Context="TurSkabelon" Filterable="false" Sortable="false" Width="auto" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
-            <Template Context="TurSkabelon">
-                @if (OnSelectSkabelon.HasDelegate)
+        <RadzenDataGridColumn Property="@nameof(DagReadDto.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" />
+        <RadzenDataGridColumn Property="@nameof(DagReadDto.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px" />
+        <RadzenDataGridColumn Property="@nameof(DagReadDto.Beskrivelse)" Title="Beskrivelse" Width="auto" MinWidth="150px" />
+        <RadzenDataGridColumn Context="Dag" Filterable="false" Sortable="false" Width="auto" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+            <Template Context="Dag">
+                @if (OnSelect.HasDelegate)
                 {
-                    <RadzenButton Icon="file_open" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => SelectRow(TurSkabelon))" @onclick:stopPropagation="true" />
+                    <RadzenButton Icon="file_open" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => SelectRow(Dag))" @onclick:stopPropagation="true" />
                 }
-                @if (OnEditSkabelon.HasDelegate)
+                @if (OnEdit.HasDelegate)
                 {
-                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" Click="@(args => EditRow(TurSkabelon))" @onclick:stopPropagation="true" />
+                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" Click="@(args => EditRow(Dag))" @onclick:stopPropagation="true" />
                 }
-                @if (OnDeleteSkabelon.HasDelegate)
+                @if (OnDelete.HasDelegate)
                 {
-                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => DeleteRow(TurSkabelon))" @onclick:stopPropagation="true" />
+                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => DeleteRow(Dag))" @onclick:stopPropagation="true" />
                 }
             </Template>
         </RadzenDataGridColumn>
@@ -38,44 +39,44 @@
 
 @code {
     [Parameter, EditorRequired]
-    public ObservableCollection<TurSkabelon> InjectedSkabeloner { get; set; }
+    public ObservableCollection<DagReadDto> InjectedDage { get; set; }
 
     [Parameter]
-    public EventCallback<TurSkabelon> OnSelectSkabelon { get; set; }
+    public EventCallback<DagReadDto> OnSelect { get; set; }
 
     [Parameter]
-    public EventCallback<TurSkabelon> OnEditSkabelon { get; set; }
+    public EventCallback<DagReadDto> OnEdit { get; set; }
 
     [Parameter]
-    public EventCallback<TurSkabelon> OnDeleteSkabelon { get; set; }
+    public EventCallback<DagReadDto> OnDelete { get; set; }
 
-    IList<TurSkabelon> selectedTurSkabeloner;
+    IList<DagReadDto> selectedDage;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        selectedTurSkabeloner = new List<TurSkabelon>() { InjectedSkabeloner.FirstOrDefault() };
+        selectedDage = new List<DagReadDto>() { InjectedDage.FirstOrDefault() };
     }
 
-    TurSkabelon draggedItem;
+    DagReadDto draggedItem;
 
-    async Task SelectRow(TurSkabelon turskabelon)
+    async Task SelectRow(DagReadDto dag)
     {
-        await OnSelectSkabelon.InvokeAsync(turskabelon);
+        await OnSelect.InvokeAsync(dag);
     }
 
-    async Task EditRow(TurSkabelon turskabelon)
+    async Task EditRow(DagReadDto dag)
     {
-        await OnEditSkabelon.InvokeAsync(turskabelon);
+        await OnEdit.InvokeAsync(dag);
     }
 
-    async Task DeleteRow(TurSkabelon turskabelon)
+    async Task DeleteRow(DagReadDto dag)
     {
-        await OnDeleteSkabelon.InvokeAsync(turskabelon);
+        await OnDelete.InvokeAsync(dag);
     }
 
-    void RowRender(RowRenderEventArgs<TurSkabelon> args)
+    void RowRender(RowRenderEventArgs<DagReadDto> args)
     {
         args.Attributes.Add("title", "Drag row to reorder");
         args.Attributes.Add("style", "cursor:grab");
@@ -85,10 +86,10 @@
         args.Attributes.Add("ondragstart", EventCallback.Factory.Create<DragEventArgs>(this, () => draggedItem = args.Data));
         args.Attributes.Add("ondrop", EventCallback.Factory.Create<DragEventArgs>(this, (Action)(() =>
         {
-            var draggedIndex = this.InjectedSkabeloner.IndexOf(draggedItem);
-            var droppedIndex = this.InjectedSkabeloner.IndexOf(args.Data);
-            this.InjectedSkabeloner.Remove(draggedItem);
-            this.InjectedSkabeloner.Insert((int)(draggedIndex <= droppedIndex ? droppedIndex++ : droppedIndex), draggedItem);
+            var draggedIndex = this.InjectedDage.IndexOf(draggedItem);
+            var droppedIndex = this.InjectedDage.IndexOf(args.Data);
+            this.InjectedDage.Remove(draggedItem);
+            this.InjectedDage.Insert((int)(draggedIndex <= droppedIndex ? droppedIndex++ : droppedIndex), draggedItem);
 
             JSRuntime.InvokeVoidAsync("eval", $"document.querySelector('.my-class').classList.remove('my-class')");
         })));

@@ -2,9 +2,10 @@
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.DagSkabeloner.Components
+@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
 
 <div class="rz-p-0 rz-p-md-12">
-
+    
     @if (showAddDagSkabelon)
     {
         <DagSkabelonListComponent InjectedSkabeloner="DagSkabeloner" OnSelectSkabelon="OnDagSkabelonRowSelect"/>

@@ -3,14 +3,16 @@
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Presentation.BlazorWebAssemply.Pages.Dag.Components
 
 @inject CustomStateProvider AuthStateProvider
+@inject IDagRepository DagRepository
 
 <div class="rz-p-0 rz-p-md-12">
 
     @if (showAddDag)
     {
-        <DagListComponent Injected="Dag" OnSelect="OnDagRowSelect"/>
+        <DagListComponent InjectedDage="Dage" OnSelect="OnDagRowSelect" />
     }
 
     @if (!showAddDag)
@@ -41,7 +43,7 @@
                 <br />
 
                 <h4>Dage:</h4>
-                <DagReorderListComponent Injected="ObservableDag" OnDelete="OnDagDelete" />
+                <DagReorderListComponent InjectedDage="ObservableDage" OnDelete="OnDagDelete" />
                 <div style="text-align: right; width: 100%;">
                     <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium" Style="width: 150px" Text="Tilføj Dag" Click="@(() => showAddDag = !showAddDag)"></RadzenButton>
                 </div>
@@ -68,17 +70,17 @@
     private string? _token;
     bool showAddDag = false;
 
-    private ObservableCollection<DagReadDto> SelectedDagVar = new ObservableCollection<DagReadDto>();
+    private ObservableCollection<DagReadDto> SelectedDageVar = new ObservableCollection<DagReadDto>();
 
     public ObservableCollection<DagReadDto> ObservableDage
     {
         get
         {
-            return SelectedDagVar;
+            return SelectedDageVar;
         }
         set 
         { 
-            SelectedDagVar = value;
+            SelectedDageVar = value;
         }
     }
 
@@ -101,12 +103,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Dage = InjectedDage;
+       
 
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-
-          // Nu kan du hente CurrentUser direkte:
         _token = AuthStateProvider.CurrentUser.Token;
+
+    // Faktisk hentning af alle dage:
+        var alleDage = await DagRepository.ReadAllDageAsync(_token);
+        Dage = alleDage;   // udfylder din property, så InjectedDage ikke længere er nødvendig
     }
 
     

@@ -1,5 +1,6 @@
 ﻿@using TANE.Rejseplan.Application.Dtos
 @using System.Collections.ObjectModel
+@using System.Security.Cryptography
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
@@ -7,157 +8,87 @@
 
 @inject CustomStateProvider AuthStateProvider
 
-<div class="rz-p-0 rz-p-md-12">
 
-   
+    <div class="rz-p-0 rz-p-md-12">
+            <h4>Opret Ny Dag</h4>
+            <RadzenTemplateForm TItem="DagCreateDto" Data=@Dag Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+                <RadzenStack Gap="1rem" class="rz-p-sm-12">
 
-    @if (!showAddDag)
-    {
-        <h4>Opret Ny Dag </h4>
-        <RadzenTemplateForm TItem="DagCreateDto" Data=@Dag Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
-            <RadzenStack Gap="1rem" class="rz-p-sm-12">
+                    <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
+                        <ChildContent>
+                            <RadzenTextBox Name="Titel" @bind-Value=@Dag.Titel />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Component="Titel" Text="Titel skal udfyldes." />
+                        </Helper>
+                    </RadzenFormField>
 
-            <Fieldset Text="Opret / Rediger Dag">
 
-                <!-- Titel -->
-                <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
-                    <ChildContent>
-                        <RadzenTextBox Name="Titel" @bind-Value="Dag.Titel" Style="width:100%;" />
-                    </ChildContent>
-                    <Helper>
-                        <RadzenRequiredValidator Component="Titel" Text="Titel skal udfyldes." />
-                    </Helper>
-                </RadzenFormField>
+                    <RadzenFormField Text="Beskrivelse" Variant="@ThemeConfig.FormVariant">
+                        <ChildContent>
+                            <RadzenTextArea Name="Beskrivelse" @bind-Value="@Dag.Beskrivelse" Rows="4" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Component="Beskrivelse" Text="Beskrivelse skal udfyldes." />
+                        </Helper>
+                    </RadzenFormField>
 
-                <!-- Beskrivelse -->
-                <RadzenFormField Text="Beskrivelse" Variant="@ThemeConfig.FormVariant">
-                    <ChildContent>
-                        <RadzenTextArea Name="Beskrivelse" @bind-Value="Dag.Beskrivelse" Rows="4" Style="width:100%;" />
-                    </ChildContent>
-                    <Helper>
-                        <RadzenRequiredValidator Component="Beskrivelse" Text="Beskrivelse skal udfyldes." />
-                    </Helper>
-                </RadzenFormField>
+                    <RadzenFormField Text="Aktiviteter" Variant="@ThemeConfig.FormVariant">
+                        <ChildContent>
+                            <RadzenTextArea Name="Aktiviteter" @bind-Value="@Dag.Aktiviteter" Rows="4" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Component="Aktiviteter" Text="Aktiviteter skal udfyldes." />
+                        </Helper>
+                    </RadzenFormField>
 
-                <!-- Aktiviteter (dynamisk liste) -->
-                <RadzenFormField Text="Aktiviteter" Variant="@ThemeConfig.FormVariant">
-                    <ChildContent>
-                        @for (int i = 0; i < Dag.Aktiviteter.Count; i++)
-                        {
-                            <div style="display:flex; align-items:center; margin-bottom:4px;">
-                                <!-- bind direkte til listen via index -->
-                                <RadzenTextBox 
-                                    @bind-Value="Dag.Aktiviteter[i]" 
-                                    Style="flex:1; margin-right:4px;" 
-                                    Name="Aktiviteter" />
-                                <RadzenButton 
-                                    Icon="close" 
-                                    ButtonStyle="ButtonStyle.Danger" 
-                                    Size="ButtonSize.Small" 
-                                    Click="@(args => RemoveAktivitet(i))" />
-                            </div>
-                        }
-                        <RadzenButton Text="Tilføj aktivitet" Icon="add_circle_outline" Click="@AddAktivitet" Style="margin-top:8px;" />
-                    </ChildContent>
-                </RadzenFormField>
+                    <RadzenFormField Text="Måltider" Variant="@ThemeConfig.FormVariant">
+                        <ChildContent>
+                            <RadzenTextArea Name="Måltider" @bind-Value="@Dag.Måltider" Rows="4" />
+                        </ChildContent>
+                    </RadzenFormField>
 
-                <!-- Måltider (dynamisk liste) -->
-                <RadzenFormField Text="Måltider" Variant="@ThemeConfig.FormVariant">
-                    <ChildContent>
-                        @for (int i = 0; i < Dag.Måltider.Count; i++)
-                        {
-                            <div style="display:flex; align-items:center; margin-bottom:4px;">
-                                <!-- bind direkte til listen via index -->
-                                <RadzenTextBox 
-                                    @bind-Value="Dag.Måltider[i]" 
-                                    Style="flex:1; margin-right:4px;" 
-                                    Name="Måltider" />
-                                <RadzenButton 
-                                    Icon="close" 
-                                    ButtonStyle="ButtonStyle.Danger" 
-                                    Size="ButtonSize.Small" 
-                                    Click="@(args => RemoveMåltid(i))" />
-                            </div>
-                        }
-                        <RadzenButton Text="Tilføj måltid" Icon="add_circle_outline" Click="@AddMåltid" Style="margin-top:8px;" />
-                    </ChildContent>
-                </RadzenFormField>
+                    <RadzenFormField Text="Overnatning" Variant="@ThemeConfig.FormVariant">
+                        <ChildContent>
+                            <RadzenTextBox Name="Overnatning" @bind-Value=@Dag.Overnatning />
+                        </ChildContent>
+                    </RadzenFormField>
 
-                <!-- Overnatning -->
-                <RadzenFormField Text="Overnatning" Variant="@ThemeConfig.FormVariant">
-                    <ChildContent>
-                        <RadzenTextBox Name="Overnatning" @bind-Value="Dag.Overnatning" Style="width:100%;" />
-                    </ChildContent>
-                    <Helper>
-                        <RadzenRequiredValidator Component="Overnatning" Text="Overnatning skal udfyldes." />
-                    </Helper>
-                </RadzenFormField>
+                    <RadzenButton ButtonType="ButtonType.Submit" Text="Opret"></RadzenButton>
+                </RadzenStack>
+            </RadzenTemplateForm>
+        </div>
 
-                <!-- Submit-knap -->
-                <RadzenButton ButtonType="ButtonType.Submit" Text="Gem" Style="margin-top:16px;" />
-
-            </Fieldset>
-        <RadzenButton Text="Tilføj Dag" Click="@(() => showAddDag = true)" Icon="add_circle_outline" Style="margin-top:16px;" />
-        <RadzenButton Text="Tilbage" Click="@(() => showAddDag = false)" Icon="arrow_back" Style="margin-top:16px;" ButtonStyle="ButtonStyle.Secondary" />
-        </RadzenStack>
-        </RadzenTemplateForm>
-    }
-
-</div>
-
-@code{
+@code {
     [Inject] 
-    private IDagRepository _DagRepository { get; set; } = default!;
-
-    private string? _token;
-
-    string måltid;
-  
-
-    bool showAddDag = false;
-
+    private IDagRepository _dagRepository { get; set; } = default!;
     public DagCreateDto Dag { get; set; } = new DagCreateDto();
 
-    private List<DagReadDto> DagVar = new List<DagReadDto>();
-
+    Variant variant = Variant.Flat;
+    string _token = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
 
-    // Nu kan du hente CurrentUser direkte:
         _token = AuthStateProvider.CurrentUser.Token;
-
     }
 
-    async Task OnSubmit()
+    async Task OnSubmit(DagCreateDto model)
     {
-       
-        Console.WriteLine($"Titel: {Dag.Titel}\nBeskrivelse: {Dag.Beskrivelse}");
-        _DagRepository.CreateDagAsync(Dag, _token);
+        try{
+        Console.WriteLine($"Titel: {Dag.Titel}\nBeskrivelse: {Dag.Beskrivelse}\nAktiviteter: {Dag.Aktiviteter}\nMåltider: {Dag.Måltider}\nOvernatning: {Dag.Overnatning}");
+        await _dagRepository.CreateDagAsync(model, _token);
+            Console.WriteLine("Dag oprettet");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Fejl ved oprettelse af dag: {ex.Message}");
+        }
     }
 
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
     {
 
-    }
-
-    void RemoveAktivitet(int index)
-    {
-        if (index >= 0 && index < Dag.Måltider.Count)
-            Dag.Aktiviteter.RemoveAt(index);
-    }
-    void AddAktivitet()
-    {
-        Dag.Aktiviteter.Add(string.Empty);
-    }
-    void RemoveMåltid(int index)
-    {
-        if (index >= 0 && index < Dag.Måltider.Count)
-            Dag.Måltider.RemoveAt(index);
-    }
-    void AddMåltid()
-    {
-        Dag.Måltider.Add(string.Empty);
     }
 }

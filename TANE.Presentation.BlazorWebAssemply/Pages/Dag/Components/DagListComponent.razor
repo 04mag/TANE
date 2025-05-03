@@ -29,7 +29,7 @@
 
 @code {
     [Parameter, EditorRequired]
-    public List<DagReadDto> Injected { get; set; } = new List<DagReadDto>();
+    public List<DagReadDto> InjectedDage { get; set; } = new List<DagReadDto>();
 
     [Parameter]
     public EventCallback<DagReadDto> OnSelect { get; set; }
@@ -68,7 +68,7 @@
     {
         await base.OnInitializedAsync();
 
-         tt= Injected.AsQueryable();
+         tt = InjectedDage.AsQueryable();
 
     Selected = new List<DagReadDto>() { tt.FirstOrDefault()! };
     }
@@ -87,20 +87,20 @@ async Task SelectRow(DagReadDto dag)
     {
         await OnSelect.InvokeAsync(dag);
 
-        tt = Injected.AsQueryable();
+        tt = InjectedDage.AsQueryable();
     }
 
     async Task EditRow(DagReadDto dag)
     {
         await OnEdit.InvokeAsync(dag);
 
-        tt = Injected.AsQueryable();
+        tt = InjectedDage.AsQueryable();
     }
 
     async Task DeleteRow(DagReadDto dag)
     {
         await OnDelete.InvokeAsync(dag);
 
-        tt = Injected.AsQueryable();
+        tt = InjectedDage.AsQueryable();
     }
 }
