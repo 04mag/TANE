@@ -36,17 +36,6 @@ Welcome to your new app.
 @code{
     public string Status { get; set; } = "Click to add test user";
 
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-
-    // Nu kan du hente CurrentUser direkte:
-        var token = AuthStateProvider.CurrentUser.Token;
-
-        if (AuthStateProvider.CurrentUser != null && AuthStateProvider.CurrentUser.Token != null)
-            AuthStateProvider.RefreshTokenAsync();
-    }
-
     private async Task OnClick()
     {
         Status = "Creating user...";
