@@ -29,7 +29,7 @@
 
 @code {
     [Parameter, EditorRequired]
-    public List<TurReadDto> Injected { get; set; } = new List<TurReadDto>();
+    public List<TurReadDto> InjectedTure { get; set; } = new List<TurReadDto>();
 
     [Parameter]
     public EventCallback<TurReadDto> OnSelect { get; set; }
@@ -68,7 +68,7 @@
     {
         await base.OnInitializedAsync();
 
-         tt= Injected.AsQueryable();
+         tt= InjectedTure.AsQueryable();
 
     Selected = new List<TurReadDto>() { tt.FirstOrDefault()! };
     }
@@ -87,20 +87,20 @@ async Task SelectRow(TurReadDto tur)
     {
         await OnSelect.InvokeAsync(tur);
 
-        tt = Injected.AsQueryable();
+        tt = InjectedTure.AsQueryable();
     }
 
     async Task EditRow(TurReadDto tur)
     {
         await OnEdit.InvokeAsync(tur);
 
-        tt = Injected.AsQueryable();
+        tt = InjectedTure.AsQueryable();
     }
 
     async Task DeleteRow(TurReadDto tur)
     {
         await OnDelete.InvokeAsync(tur);
 
-        tt = Injected.AsQueryable();
+        tt = InjectedTure.AsQueryable();
     }
 }

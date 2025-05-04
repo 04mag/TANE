@@ -1,0 +1,26 @@
+﻿@using TANE.Application.Dtos
+@using TANE.Application.Groups.Ture.Queries.Interfaces
+@using TANE.Presentation.BlazorWebAssemply.Pages.Rejseplan.Components
+@inject IReadTur ReadTure
+@inject CustomStateProvider AuthStateProvider
+
+@page "/rejseplan/create"
+
+<CreateRejseplanComponent InjectedTure="Ture"/>
+
+@code {
+    private string? _token;
+
+    public List<TurReadDto> Ture { get; set; } = new List<TurReadDto>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+    
+        // Nu kan du hente CurrentUser direkte:
+        _token = AuthStateProvider.CurrentUser.Token;
+
+        Ture = await ReadTure.ReadAllTureAsync(_token);
+    }
+}

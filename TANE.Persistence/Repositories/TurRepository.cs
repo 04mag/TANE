@@ -61,7 +61,7 @@
                 new AuthenticationHeaderValue("Bearer", jwtToken);
 
             // Hent og deserialiser direkte til List<TurReadDto>
-            var tours = await client.GetFromJsonAsync<List<TurReadDto>>("tur");
+            var tours = await client.GetFromJsonAsync<List<TurReadDto>>("Tur");
 
             // Hvis API’et returnerer 204 No Content, bliver tours null
             return tours ?? new List<TurReadDto>();

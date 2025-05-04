@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using TANE.Application.Groups.Dage.Queries.Interfaces;
 using TANE.Application.Groups.Dage.Queries;
+using TANE.Application.Groups.Ture.Queries;
+using TANE.Application.Groups.Ture.Queries.Interfaces;
 using TANE.Application.Groups.TurSkabeloner.Queries.Interfaces;
 using TANE.Application.Groups.TurSkabeloner.Queries;
 using TANE.Application.RepositoryInterfaces;
@@ -60,6 +62,7 @@ namespace TANE.Persistence.Configuration
             services.AddScoped<ITurSkabelonRepository, TurSkabelonRepository>();
             services.AddScoped<IReadTurSkabelon, ReadTurSkabelon>();
             services.AddScoped<IReadDag, ReadDag>();
+            services.AddScoped<IReadTur, ReadTur>();
 
             return services;
         }

@@ -5,6 +5,8 @@ namespace TANE.Application.Dtos
     public class RejseplanCreateDto
     {
         public int KundeId { get; set; }
+        public string Titel { get; set; } 
+        public string Beskrivelse { get; set; } 
         public int AntalVoksne { get; set; }
         public int AntalBørn { get; set; }
         public string Lufthavn { get; set; }

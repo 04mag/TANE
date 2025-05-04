@@ -1,0 +1,141 @@
+﻿@using TANE.Application.Dtos
+@using System.Collections.ObjectModel
+@using TANE.Application.RepositoryInterfaces
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
+
+@inject CustomStateProvider AuthStateProvider
+@inject ITurRepository TurRepository
+
+<div class="rz-p-0 rz-p-md-12">
+
+    @if (showAddTur)
+    {
+        <TurListComponent InjectedTure="Ture" OnSelect="OnTurRowSelect" />
+    }
+
+    @if (!showAddTur)
+    {
+        <h4>Opret Ny RejseplanReadDto </h4>
+        <RadzenTemplateForm TItem="RejseplanCreateDto" Data=@Rejseplan Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+            <RadzenStack Gap="1rem" class="rz-p-sm-12">
+
+                <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
+                    <ChildContent>
+                        <RadzenTextBox Name="Titel" @bind-Value=@Rejseplan.Titel />
+                    </ChildContent>
+                    <Helper>
+                        <RadzenRequiredValidator Component="Titel" Text="Titel skal udfyldes." />
+                    </Helper>
+                </RadzenFormField>
+
+
+                <RadzenFormField Text="Beskrivelse" Variant="@ThemeConfig.FormVariant">
+                    <ChildContent>
+                        <RadzenTextArea Name="Beskrivelse" @bind-Value="@Rejseplan.Beskrivelse" Rows="4" />
+                    </ChildContent>
+                    <Helper>
+                        <RadzenRequiredValidator Component="Beskrivelse" Text="Beskrivelse skal udfyldes." />
+                    </Helper>
+                </RadzenFormField>
+
+                <br />
+
+                <h4>ture:</h4>
+                <TurReorderListComponent InjectedTure="Observableture" OnDelete="OnTurDelete" />
+                <div style="text-align: right; width: 100%;">
+                    <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium" Style="width: 150px" Text="Tilføj Tur" Click="@(() => showAddTur = !showAddTur)"></RadzenButton>
+                </div>
+
+                <br />
+
+                <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Text="Opret RejseplanReadDto "></RadzenButton>
+            </RadzenStack>
+        </RadzenTemplateForm>
+    }
+
+</div>
+
+@code{
+    [Inject] 
+    private IRejsePlanRepository _RejseplanRepository { get; set; } = default!;
+
+    
+
+    [Parameter, EditorRequired]
+    public List<TurReadDto> InjectedTure { get; set; } = new List<TurReadDto>();
+
+  
+    private string? _token;
+    bool showAddTur = false;
+
+    private ObservableCollection<TurReadDto> SelectedtureVar = new ObservableCollection<TurReadDto>();
+
+    public ObservableCollection<TurReadDto> Observableture
+    {
+        get
+        {
+            return SelectedtureVar;
+        }
+        set 
+        { 
+            SelectedtureVar = value;
+        }
+    }
+
+    public RejseplanCreateDto Rejseplan { get; set; } = new RejseplanCreateDto();
+
+    private List<TurReadDto> TurVar = new List<TurReadDto>();
+
+    public List<TurReadDto> Ture
+    {
+        get
+        {
+            // return TurVar excluding entities already in ObservableTur
+            return TurVar.Where(d => !Observableture.Any(o => o.Id == d.Id)).ToList();
+        }
+        set
+        {
+            TurVar = value;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+       
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _token = AuthStateProvider.CurrentUser.Token;
+
+    // Faktisk hentning af alle ture:
+        var alleture = await TurRepository.ReadAllTure(_token);
+        Ture = alleture;   // udfylder din property, så Injectedture ikke længere er nødvendig
+    }
+
+    
+
+    async Task OnSubmit()
+    {
+        
+        Console.WriteLine($"Titel: {Rejseplan.Titel}\nBeskrivelse: {Rejseplan.Beskrivelse}");
+        _RejseplanRepository.CreateRejsePlan(Rejseplan, _token);
+    }
+
+    void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    {
+
+    }
+
+    private void OnTurRowSelect(TurReadDto Tur)
+    {
+        Observableture.Add(Tur);
+
+        showAddTur = !showAddTur;
+    }
+
+    private void OnTurDelete(TurReadDto Tur)
+    {
+        Observableture.Remove(Tur);
+    }
+}

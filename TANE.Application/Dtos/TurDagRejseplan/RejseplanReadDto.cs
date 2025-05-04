@@ -3,6 +3,8 @@
     public class RejseplanReadDto
     {
         public int Id { get; set; }
+        public string Titel { get; set; }
+        public string Beskrivelse { get; set; }
         public int KundeId { get; set; }
         public int AntalVoksne { get; set; }
         public int AntalBørn { get; set; }

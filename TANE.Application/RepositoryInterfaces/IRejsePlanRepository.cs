@@ -10,7 +10,7 @@ namespace TANE.Application.RepositoryInterfaces
 {
     public interface IRejsePlanRepository
     {
-        Task<bool> CreateRejsePlan(RejsePlan rejsePlan, string jwtToken);
+        Task<bool> CreateRejsePlan(RejseplanCreateDto rejsePlan, string jwtToken);
         Task<bool> UpdateRejsePlan(int id, RejseplanUpdateDto dto, string jwtToken);
         Task<bool> DeleteRejsePlan(int rejsePlanId, string jwtToken);
         Task<RejseplanReadDto> ReadRejsePlanById(int rejsePlanId, string jwtToken);

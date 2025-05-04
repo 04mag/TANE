@@ -24,7 +24,7 @@ namespace TANE.Persistence.Repositories
             _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
         }
 
-        public async Task<bool> CreateRejsePlan(RejsePlan rejsePlan, string jwtToken)
+        public async Task<bool> CreateRejsePlan(RejseplanCreateDto rejsePlan, string jwtToken)
         {
             SetJwtToken(jwtToken);
             var response = await _http.PostAsJsonAsync("rejseplan", rejsePlan);

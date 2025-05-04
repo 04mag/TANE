@@ -61,10 +61,10 @@ namespace TANE.Persistence.Repositories
                 new AuthenticationHeaderValue("Bearer", jwtToken);
 
             // Hent og deserialiser direkte til List<DagReadDto>
-            var tours = await client.GetFromJsonAsync<List<DagReadDto>>("dag");
+            var dage = await client.GetFromJsonAsync<List<DagReadDto>>("dag");
 
             // Hvis API’et returnerer 204 No Content, bliver tours null
-            return tours ?? new List<DagReadDto>();
+            return dage ?? new List<DagReadDto>();
         }
 
         public async Task<DagReadDto> ReadDagByIdAsync(int dagId, string jwtToken)
