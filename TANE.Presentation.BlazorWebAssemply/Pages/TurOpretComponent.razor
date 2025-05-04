@@ -8,62 +8,62 @@ using System.Drawing;
 using System.Xml.Linq;
 using TANE.Domain.Entities;
 
-@using TANE.Rejseplan.Application.Dtos
 @using System.Collections.ObjectModel
-@using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Presentation.BlazorWebAssemply.Pages..Tur.Components
 
 <div class= "rz-p-0 rz-p-md-12" >
 
     @if(showAddTur)
     {
-        <TurListComponent Injected = "Tur" OnSelect = "OnTurRowSelect" />
+        < TurListComponent Injected = "Tur" OnSelect = "OnTurRowSelect" />
     }
 
-    @if (showAddTur)
+@if(!showAddTur)
     {
-        <h4>Opret Ny Rejseplan</h4>
-        <RadzenTemplateForm TItem="TurCreateDto" Data="@Tur" Submit="@OnSubmit" InvalidSubmit="@OnInvalidSubmit">
-            <RadzenStack Gap="1rem" Class="rz-p-sm-12">
-        
-                <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
-                    <ChildContent>
-                        <RadzenTextBox Name="Titel" @bind-Value="@Tur.Titel" />
-                    </ChildContent>
-                    <Helper>
-                        <RadzenRequiredValidator Component="Titel" Text="Titel skal udfyldes." />
-                    </Helper>
-                </RadzenFormField>
+        < h4 > Opret Ny Rejseplan</ h4 >
+        < RadzenTemplateForm TItem = "RejsePlan" Data = @Rejseplan Submit = @OnSubmit InvalidSubmit = @OnInvalidSubmit >
+            < RadzenStack Gap = "1rem" class= "rz-p-sm-12" >
 
-                <RadzenFormField Text="Beskrivelse" Variant="@ThemeConfig.FormVariant">
-                    <ChildContent>
-                        <RadzenTextArea Name="Beskrivelse" @bind-Value="@Tur.Beskrivelse" Rows="4" />
-                    </ChildContent>
-                    <Helper>
-                        <RadzenRequiredValidator Component="Beskrivelse" Text="Beskrivelse skal udfyldes." />
-                    </Helper>
-                </RadzenFormField>
+                < RadzenFormField Text = "Titel" Variant = "@ThemeConfig.FormVariant" >
+                    < ChildContent >
+                        < RadzenTextBox Name = "Titel" @bind - Value = @Rejseplan.Titel />
+                    </ ChildContent >
+                    < Helper >
+                        < RadzenRequiredValidator Component = "Titel" Text = "Titel skal udfyldes." />
+                    </ Helper >
+                </ RadzenFormField >
 
-                <h4>Ture:</h4>
-                <TurReorderListComponent Injected="ObservableTur" OnDelete="OnTurDelete" />
 
-                <div style="text-align:right; width:100%;">
-                    <RadzenButton
-                        ButtonType="ButtonType.Submit"
-                        Size="ButtonSize.Medium"
-                        Style="width: 150px"
-                        Text="Tilføj Tur">
-                    </RadzenButton>
-                </div>
+                < RadzenFormField Text = "Beskrivelse" Variant = "@ThemeConfig.FormVariant" >
+                    < ChildContent >
+                        < RadzenTextArea Name = "Beskrivelse" @bind - Value = "@Rejseplan.Beskrivelse" Rows = "4" />
+                    </ ChildContent >
+                    < Helper >
+                        < RadzenRequiredValidator Component = "Beskrivelse" Text = "Beskrivelse skal udfyldes." />
+                    </ Helper >
+                </ RadzenFormField >
 
-                <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Text="Opret tur" />
-            </RadzenStack>
-        </RadzenTemplateForm>
+                < br />
+
+                < h4 > Ture:</ h4 >
+                < TurReorderListComponent Injected = "ObservableTur" OnDelete = "OnTurDelete" />
+                < div style = "text-align: right; width: 100%;" >
+                    < RadzenButton ButtonType = "ButtonType.Button" Size = "ButtonSize.Medium" Style = "width: 150px" Text = "Tilføj Tur" Click = "@(() => showAddTur = !showAddTur)" ></ RadzenButton >
+                </ div >
+
+                < br />
+
+                < RadzenButton ButtonType = "ButtonType.Submit" Size = "ButtonSize.Large" Text = "Opret tur " ></ RadzenButton >
+            </ RadzenStack >
+        </ RadzenTemplateForm >
     }
-</div>
+
+</ div >
 
 @code{
+
     [Parameter, EditorRequired]
     public List<DagReadDto> InjectedDage { get; set; } = new List<DagReadDto>();
 
@@ -84,7 +84,9 @@ using TANE.Domain.Entities;
     }
 }
 
-    public TurCreateDto Tur { get; set; } = new TurCreateDto();
+public RejsePlan Rejseplan { get; set; } = new RejsePlan();
+
+private List<Tur> TurVar = new List<Tur>();
 
     private List<DagReadDto> DagVar = new List<DagReadDto>();
     public List<DagReadDto> Dage
@@ -105,9 +107,16 @@ protected override void OnInitialized()
     Dage = InjectedDage;
 }
 
-void OnSubmit(TurCreateDto model)
+void OnSubmit(RejsePlan model)
 {
-    _turRepository.CreateTur(model, "JwtToken");
+    Rejseplan.Tur = ObservableTur.ToList();
+
+    Console.WriteLine($"Titel: {Rejseplan.Titel}\nBeskrivelse: {Rejseplan.Beskrivelse}");
+
+    foreach (var dag in Rejseplan.Tur)
+    {
+        Console.WriteLine($"Tur: {dag.Titel}");
+    }
 }
 
 void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
