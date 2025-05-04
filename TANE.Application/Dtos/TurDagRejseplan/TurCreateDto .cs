@@ -1,4 +1,4 @@
-﻿namespace TANE.Rejseplan.Application.Dtos
+﻿namespace TANE.Application.Dtos
 {
     public class TurCreateDto
     {

@@ -7,7 +7,7 @@
    
     using TANE.Application.RepositoryInterfaces;
     using TANE.Domain.Entities;
-    using TANE.Rejseplan.Application.Dtos;
+    using TANE.Application.Dtos;
 
     namespace TANE.Persistence.Repositories
     { 

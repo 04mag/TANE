@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TANE.Rejseplan.Application.Dtos
+namespace TANE.Application.Dtos
 {
     public class DagCreateDto
     {

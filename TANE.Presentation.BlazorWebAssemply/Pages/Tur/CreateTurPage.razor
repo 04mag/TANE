@@ -1,7 +1,7 @@
 ﻿@using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
-@using TANE.Rejseplan.Application.Dtos
+@using TANE.Application.Dtos
 @using TANE.Application.Groups.Dage.Queries.Interfaces
 @using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
 @inject IReadDag ReadDage
@@ -20,11 +20,10 @@
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-
-    // Nu kan du hente CurrentUser direkte:
+    
+        // Nu kan du hente CurrentUser direkte:
         _token = AuthStateProvider.CurrentUser.Token;
-      
-        
+
         Dage = await ReadDage.ReadDageAsync(_token);
     }
 }

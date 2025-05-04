@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using TANE.Rejseplan.Application.Dtos;
+using TANE.Application.Dtos;
 
 namespace TANE.Presentation.BlazorWebAssemply.Services
 {
