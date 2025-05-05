@@ -20,24 +20,27 @@
         </RadzenFormField>
 
         <!-- Token -->
-        <RadzenFormField Text="Password" Variant="@ThemeConfig.FormVariant">
+        <RadzenFormField Text="Token" Variant="@ThemeConfig.FormVariant">
             <ChildContent>
-                <RadzenPassword Name="Password" @bind-Value="User.Token" Style="width:100%" />
+                <RadzenPassword Name="Token" @bind-Value="User.Token" Style="width:100%" />
             </ChildContent>
             <Helper>
-                <RadzenRequiredValidator Component="Password" Text="Password skal udfyldes." />
-                <RadzenLengthValidator Component="Password" Min="6" Text="Password skal være mindst 6 tegn." />
+                <RadzenRequiredValidator Component="Token" Text="Password skal udfyldes." />
+                <RadzenRegexValidator
+                    Component="Token"
+                    Pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$"
+                    Text="Password skal være mindst 8 tegn langt, indeholde mindst 1 stort bogstav, 1 lille bogstav, 1 tal og 1 specialtegn." />
             </Helper>
         </RadzenFormField>
 
         <!-- Refresh Token -->
         <RadzenFormField Text="Bekræft password" Variant="@ThemeConfig.FormVariant">
             <ChildContent>
-                <RadzenPassword Name="ConfirmPassword" @bind-Value="User.RefreshToken" Style="width:100%" />
+                <RadzenPassword Name="RefreshToken" @bind-Value="User.RefreshToken" Style="width:100%" />
             </ChildContent>
             <Helper>
-                <RadzenRequiredValidator Component="ConfirmPassword" Text="Bekræft dit password." />
-                <RadzenCompareValidator Component="ConfirmPassword" CompareTo="Password" Text="Passwords skal være ens." />
+                <RadzenRequiredValidator Component="RefreshToken" Text="Bekræft dit password." />
+                <RadzenCompareValidator Component="RefreshToken" CompareTo="Token" Text="Passwords skal være ens." />
             </Helper>
         </RadzenFormField>
 
