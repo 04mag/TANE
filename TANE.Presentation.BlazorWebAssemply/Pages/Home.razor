@@ -1,6 +1,8 @@
 ﻿@using TANE.Application.Common.Exceptions
 @using TANE.Application.Groups.JwtTokens.Commands.Interfaces
 @using TANE.Domain.Entities
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
 @inject CustomStateProvider AuthStateProvider
 @inject ICreateUser CreateUser
 
@@ -40,9 +42,9 @@ Welcome to your new app.
     {
         Status = "Creating user...";
 
-        if (AuthStateProvider.CurrentUser != null && AuthStateProvider.CurrentUser.Token != null)
+        if (AuthStateProvider.CurrentUser.Token != "")
         {
-            await AuthStateProvider.RefreshTokenAsync();
+            await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
 
             try
             {

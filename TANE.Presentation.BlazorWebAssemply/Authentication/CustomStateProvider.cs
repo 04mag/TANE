@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Components.Authorization;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
+using Radzen;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using TANE.Application.Common.Exceptions;
 using TANE.Application.Groups.JwtTokens.Commands.Interfaces;
 using TANE.Domain.Entities;
 using TANE.Presentation.BlazorWebAssemply.Services;
@@ -95,7 +98,7 @@ namespace TANE.Presentation.BlazorWebAssemply.Authentication
             NotifyAuthenticationStateChanged(Task.FromResult(authState));
         }
 
-        public async Task RefreshTokenAsync()
+        public async Task RefreshTokenAsync(NavigationManager navigationManager, NotificationService notificationService)
         {
             var user = await _browserStorageService.GetFromLocalStorage<User>(userStorageKey);
             
@@ -104,11 +107,47 @@ namespace TANE.Presentation.BlazorWebAssemply.Authentication
                 return;
             }
 
-            var result = await _refreshToken.RefreshTokenAsync(user.Token, user.RefreshToken);
+            try
+            {
+                var result = await _refreshToken.RefreshTokenAsync(user.Token, user.RefreshToken);
 
-            user.Token = result.Token;
-            user.RefreshToken = result.RefreshToken;
-            user.Expiration = result.Expiration;
+                user.Token = result.Token;
+                user.RefreshToken = result.RefreshToken;
+                user.Expiration = result.Expiration;
+            }
+            catch (RefreshTokenExpiredException)
+            {
+                await LogoutAsync();
+
+                notificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Session expired",
+                    Detail = "Your session has expired. Please log in again.",
+                    Duration = 5000
+                });
+
+                navigationManager.NavigateTo("/login");
+                return;
+            }
+            catch (Exception)
+            {
+
+                await LogoutAsync();
+
+
+                notificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Session expired",
+                    Detail = "Your session has expired. Please log in again.",
+                    Duration = 5000
+                });
+
+
+                navigationManager.NavigateTo("/login");
+                return;
+            }
 
             await _browserStorageService.SaveToLocalStorage(userStorageKey, user);
 
