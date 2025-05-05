@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using TANE.Application.Common.Exceptions;
 using TANE.Application.Groups.JwtTokens.Commands.Interfaces;
 using TANE.Domain.Entities;
 using TANE.Presentation.BlazorWebAssemply.Services;
@@ -103,11 +104,23 @@ namespace TANE.Presentation.BlazorWebAssemply.Authentication
                 return;
             }
 
-            var result = await _refreshToken.RefreshTokenAsync(user.Token, user.RefreshToken);
+            try
+            {
+                var result = await _refreshToken.RefreshTokenAsync(user.Token, user.RefreshToken);
 
-            user.Token = result.Token;
-            user.RefreshToken = result.RefreshToken;
-            user.Expiration = result.Expiration;
+                user.Token = result.Token;
+                user.RefreshToken = result.RefreshToken;
+                user.Expiration = result.Expiration;
+            }
+            catch (RefreshTokenExpiredException ex)
+            {
+                await LogoutAsync();
+                throw new RefreshTokenExpiredException(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while refreshing token", ex);
+            }
 
             await _browserStorageService.SaveToLocalStorage(userStorageKey, user);
 
