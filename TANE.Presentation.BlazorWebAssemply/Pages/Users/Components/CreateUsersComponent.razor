@@ -1,0 +1,68 @@
+﻿@page "/users/create"
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Configuration
+@inject HttpClient Http
+
+<h3>Opret ny bruger</h3>
+
+<RadzenTemplateForm TItem="User" Data=@User Submit="@OnSubmit" InvalidSubmit=@OnInvalidSubmit>
+    <RadzenStack Gap="1rem" Class="rz-p-sm-12">
+
+        <!-- E-mail -->
+        <RadzenFormField Text="E-mail" Variant="@ThemeConfig.FormVariant">
+            <ChildContent>
+                <RadzenTextBox Name="Email" @bind-Value="User.Email" Type="Email" Style="width:100%" />
+            </ChildContent>
+            <Helper>
+                <RadzenRequiredValidator Component="Email" Text="E-mail skal udfyldes." />
+                <RadzenEmailValidator Component="Email" Text="Indtast en gyldig e-mail." />
+            </Helper>
+        </RadzenFormField>
+
+        <!-- Token -->
+        <RadzenFormField Text="Password" Variant="@ThemeConfig.FormVariant">
+            <ChildContent>
+                <RadzenPassword Name="Password" @bind-Value="User.Token" Style="width:100%" />
+            </ChildContent>
+            <Helper>
+                <RadzenRequiredValidator Component="Password" Text="Password skal udfyldes." />
+                <RadzenLengthValidator Component="Password" Min="6" Text="Password skal være mindst 6 tegn." />
+            </Helper>
+        </RadzenFormField>
+
+        <!-- Refresh Token -->
+        <RadzenFormField Text="Bekræft password" Variant="@ThemeConfig.FormVariant">
+            <ChildContent>
+                <RadzenPassword Name="ConfirmPassword" @bind-Value="User.RefreshToken" Style="width:100%" />
+            </ChildContent>
+            <Helper>
+                <RadzenRequiredValidator Component="ConfirmPassword" Text="Bekræft dit password." />
+                <RadzenCompareValidator Component="ConfirmPassword" CompareTo="Password" Text="Passwords skal være ens." />
+            </Helper>
+        </RadzenFormField>
+
+        <RadzenButton ButtonType="ButtonType.Submit" Text="Opret bruger" Style="margin-top:1rem" />
+
+    </RadzenStack>
+</RadzenTemplateForm>
+
+@code {
+    public User User { get; set; } = new User();
+
+    // Variant fra Radzen (hvis du bruger det samme)
+    Variant variant = Variant.Flat;
+
+    // OnSubmit får modellen ind – samme instans som User
+    void OnSubmit(User model) => Console.WriteLine(
+            $"E-mail: {User.Email}\n" +
+            $"Roles: {User.Roles}\n" +
+            $"Token: {User.Token}\n" +
+            $"Refresh Token: {User.RefreshToken}\n" +
+            $"Expiration: {User.Expiration}"
+        );
+
+    void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    {
+        // evt. log eller vis fejlbesked
+    }
+}
