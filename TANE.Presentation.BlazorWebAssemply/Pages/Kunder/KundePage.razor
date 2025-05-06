@@ -17,8 +17,6 @@ OnDeleteKunde="OnRowDeletePressed" />
     public List<Kunde> Kunder { get; set; } = new();
 
     private async Task OnRowEditPressed(Kunde kunde)
-
- 
     {
         Console.WriteLine($"Edit pressed for: {kunde.Id}");
     }

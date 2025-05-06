@@ -73,6 +73,7 @@ else
 		}
 		kunde = await ReadKunde.GetKundeByIdAsync(Id, Authprovider.CurrentUser.Token);
 	}
+
 	private async Task HandleSubmit(Kunde kunde)
 	{
 		try
@@ -93,13 +94,14 @@ else
 
 			await UpdateKunde.UpdateKundeAsync(kunde, Authprovider.CurrentUser.Token);
 			NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Kunde opdateret" });
-			NavManager.NavigateTo("/kunde");
+			NavManager.NavigateTo("/kundepage/oversigt");
 		}
 		catch (Exception ex)
 		{
 			NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = "Error", Detail = ex.Message });
 		}
 	}
+
 	private async Task OnDeleteKunde()
 	{
 		try
@@ -119,7 +121,7 @@ else
 			}
 			await DeleteKunde.DeleteKundeAsync(kunde.Id, Authprovider.CurrentUser.Token);
 			NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Kunde slettet" });
-			NavManager.NavigateTo("/kunde");
+			NavManager.NavigateTo("/kundepage/oversigt");
 		}
 		catch (Exception ex)
 		{
