@@ -47,16 +47,26 @@
         </AuthorizeView>
 
         @* Eksempel på at skjule nav menu punkt hvis man ikke er logget ind *@
-        @* <AuthorizeView>
-            <Authorized>*@
+        <AuthorizeView>
+            <Authorized>
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="opret-kunde">
+                    <NavLink class="nav-link" href="Kunde/Oversigt">
+                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Kunde Oversigt
+                    </NavLink>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+
+        @* Eksempel på at skjule nav menu punkt hvis man ikke er logget ind *@
+        <AuthorizeView>
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Kunde/opret">
                         <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Kunde Oprettelse
                     </NavLink>
                 </div>
-            @*</Authorized>
-        </AuthorizeView> *@
-        
+            </Authorized>
+        </AuthorizeView>
 
     </nav>
 </div>

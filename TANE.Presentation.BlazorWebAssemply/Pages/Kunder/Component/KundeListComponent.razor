@@ -18,19 +18,19 @@
 				{
 					<RadzenButton Icon="file_open" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
 								  Shade="Shade.Lighter" class="rz-my-1 rz-ms-1"
-								  OnClick="@(() => OnRowSelect(kunde))" OnClick:stopPropagation />
+								  Click="@(args => OnRowSelect(kunde))" OnClick:stopPropagation />
 				}
 				@if (OnEditKunde.HasDelegate)
 				{
 					<RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
 								  class="rz-my-1 rz-ms-1"
-								  OnClick="@(() => OnRowEdit(kunde))" OnClick:stopPropagation />
+								  Click="@(args => OnRowEdit(kunde))" OnClick:stopPropagation />
 				}
 				@if (OnDeleteKunde.HasDelegate)
 				{
 					<RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium"
 								  Shade="Shade.Lighter" class="rz-my-1 rz-ms-1"
-								  OnClick="@(() => OnRowDelete(kunde))" OnClick:stopPropagation />
+								  Click="@(args => OnRowDelete(kunde))" OnClick:stopPropagation />
 				}
 			</Template>
 		</RadzenDataGridColumn>
@@ -106,6 +106,7 @@
 	private async Task OnRowEdit(Kunde kunde)
 	{
 		await OnEditKunde.InvokeAsync(kunde);
+
 		Kunder = InjectedKunder.AsQueryable();
 	}
 
@@ -115,5 +116,6 @@
 		Kunder = InjectedKunder.AsQueryable();
 		StateHasChanged();
 	}
+	
 
 }
