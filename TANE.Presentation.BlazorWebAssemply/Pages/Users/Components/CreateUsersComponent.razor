@@ -11,7 +11,7 @@
 
 <h3>Opret ny bruger</h3>
 
-<RadzenTemplateForm TItem="User" Data=@User Submit="@OnSubmit" InvalidSubmit=@OnInvalidSubmit>
+<RadzenTemplateForm TItem="User" Data="@User" Submit="@OnSubmit" InvalidSubmit="@OnInvalidSubmit">
     <RadzenStack Gap="1rem" Class="rz-p-sm-12">
 
         <!-- E-mail -->
@@ -68,76 +68,68 @@
     {
         try
         {
-            // 1) Forny JWT, hvis nødvendigt
+            // 1) Forny JWT-token hvis nødvendigt
             await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
 
-            // 2) Opret bruger via service / Interface rettet til Task<bool>
-            bool created = await CreateUser.CreateUserAsync(
-              model.Email,
-              model.Password,
-              AuthStateProvider.CurrentUser.Token
+            // 2) Forsøg at oprette brugeren – kaster exception ved fejl
+            await CreateUser.CreateUserAsync(
+                model.Email,
+                model.Password,
+                AuthStateProvider.CurrentUser.Token
             );
 
-            // 3) Håndter success / “false”
-            if (created)
-            {
-                NotificationService.Notify(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Success,
-                        Summary = "Bruger oprettet",
-                        Detail = $"Bruger {model.Email} er nu oprettet.",
-                        Duration = 4000
-                    });
-                NavigationManager.NavigateTo("/users");
-            }
-            else
-            {
-                // Teoretisk: hvis servicen returnerer false i stedet for at kaste
-                NotificationService.Notify(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Warning,
-                        Summary = "Oprettelse mislykkedes",
-                        Detail = "Bruger blev ikke oprettet, prøv igen.",
-                        Duration = 4000
-                    });
-            }
+            // 3) Hvis vi når hertil, lykkedes oprettelsen
+            NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Bruger oprettet",
+                    Detail = $"Bruger med e-mail '{model.Email}' er nu oprettet.",
+                    Duration = 4000
+                });
+
+            // Navigér tilbage til oversigten
+            NavigationManager.NavigateTo("/users");
         }
         catch (NotAuthorizedException ex)
         {
+            // 401/403 fra CreateUserAsync
             NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
-                    Summary = "Ingen rettighed",
-                    Detail = ex.Message,
+                    Summary = "Ikke autoriseret",
+                    Detail = ex.Message, // fx "Ikke autoriseret til at oprette bruger."
                     Duration = 4000
                 });
         }
         catch (ConflictException ex)
         {
+            // 409 fra CreateUserAsync
             NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Warning,
-                    Summary = "Duplikat e-mail",
-                    Detail = ex.Message,
+                    Summary = "E-mail i brug",
+                    Detail = ex.Message, // fx "Bruger med den e-mail eksisterer allerede."
                     Duration = 4000
                 });
         }
         catch (Exception ex)
         {
+            // Alle andre fejl
             NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
-                    Summary = "Fejl",
+                    Summary = "Fejl ved oprettelse",
                     Detail = ex.Message,
                     Duration = 4000
                 });
         }
-        
     }
+
     private void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
     {
-
+        
     }
+    
 }
 
     

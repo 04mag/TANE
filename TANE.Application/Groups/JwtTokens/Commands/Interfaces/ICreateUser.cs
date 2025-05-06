@@ -8,6 +8,6 @@ namespace TANE.Application.Groups.JwtTokens.Commands.Interfaces
 {
     public interface ICreateUser
     {
-        Task<bool> CreateUserAsync(string email, string password, string jwtToken);
+        Task CreateUserAsync(string email, string password, string jwtToken);
     }
 }
