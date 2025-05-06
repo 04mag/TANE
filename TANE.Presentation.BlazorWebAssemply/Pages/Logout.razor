@@ -1,6 +1,7 @@
 ﻿@using TANE.Presentation.BlazorWebAssemply.Authentication
 @inject CustomStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
 
 @page "/logout"
 
@@ -16,6 +17,15 @@
             await AuthStateProvider.LogoutAsync();
 
             LogOutText = "Du er nu logget ud";
+
+            NotificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Info,
+                    Summary = "Logget ud",
+                    Detail = "Du er nu logget ud"
+                });
+
+            NavigationManager.NavigateTo("/login");
         }
         catch (Exception)
         {
