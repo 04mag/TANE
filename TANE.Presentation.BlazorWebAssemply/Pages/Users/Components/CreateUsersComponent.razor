@@ -52,10 +52,10 @@
 @code {
     public User User { get; set; } = new User();
 
-    // Variant fra Radzen (hvis du bruger det samme)
+    
     Variant variant = Variant.Flat;
 
-    // OnSubmit får modellen ind – samme instans som User
+    
     void OnSubmit(User model) => Console.WriteLine(
             $"E-mail: {User.Email}\n" +
             $"Roles: {User.Roles}\n" +
@@ -66,6 +66,6 @@
 
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
     {
-        // evt. log eller vis fejlbesked
+        
     }
 }
