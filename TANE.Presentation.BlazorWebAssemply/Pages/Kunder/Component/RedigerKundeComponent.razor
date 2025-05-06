@@ -45,7 +45,7 @@ else
 				<RadzenRegexValidator Component="TlfNummer" Pattern="^(\+\d{1,3})?(\ )?(\d{8,20})$" Text="Telefonnummer skal være mellem 8 og 20 cifre og kun indeholde tal" />
 			</RadzenFormField>
 
-			<RadzenButton Text="Gem" ButtonType="ButtonType.Submit" Style="margin-right: 1rem" />
+			<RadzenButton Text="Gem" ButtonType="ButtonType.Submit" />
 			<RadzenButton Text="Slet" ButtonStyle="ButtonStyle.Danger" Click="OnDeleteKunde" />
 		</RadzenStack>
 	</RadzenTemplateForm>
@@ -62,15 +62,7 @@ else
 		{
 			return;
 		}
-		try
-		{
-			await Authprovider.RefreshTokenAsync();
-		}
-		catch (RefreshTokenExpiredException)
-		{
-
-			throw;
-		}
+		await Authprovider.RefreshTokenAsync(NavManager, NotificationService);
 		kunde = await ReadKunde.GetKundeByIdAsync(Id, Authprovider.CurrentUser.Token);
 	}
 
@@ -82,15 +74,7 @@ else
 			{
 				return;
 			}
-			try
-			{
-				await Authprovider.RefreshTokenAsync();
-			}
-			catch (RefreshTokenExpiredException)
-			{
-				
-				throw;
-			}
+			await Authprovider.RefreshTokenAsync(NavManager, NotificationService);
 
 			await UpdateKunde.UpdateKundeAsync(kunde, Authprovider.CurrentUser.Token);
 			NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Kunde opdateret" });
@@ -110,15 +94,8 @@ else
 			{
 				return;
 			}
-			try
-			{
-				await Authprovider.RefreshTokenAsync();
-			}
-			catch (RefreshTokenExpiredException)
-			{
+			await Authprovider.RefreshTokenAsync(NavManager, NotificationService);
 
-				throw;
-			}
 			await DeleteKunde.DeleteKundeAsync(kunde.Id, Authprovider.CurrentUser.Token);
 			NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Kunde slettet" });
 			NavManager.NavigateTo("/kundepage/oversigt");
