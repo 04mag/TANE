@@ -1,0 +1,47 @@
+﻿@using TANE.Presentation.BlazorWebAssemply.Pages.Rejseplan.Components
+@using TANE.Application.Dtos
+@using TANE.Application.Groups.RejsePlaner.Queries.Interfaces
+@using TANE.Application.Groups.Ture.Queries.Interfaces
+@inject IReadRejsePlan ReadRejseplan
+@inject CustomStateProvider AuthStateProvider
+
+
+<h3>Rejseplaner</h3>
+@page "/rejseplaner"
+<RejseplanListComponent Injected="AlleRejseplaner" OnEdit="OnEdit"/>
+<div style="text-align: right; width: 100%;">
+    <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium"
+                  Style="width:150px" Text="Tilføj Tur"
+                  Click="@(() => showAddTur = !showAddTur)" />
+</div>
+@if (showAddTur)
+{
+    <EditRejseplanComponent SelectedRejseplan="Selected" />
+}
+
+@code {
+
+    private bool showAddTur = false;
+    private string? _token;
+
+    RejseplanReadDto Selected { get; set; } = new RejseplanReadDto();
+    List<RejseplanReadDto> AlleRejseplaner { get; set; } = new List<RejseplanReadDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _token = AuthStateProvider.CurrentUser.Token;
+        AlleRejseplaner = await ReadRejseplan.ReadRejsePlanerAsync(_token);
+    }
+    private void OnDelete(RejseplanReadDto Rejseplan)
+    {
+        AlleRejseplaner.Remove(Rejseplan);
+    }
+
+    private void OnEdit(RejseplanReadDto Rejseplan)
+    {
+        Selected = Rejseplan;
+        showAddTur = true;
+    }
+}

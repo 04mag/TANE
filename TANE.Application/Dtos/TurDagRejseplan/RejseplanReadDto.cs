@@ -20,6 +20,18 @@
         public bool TilbudAccepteret { get; set; } = false;
         public bool RejseBooket { get; set; } = false;
         public bool Annulleret { get; set; } = false;
+        public Status TilbudsStatus { get; set; } = Status.RejseplanOprettet;
+        public enum Status
+        {
+            RejseplanOprettet,
+            TilbudSendt,
+            AfventerOpfølgning,
+            OpfølgningSvaret,
+            TilbudAccepteret,
+            RejseBooket,
+            Annulleret,
+            Udskudt
+        }
         public byte[] RowVersion { get; set; }  // **Til optimistic concurrency**
     }
 }

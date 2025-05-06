@@ -1,19 +1,19 @@
 ﻿@inherits LayoutComponentBase
 
 <div class="page">
-
     <div class="sidebar">
         <NavMenu />
     </div>
 
     <HeadContent>
+        <!-- Optional: apply a built-in Radzen theme -->
         <RadzenTheme Theme="material" />
     </HeadContent>
 
-
-    <main>
+    <div class="main">
         <div class="top-row px-4">
             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+
             <AuthorizeView>
                 <Authorized>
                     <a href="/logout">Log ud</a>
@@ -30,7 +30,8 @@
         <article class="content px-4">
             @Body
         </article>
-    </main>
+    </div>
 </div>
 
-<RadzenComponents />
+<!-- This is the only Radzen “hook” component you need at the bottom -->
+<RadzenScript />

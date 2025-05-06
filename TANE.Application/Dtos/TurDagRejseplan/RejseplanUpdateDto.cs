@@ -4,7 +4,9 @@ namespace TANE.Application.Dtos
 {
     public class RejseplanUpdateDto
     {
-      
+        public int Id { get; set; }
+        public string Titel { get; set; }
+        public string Beskrivelse { get; set; }
         public int KundeId { get; set; }
         public int AntalVoksne { get; set; }
         public int AntalBørn { get; set; }
@@ -21,5 +23,18 @@ namespace TANE.Application.Dtos
         public bool Anulleret { get; set; }
         [Required]
         public byte[] RowVersion { get; set; }  // **Til optimistic concurrency**
+
+        public Status TilbudsStatus { get; set; } = Status.RejseplanOprettet;
+        public enum Status
+        {
+            RejseplanOprettet,
+            TilbudSendt,
+            AfventerOpfølgning,
+            OpfølgningSvaret,
+            TilbudAccepteret,
+            RejseBooket,
+            Annulleret,
+            Udskudt
+        }
     }
 }

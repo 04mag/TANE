@@ -8,7 +8,7 @@ using TANE.Domain.Entities;
 
 namespace TANE.Application.Groups.RejsePlaner.Queries.Interfaces
 {
-    internal interface IReadRejsePlan
+    public interface IReadRejsePlan
     {
         Task<RejseplanReadDto> ReadRejsePlanByIdAsync(int id, string jwtToken);
         Task<List<RejseplanReadDto>> ReadRejsePlanerAsync(string jwtToken);

@@ -21,12 +21,12 @@ namespace TANE.Application.Groups.RejsePlaner.Queries
 
         public async Task<RejseplanReadDto> ReadRejsePlanByIdAsync(int id, string jwtToken)
         {
-            return await _rejsePlanRepository.ReadRejsePlanById(id, jwtToken);
+            return await _rejsePlanRepository.ReadRejseplanById(id, jwtToken);
         }
 
         public async Task<List<RejseplanReadDto>> ReadRejsePlanerAsync(string jwtToken)
         {
-            return await _rejsePlanRepository.ReadAllRejsePlans(jwtToken);
+            return await _rejsePlanRepository.ReadAllRejseplaner(jwtToken);
         }
     }
 }

@@ -37,6 +37,7 @@ namespace TANE.Presentation.BlazorWebAssemply
             builder.Services.AddRadzenComponents();
 
             builder.Services.AddScoped<BrowserStorageService>();
+            builder.Services.AddRadzenComponents();
 
             builder.Services.AddScoped<CustomStateProvider>();
 
