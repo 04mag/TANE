@@ -5,7 +5,7 @@
 
 <RadzenDataGrid AllColumnsText="true" AllowColumnResize="false" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
 
-	Data="@Kunder" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single" @bind-Value=@SelectedKunder>
+	Data="@InjectedKunder" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single" @bind-Value=@SelectedKunder>
 	<Columns>
 		<RadzenDataGridColumn Property="@nameof(Kunde.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" />
 		<RadzenDataGridColumn Property="@nameof(Kunde.Fornavn)" Title="Fornavn" Width="auto" MinWidth="200px" />

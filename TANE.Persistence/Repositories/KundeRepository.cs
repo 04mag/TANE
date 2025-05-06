@@ -3,6 +3,7 @@ using TANE.Domain.Entities;
 using System.Net.Http.Json;
 using TANE.Application.Common.Exceptions;
 using System.Text;
+using System.Net.Http.Headers;
 
 namespace TANE.Persistence.Repositories
 {
@@ -14,22 +15,26 @@ namespace TANE.Persistence.Repositories
         {
             _httpClientFactory = httpClientFactory;
         }
+
+        private void SetJwtToken(HttpClient client, string jwtToken)
+        {
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
+        }
         public async Task<Kunde> CreateKundeAsync(Kunde kunde, string jwtToken)
         {
-            using (HttpClient httpClient = _httpClientFactory.CreateClient("kunde"))
+            var client = _httpClientFactory.CreateClient("kunde");
+            SetJwtToken(client, jwtToken);
+
+            var response = await client.PostAsJsonAsync("api/Kunde", kunde);
+
+            if (response.IsSuccessStatusCode)
             {
-                httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
-
-                var result = await httpClient.PostAsJsonAsync("api/Kunde", kunde);
-
-                if (result.IsSuccessStatusCode)
-                {
-                    return await result.Content.ReadFromJsonAsync<Kunde>();
-                }
-                else
-                {
-                    throw new Exception("Failed to create kunde");
-                }
+                return await response.Content.ReadFromJsonAsync<Kunde>();
+            }
+            else
+            {
+                throw new Exception("Fejl ved oprettelse af kunde");
             }
         }
 
@@ -48,21 +53,20 @@ namespace TANE.Persistence.Repositories
 
         public async Task<List<Kunde>> ReadAllKunderAsync(string jwtToken)
         {
-            using (HttpClient httpClient = _httpClientFactory.CreateClient("kunde"))
+            var client = _httpClientFactory.CreateClient("kunde");
+            
+            SetJwtToken(client, jwtToken);
+            var response = await client.GetAsync("api/Kunde");
+            if (response.IsSuccessStatusCode) 
             {
-                httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
-
-                var response = await httpClient.GetAsync("api/Kunde");
-                if (response.IsSuccessStatusCode)
-                {
-                    return await response.Content.ReadFromJsonAsync<List<Kunde>>();
-                }
-                else
-                {
-                    throw new Exception("Failed to list all kunder");
-                }
+                return await response.Content.ReadFromJsonAsync<List<Kunde>>();
             }
+            else
+            {
+                throw new Exception("Failed to list all kunder");
+            } 
         }
+        
 
         public async Task<Kunde> ReadKundeByIdAsync(int id, string jwtToken)
         {
