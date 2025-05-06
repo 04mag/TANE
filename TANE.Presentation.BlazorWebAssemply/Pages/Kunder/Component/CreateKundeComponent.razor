@@ -15,7 +15,7 @@
 			</RadzenFormField>
 			<RadzenFormField Text="Efternavn" Variant="@ThemeConfig.FormVariant">
 				<ChildContent>
-					<CreateKundeComponent />
+				
 					<RadzenTextBox Name="Efternavn" @bind-Value="@kunde.Efternavn" />
 				</ChildContent>
 				<Helper>
@@ -48,9 +48,9 @@
 
 @code {
 
-	public Kunde kunde { get; set; } = new Kunde();
+    public Kunde kunde { get; set; }
 
-	Variant variant = Variant.Flat;
+    Variant variant = Variant.Flat;
 
 	void OnSubmit(Kunde model)
 	{
@@ -61,4 +61,10 @@
 	{
 
 	}
+
+    protected override async Task OnInitializedAsync()
+    {
+        kunde = new Kunde();
+    }
+
 }

@@ -1,5 +1,6 @@
 ﻿@using TANE.Application.Dtos
 @using System.Collections.ObjectModel
+@using TANE.Application.Groups.Kunder.Queries.Interfaces
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
@@ -8,6 +9,7 @@
 
 @inject CustomStateProvider AuthStateProvider
 @inject ITurRepository TurRepository
+@inject IReadKunde ReadKunde
 <div class="rz-p-0 rz-p-md-12">
     <h4>Opret Ny Rejseplan</h4>
     <RadzenTemplateForm TItem="RejseplanCreateDto" Data=@Rejseplan Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
@@ -16,20 +18,20 @@
             <!-- Kunde-søgning + knap til ny kunde -->
             <RadzenFormField Text="Kunde" Variant="@ThemeConfig.FormVariant">
                 <ChildContent>
-                    <div style="display:flex; align-items:center;">
-                        <RadzenAutoComplete TItem="KundeDto" TValue="int"
-                                           
+                    <div style="display: flex; align-items: center;">
+                        <!-- RadzenAutoComplete Component -->
+                        <RadzenAutoComplete @bind-Value="@selectedCustomerEmail" 
                                             Data="@Kunder" 
-                                            TextProperty="Navn"
+                                            TextProperty="Email"
                                             ValueProperty="Id"
                                             AllowFiltering="true"
                                             FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             Placeholder="Indtast eller vælg kunde..."
-                                            Style="flex:1"
-                                            LoadData="@LoadCustomers" />                <!-- <-- Her! -->
-                        
+                                            Style="flex: 1" />
+
+                        <!-- RadzenButton for adding a new customer -->
                         <RadzenButton Icon="add_circle" ButtonType="ButtonType.Button"
-                                      Style="margin-left:8px;"
+                                      Style="margin-left: 8px;"
                                       Click="@OpenNyKundeDialog" />
                     </div>
                 </ChildContent>
@@ -133,7 +135,7 @@
     [Parameter, EditorRequired]
     public List<TurReadDto> InjectedTure { get; set; } = new List<TurReadDto>();
 
-  
+    string selectedCustomerEmail;  // Variable to hold selected customer email
     private string? _token;
     bool showAddTur = false;
 
@@ -177,7 +179,7 @@
         var alleture = await TurRepository.ReadAllTure(_token);
         Ture = alleture;   // udfylder din property, så Injectedture ikke længere er nødvendig
 
-        Kunder = new List<Kunde>();
+        Kunder = await ReadKunde.GetAllKunderAsync(_token);
     }
 
     
@@ -211,6 +213,10 @@
     {
     // Antag du har et repo-metode der tager filter-tekst og returnerer Task<IEnumerable<KundeDto>>
      //   Kunder = await KundeRepository.SearchCustomersAsync(args.Filter);
+
+        string filterText = args.Filter?.ToString().ToLower() ?? string.Empty;
+        var filteredCustomers = Kunder.Where(k => k.Email.ToLower().Contains(filterText)).ToList();
+        await Task.CompletedTask;
     }
 
     void OpenNyKundeDialog()

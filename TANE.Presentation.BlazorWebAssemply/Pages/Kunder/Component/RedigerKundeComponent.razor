@@ -64,7 +64,7 @@ else
 		}
 		try
 		{
-			await Authprovider.RefreshTokenAsync();
+			await Authprovider.RefreshTokenAsync(NavManager, NotificationService);
 		}
 		catch (RefreshTokenExpiredException)
 		{
@@ -83,7 +83,7 @@ else
 			}
 			try
 			{
-				await Authprovider.RefreshTokenAsync();
+			    await Authprovider.RefreshTokenAsync(NavManager, NotificationService);
 			}
 			catch (RefreshTokenExpiredException)
 			{
@@ -110,7 +110,7 @@ else
 			}
 			try
 			{
-				await Authprovider.RefreshTokenAsync();
+			    await Authprovider.RefreshTokenAsync(NavManager, NotificationService);
 			}
 			catch (RefreshTokenExpiredException)
 			{
