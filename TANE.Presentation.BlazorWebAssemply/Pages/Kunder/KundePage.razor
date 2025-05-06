@@ -1,0 +1,36 @@
+﻿@using TANE.Application.Groups.Kunder.Queries
+@using TANE.Application.Groups.Kunder.Queries.Interfaces
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
+@inject IReadKunde ReadKunde
+
+@page "/kundepage/oversigt"
+
+<PageTitle>Kundeoversigt</PageTitle>
+
+<KundeListComponent InjectedKunder="Kunder"
+OnEditKunde="OnRowEditPressed"
+OnDeleteKunde="OnRowDeletePressed" />
+
+@code {
+    public List<Kunde> Kunder { get; set; } = new();
+
+    private async Task OnRowEditPressed(Kunde kunde)
+
+ 
+    {
+        Console.WriteLine($"Edit pressed for: {kunde.Id}");
+    }
+
+    private async Task OnRowDeletePressed(Kunde kunde)
+    {
+        Console.WriteLine($"Delete pressed for: {kunde.Id}");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        Kunder = await ReadKunde.GetAllKunderAsync("test");
+    }
+}

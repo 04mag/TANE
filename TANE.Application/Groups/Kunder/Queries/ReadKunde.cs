@@ -15,12 +15,12 @@ namespace TANE.Application.Groups.Kunder.Queries
 
         public async Task<List<Kunde>> GetAllKunderAsync(string jwtToken)
         {
-            throw new NotImplementedException();
+            return await _kundeRepository.ReadAllKunderAsync(jwtToken);
         }
 
         public async Task<Kunde> GetKundeByIdAsync(int kundeId, string jwtToken)
         {
-            throw new NotImplementedException();
+            return await _kundeRepository.ReadKundeByIdAsync(kundeId, jwtToken);
         }
     }
 }

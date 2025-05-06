@@ -10,6 +10,8 @@ using TANE.Application.Groups.DagSkabeloner.Queries;
 using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces;
 using TANE.Application.Groups.JwtTokens.Commands;
 using TANE.Application.Groups.JwtTokens.Commands.Interfaces;
+using TANE.Application.Groups.Kunder.Commands;
+using TANE.Application.Groups.Kunder.Commands.Interfaces;
 
 namespace TANE.Application.Configuration
 {
@@ -21,6 +23,10 @@ namespace TANE.Application.Configuration
             services.AddScoped<IUserLogin, UserLogin>();
             services.AddScoped<IRefreshToken, RefreshToken>();
             services.AddScoped<ICreateUser, CreateUser>();
+
+
+
+            services.AddScoped<ICreateKunde, CreateKunde>();
 
             services.AddScoped<ICreateDagSkabelon, CreateDagSkabelon>();
             services.AddScoped<IUpdateDagSkabelon, UpdateDagSkabelon>();

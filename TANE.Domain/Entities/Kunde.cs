@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+
 
 namespace TANE.Domain.Entities
 {
@@ -11,8 +8,12 @@ namespace TANE.Domain.Entities
         public int Id { get; set; }
         public string Fornavn { get; set; } = string.Empty;
         public string Efternavn { get; set; } = string.Empty;
+        
         public string Email { get; set; } = string.Empty;
         public string TlfNummer { get; set; } = string.Empty;
+        [Timestamp]
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+
 
         public Kunde()
         {

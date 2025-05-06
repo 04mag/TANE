@@ -7,7 +7,7 @@ using TANE.Domain.Entities;
 
 namespace TANE.Application.Groups.Kunder.Commands.Interfaces
 {
-    internal interface ICreateKunde
+    public interface ICreateKunde
     {
         Task<Kunde> CreateKundeAsync(Kunde kunde, string jwtToken);
     }
