@@ -20,7 +20,7 @@ namespace TANE.Persistence.Repositories
             {
                 httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
 
-                var result = await httpClient.PostAsJsonAsync("api/Kunde/create", kunde);
+                var result = await httpClient.PostAsJsonAsync("api/Kunde", kunde);
 
                 if (result.IsSuccessStatusCode)
                 {
