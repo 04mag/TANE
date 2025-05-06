@@ -13,5 +13,9 @@ namespace TANE.Domain.Entities
         public string Token { get; set; } = string.Empty;
         public DateTime Expiration { get; set; }
         public string RefreshToken { get; set; } = string.Empty;
+
+        public string Password { get; set; } = string.Empty;
+        public string ConfirmPassword { get; set; } = string.Empty;
+
     }
 }

@@ -19,28 +19,27 @@
             </Helper>
         </RadzenFormField>
 
-        <!-- Token -->
-        <RadzenFormField Text="Token" Variant="@ThemeConfig.FormVariant">
+        <!-- Password -->
+        <RadzenFormField Text="Password" Variant="@ThemeConfig.FormVariant">
             <ChildContent>
-                <RadzenPassword Name="Token" @bind-Value="User.Token" Style="width:100%" />
+                <RadzenPassword Name="Password" @bind-Value="User.Password" Style="width:100%" />
             </ChildContent>
             <Helper>
-                <RadzenRequiredValidator Component="Token" Text="Password skal udfyldes." />
-                <RadzenRegexValidator
-                    Component="Token"
+                <RadzenRequiredValidator Component="Password" Text="Password skal udfyldes." />
+                <RadzenRegexValidator Component="Password"
                     Pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$"
                     Text="Password skal være mindst 8 tegn langt, indeholde mindst 1 stort bogstav, 1 lille bogstav, 1 tal og 1 specialtegn." />
             </Helper>
         </RadzenFormField>
 
-        <!-- Refresh Token -->
+        <!-- Confirm password -->
         <RadzenFormField Text="Bekræft password" Variant="@ThemeConfig.FormVariant">
             <ChildContent>
-                <RadzenPassword Name="RefreshToken" @bind-Value="User.RefreshToken" Style="width:100%" />
+                <RadzenPassword Name="ConfirmPassword" @bind-Value="User.ConfirmPassword" Style="width:100%" />
             </ChildContent>
             <Helper>
-                <RadzenRequiredValidator Component="RefreshToken" Text="Bekræft dit password." />
-                <RadzenCompareValidator Component="RefreshToken" CompareTo="Token" Text="Passwords skal være ens." />
+                <RadzenRequiredValidator Component="ConfirmPassword" Text="Bekræft dit password." />
+                <RadzenCompareValidator Component="ConfirmPassword" CompareTo="Password" Text="Passwords skal være ens." />
             </Helper>
         </RadzenFormField>
 
@@ -59,9 +58,9 @@
     void OnSubmit(User model) => Console.WriteLine(
             $"E-mail: {User.Email}\n" +
             $"Roles: {User.Roles}\n" +
-            $"Token: {User.Token}\n" +
-            $"Refresh Token: {User.RefreshToken}\n" +
-            $"Expiration: {User.Expiration}"
+            $"Password: {User.Password}\n" +
+            $"Confirm password: {User.ConfirmPassword}" 
+            
         );
 
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
