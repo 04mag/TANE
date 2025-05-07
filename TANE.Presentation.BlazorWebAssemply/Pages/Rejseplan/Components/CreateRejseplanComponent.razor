@@ -4,12 +4,20 @@
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
 @using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
 
 
 @inject CustomStateProvider AuthStateProvider
 @inject ITurRepository TurRepository
 @inject IReadKunde ReadKunde
+@inject DialogService DialogService
+@inject CustomerState CustomerState
+
+
+<RadzenDialog />
+<RadzenDialogService />
+
 <div class="rz-p-0 rz-p-md-12">
     <h4>Opret Ny Rejseplan</h4>
     <RadzenTemplateForm TItem="RejseplanCreateDto" Data=@Rejseplan Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
@@ -19,9 +27,9 @@
             <RadzenFormField Text="Kunde" Variant="@ThemeConfig.FormVariant">
                 <ChildContent>
                     <div style="display: flex; align-items: center;">
-                        <!-- RadzenAutoComplete Component -->
-                        <RadzenAutoComplete @bind-Value="@selectedCustomerEmail" 
-                                            Data="@Kunder" 
+                        <!-- Autocomplete til at vælge eksisterende kunde -->
+                        <RadzenAutoComplete Name="Kunde" @bind-Value="selectedCustomerEmail"
+                                            Data="@Kunder"
                                             TextProperty="Email"
                                             ValueProperty="Id"
                                             AllowFiltering="true"
@@ -29,14 +37,16 @@
                                             Placeholder="Indtast eller vælg kunde..."
                                             Style="flex: 1" />
 
-                        <!-- RadzenButton for adding a new customer -->
-                        <RadzenButton Icon="add_circle" ButtonType="ButtonType.Button"
+                        <!-- Knap til at åbne opret-kunde-dialog -->
+                        <RadzenButton Icon="add_circle"
+                                      ButtonType="ButtonType.Button"
                                       Style="margin-left: 8px;"
                                       Click="@OpenNyKundeDialog" />
                     </div>
                 </ChildContent>
                 <Helper>
-                    <RadzenRequiredValidator Component="Kunde" Text="Vælg en kunde." />
+                    <RadzenRequiredValidator Component="Kunde"
+                                             Text="Vælg en kunde." />
                 </Helper>
             </RadzenFormField>
 
@@ -180,6 +190,11 @@
         Ture = alleture;   // udfylder din property, så Injectedture ikke længere er nødvendig
 
         Kunder = await ReadKunde.GetAllKunderAsync(_token);
+
+        // if (CustomerState.Kunde != null)
+        // {
+        //     selectedCustomerEmail = CustomerState.Kunde.Email;
+        // }
     }
 
     
@@ -189,6 +204,7 @@
         
         Console.WriteLine($"Titel: {Rejseplan.Titel}\nBeskrivelse: {Rejseplan.Beskrivelse}");
         _RejseplanRepository.CreateRejseplan(Rejseplan, _token);
+        CustomerState.Kunde = null;
     }
 
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
@@ -219,9 +235,19 @@
         await Task.CompletedTask;
     }
 
-    void OpenNyKundeDialog()
+    async Task OpenNyKundeDialog()
     {
     // Her åbner du fx en RadzenDialog eller navigerer til kundeoprettelse
-      //  DialogService.Open<NytKundeComponent>("Opret Kunde", new Dictionary<string, object>());
+      var result = await DialogService.OpenAsync<CreateKundeComponent>("Opret Kunde", new Dictionary<string, object>());
+
+
+        if (result is Kunde nyKunde)
+        {
+            // nu har du dit oprettede kunde-objekt i 'nyKunde'
+            CustomerState.Kunde = nyKunde;
+            Kunder.Add(nyKunde);
+            selectedCustomerEmail = nyKunde.Email; // opdaterer den valgte kunde
+        }
+
     }
 }
