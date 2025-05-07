@@ -10,13 +10,13 @@ namespace TANE.Application.RepositoryInterfaces
 {
     public interface IRejsePlanRepository
     {
-        Task<bool> CreateRejsePlan(RejseplanCreateDto rejsePlan, string jwtToken);
-        Task<bool> UpdateRejsePlan(int id, RejseplanUpdateDto dto, string jwtToken);
-        Task<bool> DeleteRejsePlan(int rejsePlanId, string jwtToken);
-        Task<RejseplanReadDto> ReadRejsePlanById(int rejsePlanId, string jwtToken);
-        Task<List<RejseplanReadDto>> ReadAllRejsePlans(string jwtToken);
-        Task AddTurToRejseplanAsync(int rejseplanId, int turId, string jwtToken);
-        Task ReorderTureAsync(int rejseplanId, TurReorderDto dto, string jwtToken);
+        Task<bool> CreateRejseplan(RejseplanCreateDto rejseplan, string jwtToken);
+        Task<bool> UpdateRejseplan(int id, RejseplanUpdateDto dto, string jwtToken);
+        Task<bool> DeleteRejseplan(int rejseplanId, string jwtToken);
+        Task<RejseplanReadDto> ReadRejseplanById(int rejseplanId, string jwtToken);
+        Task<List<RejseplanReadDto>> ReadAllRejseplaner(string jwtToken);
+        //Task AddTurToRejseplanAsync(int rejseplanId, int turId, string jwtToken);
+        //Task ReorderTureAsync(int rejseplanId, TurReorderDto dto, string jwtToken);
 
     }
 }

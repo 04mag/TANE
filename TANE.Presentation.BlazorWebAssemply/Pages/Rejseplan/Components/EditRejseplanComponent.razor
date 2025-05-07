@@ -1,37 +1,37 @@
 ﻿@using TANE.Application.Dtos
 @using System.Collections.ObjectModel
-@using TANE.Application.Groups.Kunder.Queries.Interfaces
+@using TANE.Application.Groups.RejsePlaner.Queries.Interfaces
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
-
-
 @inject CustomStateProvider AuthStateProvider
 @inject ITurRepository TurRepository
-@inject IReadKunde ReadKunde
+@inject IReadRejsePlan ReadRejseplan
+
+@page "/rejseplan/edit/{Id:int}"
+
 <div class="rz-p-0 rz-p-md-12">
-    <h4>Opret Ny Rejseplan</h4>
-    <RadzenTemplateForm TItem="RejseplanCreateDto" Data=@Rejseplan Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+    <h4>Rediger Rejseplan</h4>
+    <RadzenTemplateForm TItem="RejseplanUpdateDto" Data=@Rejseplan Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
         <RadzenStack Gap="1rem" class="rz-p-sm-12">
 
             <!-- Kunde-søgning + knap til ny kunde -->
             <RadzenFormField Text="Kunde" Variant="@ThemeConfig.FormVariant">
                 <ChildContent>
-                    <div style="display: flex; align-items: center;">
-                        <!-- RadzenAutoComplete Component -->
-                        <RadzenAutoComplete @bind-Value="@selectedCustomerEmail" 
-                                            Data="@Kunder" 
-                                            TextProperty="Email"
+                    <div style="display:flex; align-items:center;">
+                        <RadzenAutoComplete TItem="KundeDto" TValue="int"
+                                            Data="@Kunder"
+                                            TextProperty="Navn"
                                             ValueProperty="Id"
                                             AllowFiltering="true"
                                             FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             Placeholder="Indtast eller vælg kunde..."
-                                            Style="flex: 1" />
+                                            Style="flex:1"
+                                            LoadData="@LoadCustomers" />                <!-- <-- Her! -->
 
-                        <!-- RadzenButton for adding a new customer -->
                         <RadzenButton Icon="add_circle" ButtonType="ButtonType.Button"
-                                      Style="margin-left: 8px;"
+                                      Style="margin-left:8px;"
                                       Click="@OpenNyKundeDialog" />
                     </div>
                 </ChildContent>
@@ -102,7 +102,7 @@
                 </ChildContent>
             </RadzenFormField>
 
-            <br />
+         @*    <br />
 
             <h4>Vælg ture:</h4>
             <TurReorderListComponent InjectedTure="Observableture" OnDelete="OnTurDelete" />
@@ -117,15 +117,15 @@
                 <TurListComponent InjectedTure="Ture" OnSelect="OnTurRowSelect" />
             }
 
-            <br />
+            <br /> *@
 
             <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Text="Opret Rejseplan" Style="width:200px" />
         </RadzenStack>
     </RadzenTemplateForm>
 </div>
 
-@code{
-    [Inject] 
+@code {
+    [Inject]
     private IRejsePlanRepository _RejseplanRepository { get; set; } = default!;
 
     [Inject] private IKundeRepository KundeRepository { get; set; } = default!;
@@ -133,9 +133,9 @@
     private List<Kunde> Kunder = new List<Kunde>();
 
     [Parameter, EditorRequired]
-    public List<TurReadDto> InjectedTure { get; set; } = new List<TurReadDto>();
+    public RejseplanReadDto SelectedRejseplan { get; set; } = new RejseplanReadDto();
 
-    string selectedCustomerEmail;  // Variable to hold selected customer email
+
     private string? _token;
     bool showAddTur = false;
 
@@ -147,13 +147,14 @@
         {
             return SelectedtureVar;
         }
-        set 
-        { 
+        set
+        {
             SelectedtureVar = value;
         }
     }
 
-    public RejseplanCreateDto Rejseplan { get; set; } = new RejseplanCreateDto();
+    public RejseplanUpdateDto Rejseplan { get; set; } = new RejseplanUpdateDto();
+    public List <RejseplanReadDto> RejseplanRead { get; set; } = new List<RejseplanReadDto>();
 
     private List<TurReadDto> TurVar = new List<TurReadDto>();
 
@@ -174,21 +175,16 @@
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         _token = AuthStateProvider.CurrentUser.Token;
-
-    // Faktisk hentning af alle ture:
-        var alleture = await TurRepository.ReadAllTure(_token);
-        Ture = alleture;   // udfylder din property, så Injectedture ikke længere er nødvendig
-
-        Kunder = await ReadKunde.GetAllKunderAsync(_token);
+        Kunder = new List<Kunde>();
     }
 
-    
+
 
     async Task OnSubmit()
     {
-        
+
         Console.WriteLine($"Titel: {Rejseplan.Titel}\nBeskrivelse: {Rejseplan.Beskrivelse}");
-        _RejseplanRepository.CreateRejseplan(Rejseplan, _token);
+        _RejseplanRepository.UpdateRejseplan(Rejseplan.Id, Rejseplan, _token);
     }
 
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
@@ -207,21 +203,18 @@
     {
         Observableture.Remove(Tur);
     }
-  
+
 
     async Task LoadCustomers(LoadDataArgs args)
     {
-    // Antag du har et repo-metode der tager filter-tekst og returnerer Task<IEnumerable<KundeDto>>
-     //   Kunder = await KundeRepository.SearchCustomersAsync(args.Filter);
-
-        string filterText = args.Filter?.ToString().ToLower() ?? string.Empty;
-        var filteredCustomers = Kunder.Where(k => k.Email.ToLower().Contains(filterText)).ToList();
-        await Task.CompletedTask;
+        // Antag du har et repo-metode der tager filter-tekst og returnerer Task<IEnumerable<KundeDto>>
+        //   Kunder = await KundeRepository.SearchCustomersAsync(args.Filter);
     }
 
     void OpenNyKundeDialog()
     {
-    // Her åbner du fx en RadzenDialog eller navigerer til kundeoprettelse
-      //  DialogService.Open<NytKundeComponent>("Opret Kunde", new Dictionary<string, object>());
+        // Her åbner du fx en RadzenDialog eller navigerer til kundeoprettelse
+        //  DialogService.Open<NytKundeComponent>("Opret Kunde", new Dictionary<string, object>());
     }
 }
+

@@ -9,7 +9,6 @@ namespace TANE.Application.Dtos
         public string Aktiviteter { get; set; }
         public string Måltider { get; set; }
         public string Overnatning { get; set; }
-        public double Pris { get; set; }
         public byte[] RowVersion { get; set; }  // **Til optimistic concurrency**
         public int Sekvens { get; set; } // Rækkefølge af dagen i turen 
     }

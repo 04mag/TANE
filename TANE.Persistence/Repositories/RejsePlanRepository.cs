@@ -12,72 +12,83 @@ namespace TANE.Persistence.Repositories
 {
     public class RejsePlanRepository : IRejsePlanRepository
     {
-        private readonly HttpClient _http;
+        private readonly IHttpClientFactory _factory;
 
-        public RejsePlanRepository(HttpClient http)
+        public RejsePlanRepository(IHttpClientFactory factory)
         {
-            _http = http;
+            _factory = factory;
         }
 
-        private void SetJwtToken(string jwtToken)
+        private void SetJwtToken(HttpClient client, string jwtToken)
         {
-            _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
         }
 
-        public async Task<bool> CreateRejsePlan(RejseplanCreateDto rejsePlan, string jwtToken)
+
+        public async Task<bool> CreateRejseplan(RejseplanCreateDto rejseplan, string jwtToken)
         {
-            SetJwtToken(jwtToken);
-            var response = await _http.PostAsJsonAsync("rejseplan", rejsePlan);
+            // her henter du netop den HttpClient, du har konfigureret med AddHttpClient("rejseplan", ...)
+            var client = _factory.CreateClient("rejseplan");
+
+            // sæt dit Bearer-token
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+            // POST til baseAddress/“rejseplan”/rejseplan
+            var response = await client.PostAsJsonAsync("rejseplan", rejseplan);
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<bool> DeleteRejsePlan(int rejsePlanId, string jwtToken)
+
+        public async Task<bool> DeleteRejseplan(int rejseplanId, string jwtToken)
         {
-            SetJwtToken(jwtToken);
-            var response = await _http.DeleteAsync($"rejseplan/{rejsePlanId}");
+            // her henter du netop den HttpClient, du har konfigureret med AddHttpClient("rejseplan", ...)
+            var client = _factory.CreateClient("rejseplan");
+
+            // sæt dit Bearer-token
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+            // DELETE til baseAddress/“rejseplan”/rejseplan
+            var response = await client.DeleteAsync($"rejseplan/{rejseplanId}");
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<List<RejseplanReadDto>> ReadAllRejsePlans(string jwtToken)
+
+        public async Task<List<RejseplanReadDto>> ReadAllRejseplaner(string jwtToken)
         {
-            SetJwtToken(jwtToken);
-            var dtos = await _http.GetFromJsonAsync<List<RejseplanReadDto>>("rejseplan");
-            return dtos;
+            var client = _factory.CreateClient("rejseplan");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
+
+            // Hent og deserialiser direkte til List<RejseplanReadDto>
+            var tours = await client.GetFromJsonAsync<List<RejseplanReadDto>>("rejseplan");
+
+            // Hvis API’et returnerer 204 No Content, bliver tours null
+            return tours ?? new List<RejseplanReadDto>();
         }
 
-        public async Task<RejseplanReadDto> ReadRejsePlanById(int rejsePlanId, string jwtToken)
+        public async Task<RejseplanReadDto> ReadRejseplanById(int rejseplanId, string jwtToken)
         {
-            SetJwtToken(jwtToken);
-            var dto = await _http.GetFromJsonAsync<RejseplanReadDto>($"rejseplan/{rejsePlanId}");
-            return dto;
-        }
+            var client = _factory.CreateClient("rejseplan");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
 
-        public async Task<bool> UpdateRejsePlan(int id, RejseplanUpdateDto dto, string jwtToken)
+            // Problemet: du henter altid "…/rejseplan/rejseplan" uden ID
+            var rejseplan = await client.GetFromJsonAsync<RejseplanReadDto>($"rejseplan/{rejseplanId}");
+
+            return rejseplan ?? new RejseplanReadDto();
+        }
+        public async Task<bool> UpdateRejseplan(int id, RejseplanUpdateDto dto, string jwtToken)
         {
-            SetJwtToken(jwtToken);
-            var response = await _http.PutAsJsonAsync($"rejseplan/{id}", dto);
+            var client = _factory.CreateClient("rejseplan");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
+
+            // PUT til https://.../rejseplan/tur/{id} med dto som JSON-body
+            var response = await client.PutAsJsonAsync($"rejseplan/{id}", dto);
+
+            // Returner true hvis status er 2xx
             return response.IsSuccessStatusCode;
         }
 
-        public async Task AddTurToRejseplanAsync(int rejseplanId, int turId, string jwtToken)
-        {
-            SetJwtToken(jwtToken);
-            var response = await _http.PostAsync($"rejseplan/{rejseplanId}/tur/{turId}", null);
-            response.EnsureSuccessStatusCode();
-        }
 
-        public async Task ReorderTureAsync(int rejseplanId, TurReorderDto dto, string jwtToken)
-        {
-            SetJwtToken(jwtToken);
-            var response = await _http.PostAsJsonAsync($"rejseplan/{rejseplanId}/ture/reorder", dto);
-            response.EnsureSuccessStatusCode();
-        }
-
-        public async Task RemoveTurFromRejseplanAsync(int rejseplanId, int turId, string jwtToken)
-        {
-            SetJwtToken(jwtToken);
-            var response = await _http.DeleteAsync($"rejseplan/{rejseplanId}/tur/{turId}");
-            response.EnsureSuccessStatusCode();
-        }
     }
 }

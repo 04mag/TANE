@@ -52,9 +52,9 @@
 
 @code {
 
-	public Kunde kunde { get; set; } = new Kunde();
+    public Kunde kunde { get; set; }
 
-	Variant variant = Variant.Flat;
+    Variant variant = Variant.Flat;
 
 	async void OnSubmit(Kunde model)
 	{
@@ -75,4 +75,10 @@
 	{
 
 	}
+
+    protected override async Task OnInitializedAsync()
+    {
+        kunde = new Kunde();
+    }
+
 }
