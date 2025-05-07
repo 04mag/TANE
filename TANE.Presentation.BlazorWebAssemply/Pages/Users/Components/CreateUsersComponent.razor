@@ -10,7 +10,6 @@
 @inject ICreateUser CreateUser
 
 <h3>Opret ny bruger</h3>
-
 <RadzenTemplateForm TItem="User" Data="@User" Submit="@OnSubmit" InvalidSubmit="@OnInvalidSubmit">
     <RadzenStack Gap="1rem" Class="rz-p-sm-12">
 
@@ -45,7 +44,7 @@
             </ChildContent>
             <Helper>
                 <RadzenRequiredValidator Component="ConfirmPassword" Text="Bekræft dit password." />
-                <RadzenCompareValidator Component="ConfirmPassword" CompareTo="Password" Text="Passwords skal være ens." />
+                <RadzenCompareValidator Component="ConfirmPassword" Value="@User.Password" Text="Passwords skal være ens." />
             </Helper>
         </RadzenFormField>
 
@@ -53,6 +52,7 @@
 
     </RadzenStack>
 </RadzenTemplateForm>
+
 
 @code {
     public User User { get; set; } = new User();
@@ -68,17 +68,17 @@
     {
         try
         {
-            // 1) Forny JWT-token hvis nødvendigt
+            // Fornyer JWT-token hvis nødvendigt
             await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
 
-            // 2) Forsøg at oprette brugeren – kaster exception ved fejl
+            // Opretter brugeren – exception ved fejl
             await CreateUser.CreateUserAsync(
                 model.Email,
                 model.Password,
                 AuthStateProvider.CurrentUser.Token
             );
 
-            // 3) Hvis vi når hertil, lykkedes oprettelsen
+            // Oprettelse lykkedes
             NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Success,
@@ -87,7 +87,6 @@
                     Duration = 4000
                 });
 
-            // Navigér tilbage til oversigten
             NavigationManager.NavigateTo("/users");
         }
         catch (NotAuthorizedException ex)
