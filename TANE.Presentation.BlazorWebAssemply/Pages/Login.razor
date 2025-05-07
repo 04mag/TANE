@@ -1,4 +1,4 @@
-﻿@using TANE.Application.Common.Exceptions
+﻿﻿@using TANE.Application.Common.Exceptions
 @using TANE.Application.Groups.JwtTokens.Commands.Interfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Authentication
@@ -47,7 +47,7 @@
 
             NavigationManager.NavigateTo("/");
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             ErrorMessage = ex.Message;
         }

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TANE.Application.Dtos;
 using TANE.Domain.Entities;
 
 namespace TANE.Application.Groups.Ture.Queries.Interfaces
 {
-    internal interface IReadTur
+    public interface IReadTur
     {
-        Task<Tur> ReadTurByIdAsync(int id, string jwtToken);
-        Task<List<Tur>> ReadAllTureAsync(string jwtToken);
+        Task<TurReadDto> ReadTurByIdAsync(int id, string jwtToken);
+        Task<List<TurReadDto>> ReadAllTureAsync(string jwtToken);
     }
 }

@@ -4,15 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TANE.Domain.Entities;
+using TANE.Application.Dtos;
 
 namespace TANE.Application.RepositoryInterfaces
 {
     public interface ITurRepository
     {
-        Task<Tur> CreateTur(Tur tur, string jwtToken);
-        Task<Tur> UpdateTur(Tur tur, string jwtToken);
-        Task<bool> DeleteTur(int id, string jwtToken);
-        Task<Tur> ReadTurById(int id, string jwtToken);
-        Task<List<Tur>> ReadAllTure(string jwtToken);
+        Task<bool> CreateTur(TurCreateDto tur, string jwtToken);
+        Task<bool> UpdateTur(int id, TurUpdateDto dto, string jwtToken);
+        Task<bool> DeleteTur(int turId, string jwtToken);
+        Task<TurReadDto> ReadTurById(int turId, string jwtToken);
+        Task<List<TurReadDto>> ReadAllTure(string jwtToken);
+        Task AddDagToTurAsync(int turId, int dagId, string jwtToken);
+        Task ReorderDageAsync(int turId, DagReorderDto dto, string jwtToken);
+        Task RemoveDagFromTurAsync(int turId, int dagId, string jwtToken);
+
     }
 }

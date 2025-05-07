@@ -3,10 +3,17 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Radzen;
 using TANE.Application.Configuration;
+using TANE.Application.Groups.Dage.Queries;
+using TANE.Application.Groups.Dage.Queries.Interfaces;
 using TANE.Application.Groups.JwtTokens.Commands.Interfaces;
+using TANE.Application.Groups.TurSkabeloner.Queries.Interfaces;
+using TANE.Application.Groups.TurSkabeloner.Queries;
+using TANE.Application.RepositoryInterfaces;
 using TANE.Persistence.Configuration;
+using TANE.Persistence.Repositories;
 using TANE.Presentation.BlazorWebAssemply.Authentication;
 using TANE.Presentation.BlazorWebAssemply.Services;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 
 namespace TANE.Presentation.BlazorWebAssemply
 {
@@ -17,8 +24,9 @@ namespace TANE.Presentation.BlazorWebAssemply
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
+         
 
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
 
             builder.Services.AddAuthorizationCore();
 
@@ -32,9 +40,8 @@ namespace TANE.Presentation.BlazorWebAssemply
 
             builder.Services.AddScoped<CustomStateProvider>();
 
-            builder.Services.AddScoped<AuthenticationStateProvider>(s => 
+            builder.Services.AddScoped<AuthenticationStateProvider>(s =>
                 s.GetRequiredService<CustomStateProvider>());
-
 
 
             await builder.Build().RunAsync();

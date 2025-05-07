@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TANE.Application.Dtos;
 using TANE.Application.Groups.RejsePlaner.Queries.Interfaces;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
@@ -18,14 +19,14 @@ namespace TANE.Application.Groups.RejsePlaner.Queries
             _rejsePlanRepository = rejsePlanRepository;
         }
 
-        public async Task<RejsePlan> ReadRejsePlanByIdAsync(int id, string jwtToken)
+        public async Task<RejseplanReadDto> ReadRejsePlanByIdAsync(int id, string jwtToken)
         {
-            throw new NotImplementedException();
+            return await _rejsePlanRepository.ReadRejsePlanById(id, jwtToken);
         }
 
-        public async Task<List<RejsePlan>> ReadRejsePlanerAsync(string jwtToken)
+        public async Task<List<RejseplanReadDto>> ReadRejsePlanerAsync(string jwtToken)
         {
-            throw new NotImplementedException();
+            return await _rejsePlanRepository.ReadAllRejsePlans(jwtToken);
         }
     }
 }

@@ -1,38 +1,100 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
+
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
+using TANE.Application.Dtos;
 
 namespace TANE.Persistence.Repositories
 {
-    internal class DagRepository : IDagRepository
+    public class DagRepository : IDagRepository
     {
-        public Task<Dag> CreateDagAsync(Dag dag, string jwtToken)
+
+        private readonly IHttpClientFactory _factory;
+
+        public DagRepository(IHttpClientFactory factory)
         {
-            throw new NotImplementedException();
+            _factory = factory;
         }
 
-        public Task<bool> DeleteDagAsync(int id, string jwtToken)
+        private void SetJwtToken(HttpClient client, string jwtToken)
         {
-            throw new NotImplementedException();
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
         }
 
-        public Task<List<Dag>> ReadAllDagsAsync(string jwtToken)
+
+        public async Task<bool> CreateDagAsync(DagCreateDto dag, string jwtToken)
         {
-            throw new NotImplementedException();
+            // her henter du netop den HttpClient, du har konfigureret med AddHttpClient("rejseplan", ...)
+            var client = _factory.CreateClient("rejseplan");
+
+            // sæt dit Bearer-token
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+            // POST til baseAddress/“rejseplan”/dag
+            var response = await client.PostAsJsonAsync("dag", dag);
+            return response.IsSuccessStatusCode;
         }
 
-        public Task<Dag> ReadDagByIdAsync(int id, string jwtToken)
+
+        public async Task<bool> DeleteDagAsync(int dagId, string jwtToken)
         {
-            throw new NotImplementedException();
+            // her henter du netop den HttpClient, du har konfigureret med AddHttpClient("rejseplan", ...)
+            var client = _factory.CreateClient("rejseplan");
+
+            // sæt dit Bearer-token
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+            // DELETE til baseAddress/“rejseplan”/dag
+            var response = await client.DeleteAsync($"dag/{dagId}");
+            return response.IsSuccessStatusCode;
         }
 
-        public Task<Dag> UpdateDagAsync(Dag dag, string jwtToken)
+
+        public async Task<List<DagReadDto>> ReadAllDageAsync(string jwtToken)
         {
-            throw new NotImplementedException();
+            var client = _factory.CreateClient("rejseplan");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
+
+            // Hent og deserialiser direkte til List<DagReadDto>
+            var dage = await client.GetFromJsonAsync<List<DagReadDto>>("dag");
+
+            // Hvis API’et returnerer 204 No Content, bliver tours null
+            return dage ?? new List<DagReadDto>();
         }
+
+        public async Task<DagReadDto> ReadDagByIdAsync(int dagId, string jwtToken)
+        {
+            var client = _factory.CreateClient("rejseplan");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
+
+            // Hent og deserialiser direkte til List<DagReadDto>
+            var dag = await client.GetFromJsonAsync<DagReadDto>($"dag/{dagId}");
+
+
+            // Hvis API’et returnerer 204 No Content, bliver tours null
+            return dag ?? new DagReadDto();
+
+        }
+
+        public async Task<bool> UpdateDagAsync(int id, DagUpdateDto dto, string jwtToken)
+        {
+            var client = _factory.CreateClient("rejseplan");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
+
+            // PUT til https://.../rejseplan/dag/{id} med dto som JSON-body
+            var response = await client.PutAsJsonAsync($"dag/{id}", dto);
+
+            // Redagner true hvis status er 2xx
+            return response.IsSuccessStatusCode;
+        }
+
+      
     }
 }
