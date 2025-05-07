@@ -1,4 +1,7 @@
-﻿namespace TANE.Application.Dtos
+﻿using System.ComponentModel.DataAnnotations;
+using TANE.Application.Dtos.TurDagRejseplan;
+
+namespace TANE.Application.Dtos
 {
     public class RejseplanReadDto
     {
@@ -20,18 +23,9 @@
         public bool TilbudAccepteret { get; set; } = false;
         public bool RejseBooket { get; set; } = false;
         public bool Annulleret { get; set; } = false;
-        public Status TilbudsStatus { get; set; } = Status.RejseplanOprettet;
-        public enum Status
-        {
-            RejseplanOprettet,
-            TilbudSendt,
-            AfventerOpfølgning,
-            OpfølgningSvaret,
-            TilbudAccepteret,
-            RejseBooket,
-            Annulleret,
-            Udskudt
-        }
+      
+        public RejseplanStatusDto? RejseplanStatus { get; set; }
+
         public byte[] RowVersion { get; set; }  // **Til optimistic concurrency**
     }
 }
