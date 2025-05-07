@@ -122,7 +122,11 @@
             <div style="text-align: right; width: 100%;">
                 <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium"
                               Style="width:150px" Text="Tilføj Tur"
-                              Click="@(() => showAddTur = !showAddTur)" />
+                              Click="@(() => showAddTur = !showAddTur)" 
+                              
+                
+                />
+
             </div>
 
             @if (showAddTur)
@@ -209,6 +213,12 @@
         
         Console.WriteLine($"Titel: {Rejseplan.Titel}\nBeskrivelse: {Rejseplan.Beskrivelse}");
         Rejseplan.RejseplanStatus = 0;
+        foreach (var t in Observableture )
+        {
+            Rejseplan.Ture.Add(t.Id);
+        }
+
+
         _RejseplanRepository.CreateRejseplan(Rejseplan, _token);
         CustomerState.Kunde = null;
     }

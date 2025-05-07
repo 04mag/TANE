@@ -17,6 +17,7 @@ namespace TANE.Application.Dtos
         public DateTime AfrejseTidspunkt { get; set; }
        // public List<TurUpdateDto> Ture { get; set; } = new();
         public bool TilbudSendt { get; set; }
+        public List<int> Ture { get; set; } = new();
         public bool Opfølgning { get; set; }
         public string OpfølgningNote { get; set; }
         public bool TilbudAccepteret { get; set; }

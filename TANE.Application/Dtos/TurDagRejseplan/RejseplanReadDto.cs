@@ -15,7 +15,7 @@ namespace TANE.Application.Dtos
         public double FlyPris { get; set; }
         public int AntalDage { get; set; }
         public DateTime AfrejseTidspunkt { get; set; }
-        public List<TurReadDto> Ture { get; set; } = new();
+        public List<int> Ture { get; set; } = new();
 
         public bool TilbudSendt { get; set; } = false;
         public bool Opfølgning { get; set; } = false;
