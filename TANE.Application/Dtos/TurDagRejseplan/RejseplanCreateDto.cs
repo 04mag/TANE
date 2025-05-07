@@ -14,20 +14,7 @@ namespace TANE.Application.Dtos
 		public double? FlyPris { get; set; }
 		public int? AntalDage { get; set; }
 		public DateTime? AfrejseTidspunkt { get; set; }
-		public string? OpfølgningNote { get; set; }
-		public Status? RejseplanStatus { get; set; } = Status.RejseplanOprettet;
-
-		public enum Status
-		{
-			RejseplanOprettet,
-			TilbudSendt,
-			AfventerOpfølgning,
-			OpfølgningSvaret,
-			TilbudAccepteret,
-			RejseBooket,
-			Annulleret,
-			Udskudt
-		}
+		public string? OpfølgningNote { get; set; }	
 	}
 }
 
