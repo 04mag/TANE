@@ -4,6 +4,7 @@
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
 @inject IReadKunde ReadKunde
+@inject CustomStateProvider AuthStateProvider
 
 @page "/kunde/oversigt"
 
@@ -14,6 +15,7 @@ OnEditKunde="OnRowEditPressed"
 OnDeleteKunde="OnRowDeletePressed" />
 
 @code {
+    private string _token = string.Empty;
     public List<Kunde> Kunder { get; set; } = new();
 
     private async Task OnRowEditPressed(Kunde kunde)
@@ -28,7 +30,16 @@ OnDeleteKunde="OnRowDeletePressed" />
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();if (authState.User.Identity.IsAuthenticated)
+        {
+            _token = AuthStateProvider.CurrentUser.Token;
+        }
+        else
+        {
+             // Handle unauthenticated state
+            return;
+        }
         await base.OnInitializedAsync();
-        Kunder = await ReadKunde.GetAllKunderAsync("test");
+        Kunder = await ReadKunde.GetAllKunderAsync(_token);
     }
 }
