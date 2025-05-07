@@ -1,0 +1,122 @@
+﻿@using TANE.Domain.Entities
+@using TANE.Application.Groups.Users.Commands.Interfaces
+@using TANE.Application.Groups.Users.Interfaces
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject CustomStateProvider AuthStateProvider
+@inject IGetUser GetUserService
+@inject IUpdateUser UpdatePasswordService
+
+@if (IsLoading)
+{
+    <p>Henter bruger …</p>
+}
+else if (LoadError is not null)
+{
+    <p class="text-danger">@LoadError</p>
+}
+else
+{
+    <h4>Bruger: @User.Email</h4>
+
+    <RadzenTemplateForm TItem="PasswordModel" Data="@Pwd" Submit="@OnSubmit" InvalidSubmit="@OnInvalidSubmit">
+        <RadzenStack Gap="1rem" Style="max-width:400px">
+
+            <RadzenFormField Text="Nyt password">
+                <ChildContent>
+                    <RadzenPassword Name="NewPassword" @bind-Value="Pwd.NewPassword" Style="width:100%" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="NewPassword" Text="Password kræves." />
+                    <RadzenRegexValidator Component="NewPassword"
+                                          Pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$"
+                                          Text="8+ tegn, 1 stort, 1 lille, 1 tal & 1 spec." />
+                </Helper>
+            </RadzenFormField>
+
+            <RadzenFormField Text="Bekræft nyt password">
+                <ChildContent>
+                    <RadzenPassword Name="ConfirmNew" @bind-Value="Pwd.ConfirmNewPassword" Style="width:100%" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="ConfirmNew" Text="Bekræft password." />
+                    <RadzenCompareValidator Component="ConfirmNew"
+                                            Value="@Pwd.NewPassword"
+                                            Text="Passwords skal være ens." />
+                </Helper>
+            </RadzenFormField>
+
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Opdater" Style="margin-top:1rem" />
+        </RadzenStack>
+    </RadzenTemplateForm>
+}
+
+@code {
+    [Parameter] public Guid UserId { get; set; }
+
+    User User = new();
+    bool IsLoading = true;
+    string? LoadError;
+
+    class PasswordModel
+    {
+        public string NewPassword { get; set; } = "";
+        public string ConfirmNewPassword { get; set; } = "";
+    }
+
+    PasswordModel Pwd = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+            User = await GetUserByIdService.GetUserByIdAsync(UserId, AuthStateProvider.CurrentUser.Token);
+        }
+        catch (Exception ex)
+        {
+            LoadError = ex.Message;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task OnSubmit(PasswordModel model)
+    {
+        try
+        {
+            await UpdatePasswordService.UpdateUserPasswordAsync(
+                UserId,
+                model.NewPassword,
+                AuthStateProvider.CurrentUser.Token
+            );
+            NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Password opdateret",
+                    Detail = $"Password for {User.Email} er skiftet.",
+                    Duration = 4000
+                });
+            NavigationManager.NavigateTo("/users");
+        }
+        catch (NotAuthorizedException)
+        {
+            NotificationService.NotifyError("Du har ikke tilladelse.");
+        }
+        catch (ConflictException)
+        {
+            NotificationService.NotifyWarning("Password-ændring konflikt.");
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError($"Fejl: {ex.Message}");
+        }
+    }
+
+    private void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    {
+        NotificationService.NotifyWarning("Tjek dine inputfelter.");
+    }
+}
