@@ -1,220 +1,90 @@
 ﻿@using TANE.Application.Dtos
-@using System.Collections.ObjectModel
-@using TANE.Application.Groups.RejsePlaner.Queries.Interfaces
-@using TANE.Application.RepositoryInterfaces
-@using TANE.Domain.Entities
-@using TANE.Presentation.BlazorWebAssemply.Configuration
-@using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
-@inject CustomStateProvider AuthStateProvider
-@inject ITurRepository TurRepository
-@inject IReadRejsePlan ReadRejseplan
 
-@page "/rejseplan/edit/{Id:int}"
+<RadzenTemplateForm TItem="RejseplanUpdateDto"
+                    Data="@Model"
+                    Submit="HandleSubmit">
+  <ChildContent>
+    <RadzenFieldset Text="Rediger Rejseplan">
+      <RadzenStack Gap="1rem">
 
-<div class="rz-p-0 rz-p-md-12">
-    <h4>Rediger Rejseplan</h4>
-    <RadzenTemplateForm TItem="RejseplanUpdateDto" Data=@Rejseplan Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
-        <RadzenStack Gap="1rem" class="rz-p-sm-12">
+        <RadzenTextBox @bind-Value="Model.Titel"
+                       Name="Titel"
+                       Label="Titel"
+                       Style="width:100%" />
 
-            <!-- Kunde-søgning + knap til ny kunde -->
-            <RadzenFormField Text="Kunde" Variant="@ThemeConfig.FormVariant">
-                <ChildContent>
-                    <div style="display:flex; align-items:center;">
-                        <RadzenAutoComplete TItem="KundeDto" TValue="int"
-                                            Data="@Kunder"
-                                            TextProperty="Navn"
-                                            ValueProperty="Id"
-                                            AllowFiltering="true"
-                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            Placeholder="Indtast eller vælg kunde..."
-                                            Style="flex:1"
-                                            LoadData="@LoadCustomers" />                <!-- <-- Her! -->
+        <RadzenTextArea @bind-Value="Model.Beskrivelse"
+                        Name="Beskrivelse"
+                        Label="Beskrivelse"
+                        Rows="4"
+                        Style="width:100%" />
+        
+        <RadzenNumeric @bind-Value="Model.AntalVoksne"
+                       Name="AntalVoksne"
+                       Label="Antal Voksne"
+                       Style="width:100%" />
+        <RadzenNumeric @bind-Value="Model.AntalBørn"
+                       Name="AntalBørn"
+                       Label="Antal Børn"
+                       Style="width:100%" />
+       
 
-                        <RadzenButton Icon="add_circle" ButtonType="ButtonType.Button"
-                                      Style="margin-left:8px;"
-                                      Click="@OpenNyKundeDialog" />
-                    </div>
-                </ChildContent>
-                <Helper>
-                    <RadzenRequiredValidator Component="Kunde" Text="Vælg en kunde." />
-                </Helper>
-            </RadzenFormField>
 
-            <!-- Titel -->
-            <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
-                <ChildContent>
-                    <RadzenTextBox Name="Titel" @bind-Value=@Rejseplan.Titel Style="width:100%" />
-                </ChildContent>
-                <Helper>
-                    <RadzenRequiredValidator Component="Titel" Text="Titel skal udfyldes." />
-                </Helper>
-            </RadzenFormField>
+        <!-- Tilføj her de øvrige felter på samme måde -->
 
-            <!-- Beskrivelse -->
-            <RadzenFormField Text="Beskrivelse" Variant="@ThemeConfig.FormVariant">
-                <ChildContent>
-                    <RadzenTextArea Name="Beskrivelse" @bind-Value=@Rejseplan.Beskrivelse Rows="4" Style="width:100%" />
-                </ChildContent>
-                <Helper>
-                    <RadzenRequiredValidator Component="Beskrivelse" Text="Beskrivelse skal udfyldes." />
-                </Helper>
-            </RadzenFormField>
-
-            <!-- Antal Voksne / Antal Børn -->
-            <RadzenStack Direction="Row" Gap="1rem">
-                <RadzenFormField Text="Antal Voksne" Variant="@ThemeConfig.FormVariant">
-                    <ChildContent>
-                        <RadzenNumeric Name="AntalVoksne" @bind-Value=@Rejseplan.AntalVoksne Style="width:100%" />
-                    </ChildContent>
-                </RadzenFormField>
-                <RadzenFormField Text="Antal Børn" Variant="@ThemeConfig.FormVariant">
-                    <ChildContent>
-                        <RadzenNumeric Name="AntalBørn" @bind-Value=@Rejseplan.AntalBørn Style="width:100%" />
-                    </ChildContent>
-                </RadzenFormField>
-            </RadzenStack>
-
-            <!-- Lufthavn -->
-            <RadzenFormField Text="Lufthavn" Variant="@ThemeConfig.FormVariant">
-                <ChildContent>
-                    <RadzenTextBox Name="Lufthavn" @bind-Value=@Rejseplan.Lufthavn Style="width:100%" />
-                </ChildContent>
-            </RadzenFormField>
-
-            <!-- FlyPris -->
-            <RadzenFormField Text="Fly Pris (DKK)" Variant="@ThemeConfig.FormVariant">
-                <ChildContent>
-                    <RadzenNumeric Name="FlyPris" @bind-Value=@Rejseplan.FlyPris Style="width:100%" Step="0.01" />
-                </ChildContent>
-            </RadzenFormField>
-
-            <!-- Antal Dage -->
-            <RadzenFormField Text="Antal Dage" Variant="@ThemeConfig.FormVariant">
-                <ChildContent>
-                    <RadzenNumeric Name="AntalDage" @bind-Value=@Rejseplan.AntalDage Style="width:100%" />
-                </ChildContent>
-            </RadzenFormField>
-
-            <!-- Afrejse Tidspunkt -->
-            <RadzenFormField Text="Afrejse Tidspunkt" Variant="@ThemeConfig.FormVariant">
-                <ChildContent>
-                    <RadzenDatePicker Name="AfrejseTidspunkt" @bind-Value=@Rejseplan.AfrejseTidspunkt Style="width:100%" ShowTime="true" />
-                </ChildContent>
-            </RadzenFormField>
-
-         @*    <br />
-
-            <h4>Vælg ture:</h4>
-            <TurReorderListComponent InjectedTure="Observableture" OnDelete="OnTurDelete" />
-            <div style="text-align: right; width: 100%;">
-                <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium"
-                              Style="width:150px" Text="Tilføj Tur"
-                              Click="@(() => showAddTur = !showAddTur)" />
-            </div>
-
-            @if (showAddTur)
-            {
-                <TurListComponent InjectedTure="Ture" OnSelect="OnTurRowSelect" />
-            }
-
-            <br /> *@
-
-            <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Text="Opret Rejseplan" Style="width:200px" />
+        <RadzenStack Direction="Row" Gap="1rem">
+          <RadzenButton ButtonType="ButtonType.Submit"
+                        Text="Gem" />
+          <RadzenButton ButtonType="ButtonType.Button"
+                        Text="Annuller"
+                        Click="HandleCancel" />
         </RadzenStack>
-    </RadzenTemplateForm>
-</div>
+
+      </RadzenStack>
+    </RadzenFieldset>
+  </ChildContent>
+</RadzenTemplateForm>
 
 @code {
-    [Inject]
-    private IRejsePlanRepository _RejseplanRepository { get; set; } = default!;
+  [Parameter, EditorRequired]
+  public RejseplanReadDto Item { get; set; } = default!;
 
-    [Inject] private IKundeRepository KundeRepository { get; set; } = default!;
+  [Parameter]
+  public EventCallback<RejseplanUpdateDto> OnSaved { get; set; }
 
-    private List<Kunde> Kunder = new List<Kunde>();
+  [Parameter]
+  public EventCallback OnCancelled { get; set; }
 
-    [Parameter, EditorRequired]
-    public RejseplanReadDto SelectedRejseplan { get; set; } = new RejseplanReadDto();
+  private RejseplanUpdateDto Model { get; set; } = new();
 
-
-    private string? _token;
-    bool showAddTur = false;
-
-    private ObservableCollection<TurReadDto> SelectedtureVar = new ObservableCollection<TurReadDto>();
-
-    public ObservableCollection<TurReadDto> Observableture
+  protected override void OnParametersSet()
+  {
+    // Kopiér alle felter fra ReadDto til UpdateDto
+    Model = new RejseplanUpdateDto
     {
-        get
-        {
-            return SelectedtureVar;
-        }
-        set
-        {
-            SelectedtureVar = value;
-        }
-    }
+      Id                 = Item.Id,
+      KundeId            = Item.KundeId,
+      Titel              = Item.Titel,
+      Beskrivelse        = Item.Beskrivelse,
+      AntalVoksne        = Item.AntalVoksne,
+      AntalBørn          = Item.AntalBørn,
+      Lufthavn           = Item.Lufthavn,
+      FlyPris            = Item.FlyPris,
+      AntalDage          = Item.AntalDage,
+      AfrejseTidspunkt   = Item.AfrejseTidspunkt,
+      OpfølgningNote     = Item.OpfølgningNote,
+      RejseplanStatus    = Item.RejseplanStatus, 
+      RowVersion         = Item.RowVersion
+    };
+  }
 
-    public RejseplanUpdateDto Rejseplan { get; set; } = new RejseplanUpdateDto();
-    public List <RejseplanReadDto> RejseplanRead { get; set; } = new List<RejseplanReadDto>();
+  private async Task HandleSubmit()
+  {
 
-    private List<TurReadDto> TurVar = new List<TurReadDto>();
+    await OnSaved.InvokeAsync(Model);
+  }
 
-    public List<TurReadDto> Ture
-    {
-        get
-        {
-            // return TurVar excluding entities already in ObservableTur
-            return TurVar.Where(d => !Observableture.Any(o => o.Id == d.Id)).ToList();
-        }
-        set
-        {
-            TurVar = value;
-        }
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        _token = AuthStateProvider.CurrentUser.Token;
-        Kunder = new List<Kunde>();
-    }
-
-
-
-    async Task OnSubmit()
-    {
-
-        Console.WriteLine($"Titel: {Rejseplan.Titel}\nBeskrivelse: {Rejseplan.Beskrivelse}");
-        _RejseplanRepository.UpdateRejseplan(Rejseplan.Id, Rejseplan, _token);
-    }
-
-    void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
-    {
-
-    }
-
-    private void OnTurRowSelect(TurReadDto Tur)
-    {
-        Observableture.Add(Tur);
-
-        showAddTur = !showAddTur;
-    }
-
-    private void OnTurDelete(TurReadDto Tur)
-    {
-        Observableture.Remove(Tur);
-    }
-
-
-    async Task LoadCustomers(LoadDataArgs args)
-    {
-        // Antag du har et repo-metode der tager filter-tekst og returnerer Task<IEnumerable<KundeDto>>
-        //   Kunder = await KundeRepository.SearchCustomersAsync(args.Filter);
-    }
-
-    void OpenNyKundeDialog()
-    {
-        // Her åbner du fx en RadzenDialog eller navigerer til kundeoprettelse
-        //  DialogService.Open<NytKundeComponent>("Opret Kunde", new Dictionary<string, object>());
-    }
+  private async Task HandleCancel()
+  {
+    await OnCancelled.InvokeAsync();
+  }
 }
-

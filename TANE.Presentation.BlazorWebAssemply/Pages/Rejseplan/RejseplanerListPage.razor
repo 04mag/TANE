@@ -1,47 +1,68 @@
-﻿@using TANE.Presentation.BlazorWebAssemply.Pages.Rejseplan.Components
+﻿@page "/rejseplaner"
 @using TANE.Application.Dtos
 @using TANE.Application.Groups.RejsePlaner.Queries.Interfaces
-@using TANE.Application.Groups.Ture.Queries.Interfaces
+@using TANE.Application.RepositoryInterfaces
+@using TANE.Presentation.BlazorWebAssemply.Pages.Rejseplan.Components
 @inject IReadRejsePlan ReadRejseplan
 @inject CustomStateProvider AuthStateProvider
-
+@inject IRejsePlanRepository RejseplanRepository
 
 <h3>Rejseplaner</h3>
-@page "/rejseplaner"
-<RejseplanListComponent Injected="AlleRejseplaner" OnEdit="OnEdit"/>
-<div style="text-align: right; width: 100%;">
-    <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium"
-                  Style="width:150px" Text="Tilføj Tur"
-                  Click="@(() => showAddTur = !showAddTur)" />
-</div>
-@if (showAddTur)
+
+<RadzenButton Icon="add_circle" Style="margin-bottom:10px" Text="Ny Rejseplan" Click="CreateNew" />
+
+<RejseplanListComponent Data="AlleRejseplaner" OnEdit="BeginEdit" />
+
+@if (isEditing)
 {
-    <EditRejseplanComponent SelectedRejseplan="Selected" />
+    <div class="mt-4">
+        <EditRejseplanComponent 
+            Item="SelectedRejseplan" 
+            OnSaved="SaveEdit" 
+            OnCancelled="CancelEdit" />
+    </div>
 }
 
 @code {
-
-    private bool showAddTur = false;
-    private string? _token;
-
-    RejseplanReadDto Selected { get; set; } = new RejseplanReadDto();
-    List<RejseplanReadDto> AlleRejseplaner { get; set; } = new List<RejseplanReadDto>();
+    private List<RejseplanReadDto> AlleRejseplaner = new();
+    private RejseplanReadDto SelectedRejseplan = new();
+    private bool isEditing;
+    private string _token = "";
 
     protected override async Task OnInitializedAsync()
     {
-
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
         _token = AuthStateProvider.CurrentUser.Token;
-        AlleRejseplaner = await ReadRejseplan.ReadRejsePlanerAsync(_token);
-    }
-    private void OnDelete(RejseplanReadDto Rejseplan)
-    {
-        AlleRejseplaner.Remove(Rejseplan);
+        AlleRejseplaner = (await ReadRejseplan.ReadRejsePlanerAsync(_token)).ToList();
     }
 
-    private void OnEdit(RejseplanReadDto Rejseplan)
+    void CreateNew()
     {
-        Selected = Rejseplan;
-        showAddTur = true;
+        SelectedRejseplan = new RejseplanReadDto();
+        isEditing = true;
+    }
+
+    Task BeginEdit(RejseplanReadDto plan)
+    {
+        SelectedRejseplan = plan;
+        isEditing = true;
+        return Task.CompletedTask;
+    }
+
+    async Task SaveEdit(RejseplanUpdateDto updated)
+    {
+    // Opret vs. opdater
+      
+            await RejseplanRepository.UpdateRejseplan(updated.Id, updated, _token);
+        
+
+        AlleRejseplaner = (await ReadRejseplan.ReadRejsePlanerAsync(_token)).ToList();
+        isEditing = false;
+    }
+
+    Task CancelEdit()
+    {
+        isEditing = false;
+        return Task.CompletedTask;
     }
 }
