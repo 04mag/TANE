@@ -1,11 +1,12 @@
 ﻿@using TANE.Application.Groups.Kunder.Queries.Interfaces
 @using TANE.Domain.Entities
+@inject NavigationManager NavManager
 
 <RadzenTextBox @bind-Value="searchText" @oninput=@HandleInput Placeholder="Søg efter titel" Style="width: 100%" />
 
 <RadzenDataGrid AllColumnsText="true" AllowColumnResize="false" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
 
-	Data="@InjectedKunder" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single" @bind-Value=@SelectedKunder>
+Data="@InjectedKunder" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single" @bind-Value=@SelectedKunder>
 	<Columns>
 		<RadzenDataGridColumn Property="@nameof(Kunde.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" />
 		<RadzenDataGridColumn Property="@nameof(Kunde.Fornavn)" Title="Fornavn" Width="auto" MinWidth="200px" />
@@ -17,20 +18,20 @@
 				@if (OnSelectKunde.HasDelegate)
 				{
 					<RadzenButton Icon="file_open" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
-								  Shade="Shade.Lighter" class="rz-my-1 rz-ms-1"
-								  Click="@(args => OnRowSelect(kunde))" OnClick:stopPropagation />
+					Shade="Shade.Lighter" class="rz-my-1 rz-ms-1"
+					Click="@(args => OnRowSelect(kunde))" OnClick:stopPropagation />
 				}
 				@if (OnEditKunde.HasDelegate)
 				{
 					<RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
-								  class="rz-my-1 rz-ms-1"
-								  Click="@(args => OnRowEdit(kunde))" OnClick:stopPropagation />
+					class="rz-my-1 rz-ms-1"
+					Click="@(args => OnRowEdit(kunde))" OnClick:stopPropagation />
 				}
 				@if (OnDeleteKunde.HasDelegate)
 				{
 					<RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium"
-								  Shade="Shade.Lighter" class="rz-my-1 rz-ms-1"
-								  Click="@(args => OnRowDelete(kunde))" OnClick:stopPropagation />
+					Shade="Shade.Lighter" class="rz-my-1 rz-ms-1"
+					Click="@(args => OnRowDelete(kunde))" OnClick:stopPropagation />
 				}
 			</Template>
 		</RadzenDataGridColumn>
@@ -75,8 +76,8 @@
 	}
 
 	public IList<Kunde> SelectedKunder { get; set; } = new List<Kunde>();
-	
-	
+
+
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
@@ -106,12 +107,12 @@
 	private async Task OnRowEdit(Kunde kunde)
 	{
 		await OnEditKunde.InvokeAsync(kunde);
-
 		Kunder = InjectedKunder.AsQueryable();
 	}
 
 	private async Task OnRowDelete(Kunde kunde)
 	{
+		
 		await OnDeleteKunde.InvokeAsync(kunde);
 		Kunder = InjectedKunder.AsQueryable();
 		StateHasChanged();

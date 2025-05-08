@@ -5,6 +5,7 @@
 @using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
 @inject IReadKunde ReadKunde
 @inject CustomStateProvider AuthStateProvider
+@inject NavigationManager NavManager
 
 @page "/kunde/oversigt"
 
@@ -21,11 +22,14 @@ OnDeleteKunde="OnRowDeletePressed" />
     private async Task OnRowEditPressed(Kunde kunde)
     {
         Console.WriteLine($"Edit pressed for: {kunde.Id}");
+		// Navigate to the edit page with the selected Kunde's ID
+        NavManager.NavigateTo($"Kunde/rediger/{kunde.Id}");
     }
 
     private async Task OnRowDeletePressed(Kunde kunde)
     {
         Console.WriteLine($"Delete pressed for: {kunde.Id}");
+
     }
 
     protected override async Task OnInitializedAsync()

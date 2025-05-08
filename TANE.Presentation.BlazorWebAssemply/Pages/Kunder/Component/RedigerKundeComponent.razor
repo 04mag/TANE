@@ -12,6 +12,8 @@
 @inject NavigationManager NavManager
 @inject NotificationService NotificationService
 @inject CustomStateProvider Authprovider 
+@inject DialogService DialogService
+<RadzenDialog />
 
 <h3>Rediger kunde</h3>
 
@@ -46,7 +48,7 @@ else
 			</RadzenFormField>
 
 			<RadzenButton Text="Gem" ButtonType="ButtonType.Submit" />
-			<RadzenButton Text="Slet" ButtonStyle="ButtonStyle.Danger" Click="OnDeleteKunde" />
+			<RadzenButton Text="Slet" ButtonStyle="ButtonStyle.Danger" Click="@(() => OnDeleteKunde())" />
 		</RadzenStack>
 	</RadzenTemplateForm>
 }
@@ -78,7 +80,7 @@ else
 
 			await UpdateKunde.UpdateKundeAsync(kunde, Authprovider.CurrentUser.Token);
 			NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Kunde opdateret" });
-			NavManager.NavigateTo("/kundepage/oversigt");
+			NavManager.NavigateTo("/kunde/oversigt");
 		}
 		catch (Exception ex)
 		{
@@ -88,22 +90,27 @@ else
 
 	private async Task OnDeleteKunde()
 	{
-		try
+		var confirmationResult = await this.DialogService.Confirm("Are you sure?", "Dialog Title", new ConfirmOptions { OkButtonText = "Yes", CancelButtonText = "No" });
+		if (confirmationResult == true)
 		{
-			if (Authprovider.CurrentUser.Token == string.Empty)
+			try
 			{
-				return;
-			}
-			await Authprovider.RefreshTokenAsync(NavManager, NotificationService);
+				if (Authprovider.CurrentUser.Token == string.Empty)
+				{
+					return;
+				}
+				await Authprovider.RefreshTokenAsync(NavManager, NotificationService);
 
-			await DeleteKunde.DeleteKundeAsync(kunde.Id, Authprovider.CurrentUser.Token);
-			NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Kunde slettet" });
-			NavManager.NavigateTo("/kundepage/oversigt");
+				await DeleteKunde.DeleteKundeAsync(kunde.Id, Authprovider.CurrentUser.Token);
+				NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Kunde slettet" });
+				NavManager.NavigateTo("/kunde/oversigt");
+			}
+			catch (Exception ex)
+			{
+				NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = "Error", Detail = ex.Message });
+			}
 		}
-		catch (Exception ex)
-		{
-			NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = "Error", Detail = ex.Message });
-		}
+		
 	}
 
 
