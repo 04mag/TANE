@@ -9,5 +9,7 @@
         public double Pris { get; set; }
         public DateTime TurStartTidspunkt { get; set; }
         public DateTime TurSlutTidspunkt { get; set; }
+
+        public int Sekvens { get; set; }
     }
 }

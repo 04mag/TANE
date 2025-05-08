@@ -229,6 +229,7 @@
 
     private void OnTurRowSelect(TurReadDto Tur)
     {
+        Tur.Sekvens = Observableture.Count + 1;
         Observableture.Add(Tur);
 
         showAddTur = !showAddTur;

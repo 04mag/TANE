@@ -10,6 +10,7 @@
 @inject CustomStateProvider AuthStateProvider
 @inject ITurRepository TurRepository
 @inject IReadKunde ReadKunde
+@inject IRejsePlanRepository RejseplanRepository
 
 <RadzenDialog />
 
@@ -115,7 +116,7 @@
       <!-- ... øvrige formfelter som før ... -->
 
       <h4>Vælg ture:</h4>
-      <TurReorderListComponent InjectedTure="Observableture" OnDelete="OnTurDelete" />
+      <TurReorderListComponent InjectedTure="Observableture" OnDelete="OnTurDelete" OnReorder="OnTurReorder" />
       <div style="text-align: right; width: 100%;">
         <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium"
                       Style="width:150px" Text="Tilføj Tur"
@@ -207,7 +208,6 @@
           AntalDage        = Item.AntalDage,
           AfrejseTidspunkt = Item.AfrejseTidspunkt,
           TurIds           = new List<int>(Item.TurIds),
-    // Føj disse to påkrævede felter til:
           OpfølgningNote   = Item.OpfølgningNote,
           RowVersion       = Item.RowVersion
       };
@@ -222,10 +222,7 @@
 
   private async Task HandleValidSubmit(RejseplanUpdateDto model)
   {
-    model.TurIds.Clear();
-    foreach (var t in Observableture)
-      model.TurIds.Add(t.Id);
-    await OnSaved.InvokeAsync(model);
+      await OnSaved.InvokeAsync(model);
   }
 
   private Task HandleInvalidSubmit(FormInvalidSubmitEventArgs args)
@@ -260,4 +257,24 @@
       SelectCustomer(nyKunde);
     }
   }
+    private async Task OnTurReorder(IEnumerable<TurReadDto> newOrder)
+    {
+    // 1) Byg din DTO med de nye Id’er
+        var dto = new TurReorderDto 
+        { 
+            TurIds = newOrder.Select(t => t.Sekvens).ToList(),
+            OriginalRowVersion   = EditModel.RowVersion
+        };
+
+    // 2) Kald reorder-endpointet
+        await RejseplanRepository.ReorderTureAsync(Item.Id, dto, _token);
+
+    // 3) Opdater lokalt, så UI reflekterer den nye rækkefølge
+        Observableture = new ObservableCollection<TurReadDto>(newOrder);
+    
+        EditModel.TurIds = newOrder.Select(t => t.Sekvens).ToList();
+    // (Hvis du vil, kan du undlade en ekstra “Gem”-knap,
+    //  for drag’n’drop bliver nu gemt med det samme.)
+    }
+
 }

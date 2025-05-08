@@ -76,18 +76,32 @@ namespace TANE.Persistence.Repositories
 
             return rejseplan ?? new RejseplanReadDto();
         }
+
         public async Task<bool> UpdateRejseplan(int id, RejseplanUpdateDto dto, string jwtToken)
         {
             var client = _factory.CreateClient("rejseplan");
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", jwtToken);
-            
+
             var response = await client.PutAsJsonAsync($"rejseplan/{id}", dto);
 
             // Returner true hvis status er 2xx
             return response.IsSuccessStatusCode;
         }
 
+        public async Task ReorderTureAsync(int rejseplanId, TurReorderDto dto, string jwtToken)
+        {
+            var client = _factory.CreateClient("rejseplan");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
 
+            var response = await client.PostAsJsonAsync($"rejseplan/{rejseplanId}/ture/reorder", dto);
+
+            // Returner true hvis status er 2xx
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Failed to reorder tours: {response.StatusCode}");
+            }
+        }
     }
 }

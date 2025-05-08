@@ -10,6 +10,7 @@
         public DateTime TurSlutTidspunkt { get; set; }
         public List<DagReadDto> Dage { get; set; } = new();
         public int? RejsePlanId { get; set; } = new();
+        public int Sekvens { get; set; }
         public byte[] RowVersion { get; set; }  // **Til optimistic concurrency**
     }
 }

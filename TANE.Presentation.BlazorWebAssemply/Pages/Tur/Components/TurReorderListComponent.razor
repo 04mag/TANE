@@ -18,6 +18,7 @@
         <RadzenDataGridColumn Property="@nameof(TurReadDto.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" />
         <RadzenDataGridColumn Property="@nameof(TurReadDto.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px" />
         <RadzenDataGridColumn Property="@nameof(TurReadDto.Beskrivelse)" Title="Beskrivelse" Width="auto" MinWidth="150px" />
+        <RadzenDataGridColumn Property="@nameof(TurReadDto.Sekvens)" Filterable="false" Title="Rækkefølge" Frozen="true" Width="150px" Sortable="true" />
         <RadzenDataGridColumn Context="Tur" Filterable="false" Sortable="false" Width="auto" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
          @*    <Template Context="TurReadDto">
                 @if (OnSelect.HasDelegate)
@@ -50,6 +51,11 @@
     [Parameter]
     public EventCallback<TurReadDto> OnDelete { get; set; }
 
+
+    [Parameter]
+    public EventCallback<IEnumerable<TurReadDto>> OnReorder { get; set; }
+
+
     IList<TurReadDto> selectedTure;
 
     protected override async Task OnInitializedAsync()
@@ -81,17 +87,35 @@
         args.Attributes.Add("title", "Drag row to reorder");
         args.Attributes.Add("style", "cursor:grab");
         args.Attributes.Add("draggable", "true");
-        args.Attributes.Add("ondragover", "event.preventDefault();event.target.closest('.rz-data-row').classList.add('my-class')");
+        args.Attributes.Add("ondragover", "event.preventDefault(); event.target.closest('.rz-data-row').classList.add('my-class')");
         args.Attributes.Add("ondragleave", "event.target.closest('.rz-data-row').classList.remove('my-class')");
-        args.Attributes.Add("ondragstart", EventCallback.Factory.Create<DragEventArgs>(this, () => draggedItem = args.Data));
-        args.Attributes.Add("ondrop", EventCallback.Factory.Create<DragEventArgs>(this, (Action)(() =>
-        {
-            var draggedIndex = this.InjectedTure.IndexOf(draggedItem);
-            var droppedIndex = this.InjectedTure.IndexOf(args.Data);
-            this.InjectedTure.Remove(draggedItem);
-            this.InjectedTure.Insert((int)(draggedIndex <= droppedIndex ? droppedIndex++ : droppedIndex), draggedItem);
+        args.Attributes.Add(
+            "ondragstart",
+            EventCallback.Factory.Create<DragEventArgs>(this, (evt) => draggedItem = args.Data)
+            );
+        args.Attributes.Add(
+            "ondrop",
+            EventCallback.Factory.Create<DragEventArgs>(this, async (evt) =>
+            {
+                if (draggedItem is null) return;
+                var from = InjectedTure.IndexOf(draggedItem);
+                var to   = InjectedTure.IndexOf(args.Data);
 
-            JSRuntime.InvokeVoidAsync("eval", $"document.querySelector('.my-class').classList.remove('my-class')");
-        })));
+                InjectedTure.Remove(draggedItem);
+                InjectedTure.Insert(from <= to ? to + 1 : to, draggedItem);
+
+                 // Fjern highlight
+                await JSRuntime.InvokeVoidAsync(
+                    "eval",
+                    "document.querySelector('.my-class').classList.remove('my-class')"
+                    );
+
+                if (OnReorder.HasDelegate)
+                {
+                    var newOrder = InjectedTure.ToList();
+                    await OnReorder.InvokeAsync(newOrder);
+                }
+            })
+            );
     }
 }
