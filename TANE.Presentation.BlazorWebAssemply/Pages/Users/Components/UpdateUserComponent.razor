@@ -8,7 +8,7 @@
 @inject NotificationService NotificationService
 @inject CustomStateProvider AuthStateProvider
 @inject IGetUser GetUserService
-@inject IUpdateUser UpdatePasswordService
+@inject IUpdateUser UpdateUserService
 
 @if (IsLoading)
 {
@@ -103,7 +103,7 @@ else
         try
         {
             // Kald dit UpdateUserPassword-interface
-            await UpdatePasswordService.UpdateUserAsync(
+            await UpdateUserService.UpdateUserAsync(
                 UserId,
                 model.NewPassword,
                 AuthStateProvider.CurrentUser.Token

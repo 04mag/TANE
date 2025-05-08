@@ -7,6 +7,7 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using TANE.Application.Common.Exceptions;
 using TANE.Application.Groups.Users.Interfaces;
+using TANE.Application.RepositoryInterfaces;
 
 namespace TANE.Application.Groups.Users.Commands
 {
@@ -31,5 +32,6 @@ namespace TANE.Application.Groups.Users.Commands
                 throw new ConflictException("Kan ikke ændre password for denne bruger.");
             throw new Exception("Serverfejl ved password-ændring.");
         }
+
     }
 }
