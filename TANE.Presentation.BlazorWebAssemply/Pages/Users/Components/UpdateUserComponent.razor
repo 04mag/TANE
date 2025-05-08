@@ -1,6 +1,9 @@
 ﻿@using TANE.Domain.Entities
 @using TANE.Application.Groups.Users.Commands.Interfaces
 @using TANE.Application.Groups.Users.Interfaces
+@using TANE.Application.Common.Exceptions
+@using Radzen
+@using Radzen.Blazor
 @inject NavigationManager NavigationManager
 @inject NotificationService NotificationService
 @inject CustomStateProvider AuthStateProvider
@@ -29,8 +32,8 @@ else
                 <Helper>
                     <RadzenRequiredValidator Component="NewPassword" Text="Password kræves." />
                     <RadzenRegexValidator Component="NewPassword"
-                                          Pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$"
-                                          Text="8+ tegn, 1 stort, 1 lille, 1 tal & 1 spec." />
+                    Pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$"
+                    Text="8+ tegn, 1 stort, 1 lille, 1 tal & 1 spec." />
                 </Helper>
             </RadzenFormField>
 
@@ -41,8 +44,8 @@ else
                 <Helper>
                     <RadzenRequiredValidator Component="ConfirmNew" Text="Bekræft password." />
                     <RadzenCompareValidator Component="ConfirmNew"
-                                            Value="@Pwd.NewPassword"
-                                            Text="Passwords skal være ens." />
+                    Value="@Pwd.NewPassword"
+                    Text="Passwords skal være ens." />
                 </Helper>
             </RadzenFormField>
 
@@ -71,7 +74,7 @@ else
         try
         {
             await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
-            User = await GetUserByIdService.GetUserByIdAsync(UserId, AuthStateProvider.CurrentUser.Token);
+            User = await GetUserService.GetUserByIdAsync(UserId, AuthStateProvider.CurrentUser.Token);
         }
         catch (Exception ex)
         {
@@ -83,15 +86,30 @@ else
         }
     }
 
+    private void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    {
+        NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Warning,
+                Summary = "Valideringsfejl",
+                Detail = "Tjek venligst, at alle felter er udfyldt korrekt.",
+                Duration = 4000
+            });
+    }
+
+
     private async Task OnSubmit(PasswordModel model)
     {
         try
         {
-            await UpdatePasswordService.UpdateUserPasswordAsync(
+            // Kald dit UpdateUserPassword-interface
+            await UpdatePasswordService.UpdateUserAsync(
                 UserId,
                 model.NewPassword,
                 AuthStateProvider.CurrentUser.Token
             );
+
+            // Success-notifikation
             NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Success,
@@ -99,24 +117,38 @@ else
                     Detail = $"Password for {User.Email} er skiftet.",
                     Duration = 4000
                 });
+
             NavigationManager.NavigateTo("/users");
         }
-        catch (NotAuthorizedException)
+        catch (NotAuthorizedException ex)
         {
-            NotificationService.NotifyError("Du har ikke tilladelse.");
+            NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Ingen tilladelse",
+                    Detail = ex.Message,
+                    Duration = 4000
+                });
         }
-        catch (ConflictException)
+        catch (ConflictException ex)
         {
-            NotificationService.NotifyWarning("Password-ændring konflikt.");
+            NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Warning,
+                    Summary = "Konflikt",
+                    Detail = ex.Message,
+                    Duration = 4000
+                });
         }
         catch (Exception ex)
         {
-            NotificationService.NotifyError($"Fejl: {ex.Message}");
+            NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Ukendt fejl",
+                    Detail = ex.Message,
+                    Duration = 4000
+                });
         }
-    }
-
-    private void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
-    {
-        NotificationService.NotifyWarning("Tjek dine inputfelter.");
     }
 }
