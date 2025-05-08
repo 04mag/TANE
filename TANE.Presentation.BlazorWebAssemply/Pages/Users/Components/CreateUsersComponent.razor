@@ -1,0 +1,138 @@
+﻿
+@using TANE.Application.Groups.JwtTokens.Commands.Interfaces
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Application.Common.Exceptions;
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject CustomStateProvider AuthStateProvider
+@inject ICreateUser CreateUser
+
+<h3>Opret ny bruger</h3>
+<RadzenTemplateForm TItem="User" Data="@User" Submit="@OnSubmit" InvalidSubmit="@OnInvalidSubmit">
+    <RadzenStack Gap="1rem" Class="rz-p-sm-12">
+
+        <!-- E-mail -->
+        <RadzenFormField Text="E-mail" Variant="@ThemeConfig.FormVariant">
+            <ChildContent>
+                <RadzenTextBox Name="Email" @bind-Value="User.Email" Type="Email" Style="width:100%" />
+            </ChildContent>
+            <Helper>
+                <RadzenRequiredValidator Component="Email" Text="E-mail skal udfyldes." />
+                <RadzenEmailValidator Component="Email" Text="Indtast en gyldig e-mail." />
+            </Helper>
+        </RadzenFormField>
+
+        <!-- Password -->
+        <RadzenFormField Text="Password" Variant="@ThemeConfig.FormVariant">
+            <ChildContent>
+                <RadzenPassword Name="Password" @bind-Value="User.Password" Style="width:100%" />
+            </ChildContent>
+            <Helper>
+                <RadzenRequiredValidator Component="Password" Text="Password skal udfyldes." />
+                <RadzenRegexValidator Component="Password"
+                Pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$"
+                Text="Password skal være mindst 8 tegn langt, indeholde mindst 1 stort bogstav, 1 lille bogstav, 1 tal og 1 specialtegn." />
+            </Helper>
+        </RadzenFormField>
+
+        <!-- Confirm password -->
+        <RadzenFormField Text="Bekræft password" Variant="@ThemeConfig.FormVariant">
+            <ChildContent>
+                <RadzenPassword Name="ConfirmPassword" @bind-Value="User.ConfirmPassword" Style="width:100%" />
+            </ChildContent>
+            <Helper>
+                <RadzenRequiredValidator Component="ConfirmPassword" Text="Bekræft dit password." />
+                <RadzenCompareValidator Component="ConfirmPassword" Value="@User.Password" Text="Passwords skal være ens." />
+            </Helper>
+        </RadzenFormField>
+
+        <RadzenButton ButtonType="ButtonType.Submit" Text="Opret bruger" Style="margin-top:1rem" />
+
+    </RadzenStack>
+</RadzenTemplateForm>
+
+
+@code {
+    public User User { get; set; } = new User();
+
+
+    Variant variant = Variant.Flat;
+
+
+    
+        // await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+        // await CreateUser.CreateUserAsync(model.Email, model.Password, AuthStateProvider.CurrentUser.Token); //Opret trycatch
+    private async Task OnSubmit(User model)
+    {
+        try
+        {
+            // Fornyer JWT-token hvis nødvendigt
+            await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+
+            // Opretter brugeren – exception ved fejl
+            await CreateUser.CreateUserAsync(
+                model.Email,
+                model.Password,
+                AuthStateProvider.CurrentUser.Token
+            );
+
+            // Oprettelse lykkedes
+            NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Bruger oprettet",
+                    Detail = $"Bruger med e-mail '{model.Email}' er nu oprettet.",
+                    Duration = 4000
+                });
+
+            NavigationManager.NavigateTo("/users");
+        }
+        catch (NotAuthorizedException ex)
+        {
+            // 401/403 fra CreateUserAsync
+            NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Ikke autoriseret",
+                    Detail = ex.Message, // fx "Ikke autoriseret til at oprette bruger."
+                    Duration = 4000
+                });
+        }
+        catch (ConflictException ex)
+        {
+            // 409 fra CreateUserAsync
+            NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Warning,
+                    Summary = "E-mail i brug",
+                    Detail = ex.Message, // fx "Bruger med den e-mail eksisterer allerede."
+                    Duration = 4000
+                });
+        }
+        catch (Exception ex)
+        {
+            // Alle andre fejl
+            NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Fejl ved oprettelse",
+                    Detail = ex.Message,
+                    Duration = 4000
+                });
+        }
+    }
+
+    private void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    {
+        
+    }
+    
+}
+
+    
+
+        
+    
+
