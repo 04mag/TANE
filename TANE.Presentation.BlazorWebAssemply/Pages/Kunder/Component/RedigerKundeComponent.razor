@@ -1,5 +1,4 @@
-﻿
-@using Radzen
+﻿@using Radzen
 @using Radzen.Blazor
 @using TANE.Application.Common.Exceptions
 @using TANE.Domain.Entities
@@ -19,7 +18,7 @@
 
 @if (kunde == null)
 {
-	<RadzenProgressBar Mode="ProgressBarMode.Indeterminate" />
+	<p>Kunden du prøver at redigere, findes ikke!</p>
 }
 else
 {
@@ -57,7 +56,7 @@ else
 @code {
 	[Parameter]
 	public int Id { get; set; }
-	private Kunde kunde;
+	private Kunde? kunde = new Kunde();
 	protected override async Task OnInitializedAsync()
 	{
 		if (Authprovider.CurrentUser.Token == string.Empty)
@@ -65,7 +64,16 @@ else
 			return;
 		}
 		await Authprovider.RefreshTokenAsync(NavManager, NotificationService);
-		kunde = await ReadKunde.GetKundeByIdAsync(Id, Authprovider.CurrentUser.Token);
+		
+		try
+		{
+			kunde = await ReadKunde.GetKundeByIdAsync(Id, Authprovider.CurrentUser.Token);
+
+		}
+		catch (Exception)
+		{
+			kunde = null;
+		}
 	}
 
 	private async Task HandleSubmit(Kunde kunde)
