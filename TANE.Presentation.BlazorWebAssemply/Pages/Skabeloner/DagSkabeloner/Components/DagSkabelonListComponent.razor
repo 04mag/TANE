@@ -65,10 +65,8 @@ Data="@Skabeloner" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOpera
 
     public IList<DagSkabelon> SelectedSkabeloner { get; set; } = new List<DagSkabelon>();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await base.OnInitializedAsync();
-
         Skabeloner = InjectedSkabeloner.AsQueryable();
 
         SelectedSkabeloner = new List<DagSkabelon>() { Skabeloner.FirstOrDefault()! };

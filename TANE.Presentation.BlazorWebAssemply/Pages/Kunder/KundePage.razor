@@ -6,23 +6,31 @@
 @inject IReadKunde ReadKunde
 @inject CustomStateProvider AuthStateProvider
 @inject NavigationManager NavManager
+@inject NotificationService NotificationService
 
 @page "/kunde/oversigt"
 
 <PageTitle>Kundeoversigt</PageTitle>
 
-<KundeListComponent InjectedKunder="Kunder"
-OnEditKunde="OnRowEditPressed"
-OnDeleteKunde="OnRowDeletePressed" />
+@if (Kunder != null)
+{
+    <KundeListComponent InjectedKunder="Kunder"
+    OnEditKunde="OnRowEditPressed"
+    OnDeleteKunde="OnRowDeletePressed" />
+}
+else
+{
+    <p>Indlæser...</p>
+}
 
 @code {
     private string _token = string.Empty;
-    public List<Kunde> Kunder { get; set; } = new();
+    public List<Kunde>? Kunder { get; set; } = null;
 
     private async Task OnRowEditPressed(Kunde kunde)
     {
         Console.WriteLine($"Edit pressed for: {kunde.Id}");
-		// Navigate to the edit page with the selected Kunde's ID
+        // Navigate to the edit page with the selected Kunde's ID
         NavManager.NavigateTo($"Kunde/rediger/{kunde.Id}");
     }
 
@@ -34,16 +42,14 @@ OnDeleteKunde="OnRowDeletePressed" />
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();if (authState.User.Identity.IsAuthenticated)
+        try
         {
-            _token = AuthStateProvider.CurrentUser.Token;
+            await AuthStateProvider.RefreshTokenAsync(NavManager, NotificationService);
+            Kunder = await ReadKunde.GetAllKunderAsync(AuthStateProvider.CurrentUser.Token);
         }
-        else
+        catch
         {
-             // Handle unauthenticated state
-            return;
+            Kunder = new List<Kunde>();
         }
-        await base.OnInitializedAsync();
-        Kunder = await ReadKunde.GetAllKunderAsync(_token);
     }
 }

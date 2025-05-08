@@ -26,7 +26,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await base.OnInitializedAsync();
 
         DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync("test");
     }

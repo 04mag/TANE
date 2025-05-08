@@ -5,8 +5,7 @@
 <RadzenTextBox @bind-Value="searchText" @oninput=@HandleInput Placeholder="Søg efter fornavn eller efternavn" Style="width: 100%" />
 
 <RadzenDataGrid AllColumnsText="true" AllowColumnResize="false" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
-
-Data="@InjectedKunder" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single" @bind-Value=@SelectedKunder>
+Data="@Kunder" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single" @bind-Value=@SelectedKunder>
 	<Columns>
 		<RadzenDataGridColumn Property="@nameof(Kunde.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" />
 		<RadzenDataGridColumn Property="@nameof(Kunde.Fornavn)" Title="Fornavn" Width="auto" MinWidth="200px" />
@@ -78,14 +77,11 @@ Data="@InjectedKunder" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterO
 	public IList<Kunde> SelectedKunder { get; set; } = new List<Kunde>();
 
 
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
-		await base.OnInitializedAsync();
 		Kunder = InjectedKunder.AsQueryable();
 
-		SelectedKunder = new List<Kunde>() {
-			Kunder.FirstOrDefault()!
-		};
+		SelectedKunder = new List<Kunde>() { Kunder.FirstOrDefault()! };
 	}
 
 	private void HandleInput(ChangeEventArgs args)
@@ -116,7 +112,6 @@ Data="@InjectedKunder" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterO
 		
 		await OnDeleteKunde.InvokeAsync(kunde);
 		Kunder = InjectedKunder.AsQueryable();
-		StateHasChanged();
 	}
 	
 
