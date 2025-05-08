@@ -1,14 +1,20 @@
-﻿@using TANE.Application.Groups.Kunder.Queries
+﻿@using TANE.Application.Groups.Kunder.Commands
+@using TANE.Application.Groups.Kunder.Commands.Interfaces
+@using TANE.Application.Groups.Kunder.Queries
 @using TANE.Application.Groups.Kunder.Queries.Interfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
+
 @inject IReadKunde ReadKunde
+@inject IDeleteKunde _deleteKunde
 @inject CustomStateProvider AuthStateProvider
 @inject NavigationManager NavManager
+@inject CustomStateProvider Authprovider
 @inject NotificationService NotificationService
+@inject DialogService DialogService
 
-@page "/kunde/oversigt"
+@page "/kunde/oversigt" 
 
 <PageTitle>Kundeoversigt</PageTitle>
 
@@ -37,6 +43,24 @@ else
     private async Task OnRowDeletePressed(Kunde kunde)
     {
         Console.WriteLine($"Delete pressed for: {kunde.Id}");
+        // Implement delete logic here
+        // For example, show a confirmation dialog and delete the Kunde if confirmed
+        var result = await DialogService.Confirm($"Er du sikker på, at du vil slette kunden {kunde.Fornavn} {kunde.Efternavn}?", "Bekræft sletning", new ConfirmOptions() { OkButtonText = "Ja", CancelButtonText = "Nej" });
+        if (result == true )
+        {
+            await Authprovider.RefreshTokenAsync(NavManager, NotificationService);
+            // Call the delete method here
+            var kk = await _deleteKunde.DeleteKundeAsync(kunde.Id, AuthStateProvider.CurrentUser.Token);
+            if (kk)
+            {
+                Kunder.Remove(kunde);
+                NotificationService.Notify(NotificationSeverity.Success, "Sletning", $"{kunde.Fornavn} {kunde.Efternavn} er blevet slettet.");
+            }
+            else
+            {
+                NotificationService.Notify(NotificationSeverity.Error , "Sletning", $"Sletning af {kunde.Fornavn} {kunde.Efternavn} mislykkes.");
+            }
+        }
 
     }
 
