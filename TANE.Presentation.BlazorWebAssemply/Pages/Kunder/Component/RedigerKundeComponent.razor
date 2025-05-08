@@ -12,7 +12,7 @@
 @inject NotificationService NotificationService
 @inject CustomStateProvider Authprovider 
 @inject DialogService DialogService
-<RadzenDialog />
+
 
 <h3>Rediger kunde</h3>
 
@@ -98,7 +98,7 @@ else
 
 	private async Task OnDeleteKunde()
 	{
-		var confirmationResult = await this.DialogService.Confirm("Are you sure?", "Dialog Title", new ConfirmOptions { OkButtonText = "Yes", CancelButtonText = "No" });
+		var confirmationResult = await this.DialogService.Confirm("Er du sikker?", "Slet kunde", new ConfirmOptions { OkButtonText = "Ja", CancelButtonText = "Nej" });
 		if (confirmationResult == true)
 		{
 			try
