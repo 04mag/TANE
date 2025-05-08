@@ -4,41 +4,54 @@
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
 @using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
 
 
 @inject CustomStateProvider AuthStateProvider
 @inject ITurRepository TurRepository
 @inject IReadKunde ReadKunde
+@inject DialogService DialogService
+@inject CustomerState CustomerState
+
+
+<RadzenDialog />
+<RadzenDialogService />
+
 <div class="rz-p-0 rz-p-md-12">
     <h4>Opret Ny Rejseplan</h4>
     <RadzenTemplateForm TItem="RejseplanCreateDto" Data=@Rejseplan Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
         <RadzenStack Gap="1rem" class="rz-p-sm-12">
 
             <!-- Kunde-søgning + knap til ny kunde -->
-            <RadzenFormField Text="Kunde" Variant="@ThemeConfig.FormVariant">
-                <ChildContent>
-                    <div style="display: flex; align-items: center;">
-                        <!-- RadzenAutoComplete Component -->
-                        <RadzenAutoComplete @bind-Value="@selectedCustomerEmail" 
-                                            Data="@Kunder" 
-                                            TextProperty="Email"
-                                            ValueProperty="Id"
-                                            AllowFiltering="true"
-                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            Placeholder="Indtast eller vælg kunde..."
-                                            Style="flex: 1" />
-
-                        <!-- RadzenButton for adding a new customer -->
-                        <RadzenButton Icon="add_circle" ButtonType="ButtonType.Button"
-                                      Style="margin-left: 8px;"
-                                      Click="@OpenNyKundeDialog" />
-                    </div>
-                </ChildContent>
-                <Helper>
-                    <RadzenRequiredValidator Component="Kunde" Text="Vælg en kunde." />
-                </Helper>
-            </RadzenFormField>
+            <div class="mb-4">
+                <label class="block mb-1 font-semibold">Kunde</label>
+                <div class="flex items-center">
+                    <InputText @bind-Value="customerSearchTerm"
+                               placeholder="Søg kunde..."
+                               class="border rounded p-2 flex-1" />
+                    <button @onclick="OpenNyKundeDialog"
+                            class="ml-2 bg-blue-500 text-white px-3 py-2 rounded">
+                        Ny Kunde
+                    </button>
+                </div>
+                @if (filteredCustomers.Any())
+                {
+                    <ul class="border rounded mt-2 max-h-40 overflow-y-auto">
+                        @foreach (var c in filteredCustomers)
+                        {
+                            <li @onclick="() => SelectCustomer(c)"
+                                class="px-2 py-1 hover:bg-gray-100 cursor-pointer">
+                                @c.Fornavn @c.Efternavn – @c.Email
+                            </li>
+                        }
+                    </ul>
+                }
+                @if (selectedCustomer != null)
+                {
+                    <p class="mt-2">Valgt: <strong>@selectedCustomer.Fornavn @selectedCustomer.Efternavn</strong></p>
+                }
+            </div>
 
             <!-- Titel -->
             <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
@@ -109,7 +122,11 @@
             <div style="text-align: right; width: 100%;">
                 <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium"
                               Style="width:150px" Text="Tilføj Tur"
-                              Click="@(() => showAddTur = !showAddTur)" />
+                              Click="@(() => showAddTur = !showAddTur)" 
+                              
+                
+                />
+
             </div>
 
             @if (showAddTur)
@@ -125,6 +142,7 @@
 </div>
 
 @code{
+    Kunde? NyKunde { get; set; }
     [Inject] 
     private IRejsePlanRepository _RejseplanRepository { get; set; } = default!;
 
@@ -180,6 +198,12 @@
         Ture = alleture;   // udfylder din property, så Injectedture ikke længere er nødvendig
 
         Kunder = await ReadKunde.GetAllKunderAsync(_token);
+
+        // if (CustomerState.Kunde != null)
+        // {
+        //     selectedCustomerEmail = CustomerState.Kunde.Email;
+        // }
+        Rejseplan = new RejseplanCreateDto();
     }
 
     
@@ -188,7 +212,15 @@
     {
         
         Console.WriteLine($"Titel: {Rejseplan.Titel}\nBeskrivelse: {Rejseplan.Beskrivelse}");
+        Rejseplan.RejseplanStatus = 0;
+        foreach (var t in Observableture )
+        {
+            Rejseplan.Ture.Add(t.Id);
+        }
+
+
         _RejseplanRepository.CreateRejseplan(Rejseplan, _token);
+        CustomerState.Kunde = null;
     }
 
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
@@ -219,9 +251,42 @@
         await Task.CompletedTask;
     }
 
-    void OpenNyKundeDialog()
+    async Task OpenNyKundeDialog()
     {
     // Her åbner du fx en RadzenDialog eller navigerer til kundeoprettelse
-      //  DialogService.Open<NytKundeComponent>("Opret Kunde", new Dictionary<string, object>());
+      var result = await DialogService.OpenAsync<CreateKundeComponent>("Opret Kunde", new Dictionary<string, object>());
+
+
+        if (result is Kunde nyKunde)
+        {
+            // nu har du dit oprettede kunde-objekt i 'nyKunde'
+            CustomerState.Kunde = nyKunde;
+            Kunder.Add(nyKunde);
+            selectedCustomerEmail = nyKunde.Email; // opdaterer den valgte kunde
+        }
+
     }
+
+
+    private string customerSearchTerm;
+    private Kunde selectedCustomer;
+
+
+    private IEnumerable<Kunde> filteredCustomers =>
+        string.IsNullOrWhiteSpace(customerSearchTerm)
+            ? Kunder
+            : Kunder.Where(c => c.Fornavn.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase)
+                                || c.Efternavn.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase)
+                                || c.Email.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase));
+
+    private void SelectCustomer(Kunde c)
+    {
+        selectedCustomer = c;
+        Rejseplan.KundeId = c.Id;
+        customerSearchTerm = $"{c.Fornavn} {c.Efternavn}";
+    // ryd dropdown
+    }
+
+
+}
 }

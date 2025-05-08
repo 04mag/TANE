@@ -71,7 +71,6 @@ namespace TANE.Persistence.Configuration
             services.AddScoped<IReadRejsePlan, ReadRejsePlan>();
             services.AddScoped<IReadKunde, ReadKunde>();
 
-
             return services;
         }
     }

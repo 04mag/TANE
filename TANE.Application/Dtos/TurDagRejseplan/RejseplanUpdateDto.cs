@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TANE.Application.Dtos.TurDagRejseplan;
 
 namespace TANE.Application.Dtos
 {
@@ -16,6 +17,7 @@ namespace TANE.Application.Dtos
         public DateTime AfrejseTidspunkt { get; set; }
        // public List<TurUpdateDto> Ture { get; set; } = new();
         public bool TilbudSendt { get; set; }
+        public List<int> Ture { get; set; } = new();
         public bool Opfølgning { get; set; }
         public string OpfølgningNote { get; set; }
         public bool TilbudAccepteret { get; set; }
@@ -23,18 +25,7 @@ namespace TANE.Application.Dtos
         public bool Anulleret { get; set; }
         [Required]
         public byte[] RowVersion { get; set; }  // **Til optimistic concurrency**
+        public RejseplanStatusDto? RejseplanStatus { get; set; }
 
-        public Status TilbudsStatus { get; set; } = Status.RejseplanOprettet;
-        public enum Status
-        {
-            RejseplanOprettet,
-            TilbudSendt,
-            AfventerOpfølgning,
-            OpfølgningSvaret,
-            TilbudAccepteret,
-            RejseBooket,
-            Annulleret,
-            Udskudt
-        }
     }
 }

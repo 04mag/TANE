@@ -1,4 +1,4 @@
-﻿@using System.Collections.ObjectModel
+﻿@* @using System.Collections.ObjectModel
 @using Microsoft.JSInterop
 @using TANE.Application.Dtos
 @using TANE.Domain.Entities
@@ -94,4 +94,4 @@
             JSRuntime.InvokeVoidAsync("eval", $"document.querySelector('.my-class').classList.remove('my-class')");
         })));
     }
-}
+} *@

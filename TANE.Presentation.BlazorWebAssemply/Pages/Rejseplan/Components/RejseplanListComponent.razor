@@ -1,106 +1,31 @@
 ﻿@using TANE.Application.Dtos
 
-<RadzenTextBox @bind-Value="searchText" @oninput=@HandleInput Placeholder="Søg efter titel" Style="width: 100%" />
-
-<RadzenDataGrid AllowFiltering="true" AllowColumnResize="false" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
-                Data="@tt" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single" @bind-Value=@Selected>
-    <Columns>
-        <RadzenDataGridColumn Property="@nameof(RejseplanReadDto.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" />
-        <RadzenDataGridColumn Property="@nameof(RejseplanReadDto.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px" />
-        <RadzenDataGridColumn Property="@nameof(RejseplanReadDto.Beskrivelse)" Title="Beskrivelse" Width="auto" MinWidth="150px" />
-        <RadzenDataGridColumn Context="RejseplanReadDto" Filterable="false" Sortable="false" Width="auto" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
-            <Template Context="RejseplanReadDto">
-                @if (OnSelect.HasDelegate)
-                {
-                    <RadzenButton Icon="file_open" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => SelectRow(RejseplanReadDto))" @onclick:stopPropagation="true" />
-                }
-                @if (OnEdit.HasDelegate)
-                {
-                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" Click="@(args => EditRow(RejseplanReadDto))" @onclick:stopPropagation="true" />
-                }
-                @if (OnDelete.HasDelegate)
-                {
-                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => DeleteRow(RejseplanReadDto))" @onclick:stopPropagation="true" />
-                }
-            </Template>
-        </RadzenDataGridColumn>
-    </Columns>
+<RadzenDataGrid TItem="RejseplanReadDto"
+                Data="@Data"
+                AllowFiltering="true"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                AllowPaging="true"
+                PageSize="10"
+                AllowSorting="true">
+  <Columns>
+    <RadzenDataGridColumn TItem="RejseplanReadDto" Property="Id" Title="ID" Width="60px" />
+    <RadzenDataGridColumn TItem="RejseplanReadDto" Property="Titel" Title="Titel" />
+    <RadzenDataGridColumn TItem="RejseplanReadDto" Property="Beskrivelse" Title="Beskrivelse" />
+    <RadzenDataGridColumn TItem="RejseplanReadDto" Title="Handlinger" Filterable="false" Sortable="false" Width="120px">
+      <Template Context="plan">
+        <RadzenButton Icon="edit"
+                      Size="ButtonSize.Small"
+                      Text="Rediger"
+                      Click="() => OnEdit.InvokeAsync(plan)" />
+      </Template>
+    </RadzenDataGridColumn>
+  </Columns>
 </RadzenDataGrid>
 
 @code {
-    [Parameter, EditorRequired]
-    public List<RejseplanReadDto> Injected { get; set; } = new List<RejseplanReadDto>();
+  [Parameter, EditorRequired]
+  public IEnumerable<RejseplanReadDto> Data { get; set; } = Array.Empty<RejseplanReadDto>();
 
-    [Parameter]
-    public EventCallback<RejseplanReadDto> OnSelect { get; set; }
-
-    [Parameter]
-    public EventCallback<RejseplanReadDto> OnEdit { get; set; }
-
-    [Parameter]
-    public EventCallback<RejseplanReadDto> OnDelete { get; set; }
-
-    bool allowVirtualization = false;
-
-    string searchText = string.Empty;
-
-    private IQueryable<RejseplanReadDto> Var = new List<RejseplanReadDto>().AsQueryable();
-
-    public IQueryable<RejseplanReadDto> tt
-    {
-        get
-        {
-            if (string.IsNullOrEmpty(searchText))
-            {
-                return Var;
-            }
-            else
-            {
-                return Var.Where(x => x.Titel.ToLower().Contains(searchText.ToLower()));
-            }
-        }
-        set { Var = value; }
-    }
-
-    public IList<RejseplanReadDto> Selected { get; set; } = new List<RejseplanReadDto>();
-
-    protected override async Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-
-         tt= Injected.AsQueryable();
-
-    Selected = new List<RejseplanReadDto>() { tt.FirstOrDefault()! };
-    }
-
-    private void HandleInput(ChangeEventArgs args)
-    {
-        if (args.Value == null)
-        {
-            searchText = string.Empty;
-            return;
-        }
-        searchText = args.Value.ToString()!;
-    }
-
-async Task SelectRow(RejseplanReadDto RejseplanReadDto)
-    {
-        await OnSelect.InvokeAsync(RejseplanReadDto);
-
-        tt = Injected.AsQueryable();
-    }
-
-    async Task EditRow(RejseplanReadDto RejseplanReadDto)
-    {
-        await OnEdit.InvokeAsync(RejseplanReadDto);
-
-        tt = Injected.AsQueryable();
-    }
-
-    async Task DeleteRow(RejseplanReadDto RejseplanReadDto)
-    {
-        await OnDelete.InvokeAsync(RejseplanReadDto);
-
-        tt = Injected.AsQueryable();
-    }
+  [Parameter]
+  public EventCallback<RejseplanReadDto> OnEdit { get; set; }
 }

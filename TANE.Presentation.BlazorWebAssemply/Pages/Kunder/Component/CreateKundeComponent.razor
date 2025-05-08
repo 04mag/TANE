@@ -1,10 +1,12 @@
 ﻿@using TANE.Application.Groups.Kunder.Commands.Interfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
+@inject CustomerState CustomerState
 @inject NotificationService NotificationService
 @inject NavigationManager NavManager
 @inject ICreateKunde _createkunde
 @inject CustomStateProvider AuthProvider
+@inject DialogService DialogService
 
 <div class=" rz-p-o rz-p-md-12">
 	<h3>Opret ny kunde</h3>
@@ -50,13 +52,19 @@
 	</RadzenTemplateForm>
 </div>
 
-@code {
+@code 
+{
 
     public Kunde kunde { get; set; }
 
     Variant variant = Variant.Flat;
 
-	async void OnSubmit(Kunde model)
+    protected override Task OnInitializedAsync()
+    {
+        kunde = new Kunde();
+		return Task.CompletedTask;
+    }
+	async Task OnSubmit()
 	{
 		Console.WriteLine($"Fornavn: {kunde.Fornavn}\nEfternavn: {kunde.Efternavn}\nEmail: {kunde.Email}\nTlfNummer: {kunde.TlfNummer}");
 		NotificationService.Notify(new NotificationMessage()
@@ -66,19 +74,24 @@
 				Detail = $"Kunde {kunde.Fornavn} {kunde.Efternavn} er oprettet.",
 				Duration = 4000
 			});
-			await AuthProvider.RefreshTokenAsync(NavManager, NotificationService);
-			kunde = await _createkunde.CreateKundeAsync(kunde, AuthProvider.CurrentUser.Token);
-			NavManager.NavigateTo("Kunde/Oversigt");
+
+	    await AuthProvider.RefreshTokenAsync(NavManager, NotificationService);
+	    kunde = await _createkunde.CreateKundeAsync(kunde, AuthProvider.CurrentUser.Token);
+	    CustomerState.Kunde = kunde;
+	    DialogService.Close(kunde);
 	}
+
+    async Task OnValidSubmit()
+    {
+	    await AuthProvider.RefreshTokenAsync(NavManager, NotificationService);
+	    kunde = await _createkunde.CreateKundeAsync(kunde, AuthProvider.CurrentUser.Token);
+	    CustomerState.Kunde = kunde;
+        DialogService.Close(kunde);
+    }
 
 	void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
 	{
 
 	}
-
-    protected override async Task OnInitializedAsync()
-    {
-        kunde = new Kunde();
-    }
 
 }

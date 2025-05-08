@@ -40,6 +40,10 @@ namespace TANE.Presentation.BlazorWebAssemply
             builder.Services.AddRadzenComponents();
 
             builder.Services.AddScoped<CustomStateProvider>();
+            builder.Services.AddScoped<DialogService>();
+            builder.Services.AddScoped<CustomerState>();
+
+
 
             builder.Services.AddScoped<AuthenticationStateProvider>(s =>
                 s.GetRequiredService<CustomStateProvider>());
