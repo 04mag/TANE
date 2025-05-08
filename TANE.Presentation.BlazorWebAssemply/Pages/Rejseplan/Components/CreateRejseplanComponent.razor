@@ -16,7 +16,6 @@
 
 
 <RadzenDialog />
-<RadzenDialogService />
 
 <div class="rz-p-0 rz-p-md-12">
     <h4>Opret Ny Rejseplan</h4>
@@ -215,7 +214,7 @@
         Rejseplan.RejseplanStatus = 0;
         foreach (var t in Observableture )
         {
-            Rejseplan.Ture.Add(t.Id);
+            Rejseplan.TurIds.Add(t.Id);
         }
 
 

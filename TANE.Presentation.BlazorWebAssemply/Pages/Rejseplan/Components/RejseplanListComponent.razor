@@ -4,28 +4,27 @@
                 Data="@Data"
                 AllowFiltering="true"
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                AllowPaging="true"
-                PageSize="10"
+                AllowPaging="true" PageSize="10"
                 AllowSorting="true">
-  <Columns>
-    <RadzenDataGridColumn TItem="RejseplanReadDto" Property="Id" Title="ID" Width="60px" />
-    <RadzenDataGridColumn TItem="RejseplanReadDto" Property="Titel" Title="Titel" />
-    <RadzenDataGridColumn TItem="RejseplanReadDto" Property="Beskrivelse" Title="Beskrivelse" />
-    <RadzenDataGridColumn TItem="RejseplanReadDto" Title="Handlinger" Filterable="false" Sortable="false" Width="120px">
-      <Template Context="plan">
-        <RadzenButton Icon="edit"
-                      Size="ButtonSize.Small"
-                      Text="Rediger"
-                      Click="() => OnEdit.InvokeAsync(plan)" />
-      </Template>
-    </RadzenDataGridColumn>
-  </Columns>
+    <Columns>
+        <RadzenDataGridColumn TItem="RejseplanReadDto" Property="Id" Title="ID" Width="60px" />
+        <RadzenDataGridColumn TItem="RejseplanReadDto" Property="Titel" Title="Titel" />
+        <RadzenDataGridColumn TItem="RejseplanReadDto" Property="Beskrivelse" Title="Beskrivelse" />
+        <RadzenDataGridColumn TItem="RejseplanReadDto" Title="Handlinger" Filterable="false" Sortable="false" Width="120px">
+            <Template Context="plan">
+                <RadzenButton Icon="edit"
+                              Size="ButtonSize.Small"
+                              Text="Rediger"
+                              Click="() => OnEdit.InvokeAsync(plan)" />
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
 </RadzenDataGrid>
 
 @code {
-  [Parameter, EditorRequired]
-  public IEnumerable<RejseplanReadDto> Data { get; set; } = Array.Empty<RejseplanReadDto>();
+    [Parameter, EditorRequired]
+    public IEnumerable<RejseplanReadDto> Data { get; set; } = Array.Empty<RejseplanReadDto>();
 
-  [Parameter]
-  public EventCallback<RejseplanReadDto> OnEdit { get; set; }
+    [Parameter]
+    public EventCallback<RejseplanReadDto> OnEdit { get; set; }
 }

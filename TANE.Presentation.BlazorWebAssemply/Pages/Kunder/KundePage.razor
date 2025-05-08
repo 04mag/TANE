@@ -18,12 +18,12 @@ OnDeleteKunde="OnRowDeletePressed" />
     private string _token = string.Empty;
     public List<Kunde> Kunder { get; set; } = new();
 
-    private async Task OnRowEditPressed(Kunde kunde)
+    private void  OnRowEditPressed(Kunde kunde)
     {
         Console.WriteLine($"Edit pressed for: {kunde.Id}");
     }
 
-    private async Task OnRowDeletePressed(Kunde kunde)
+    private  void OnRowDeletePressed(Kunde kunde)
     {
         Console.WriteLine($"Delete pressed for: {kunde.Id}");
     }

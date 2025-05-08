@@ -1,48 +1,145 @@
 ﻿@using TANE.Application.Dtos
+@using System.Collections.ObjectModel
+@using TANE.Application.Groups.Kunder.Queries.Interfaces
+@using TANE.Application.RepositoryInterfaces
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
+@using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
+@inject DialogService DialogService
+@inject CustomStateProvider AuthStateProvider
+@inject ITurRepository TurRepository
+@inject IReadKunde ReadKunde
 
-<RadzenTemplateForm TItem="RejseplanUpdateDto"
-                    Data="@Model"
-                    Submit="HandleSubmit">
-  <ChildContent>
-    <RadzenFieldset Text="Rediger Rejseplan">
-      <RadzenStack Gap="1rem">
+<RadzenDialog />
 
-        <RadzenTextBox @bind-Value="Model.Titel"
-                       Name="Titel"
-                       Label="Titel"
-                       Style="width:100%" />
+<div class="rz-p-0 rz-p-md-12">
+  <h4>Rediger Rejseplan</h4>
 
-        <RadzenTextArea @bind-Value="Model.Beskrivelse"
-                        Name="Beskrivelse"
-                        Label="Beskrivelse"
-                        Rows="4"
-                        Style="width:100%" />
-        
-        <RadzenNumeric @bind-Value="Model.AntalVoksne"
-                       Name="AntalVoksne"
-                       Label="Antal Voksne"
-                       Style="width:100%" />
-        <RadzenNumeric @bind-Value="Model.AntalBørn"
-                       Name="AntalBørn"
-                       Label="Antal Børn"
-                       Style="width:100%" />
-       
+  <RadzenTemplateForm TItem="RejseplanUpdateDto"
+                      Data="@EditModel"
+                      Submit="HandleValidSubmit"
+                      InvalidSubmit="HandleInvalidSubmit">
+    <RadzenStack Gap="1rem" class="rz-p-sm-12">
+      <!-- Kunde-søgning + knap til ny kunde -->
+      <div class="mb-4">
+        <label class="block mb-1 font-semibold">Kunde</label>
+        <div class="flex items-center">
+          <InputText @bind-Value="customerSearchTerm"
+                     placeholder="Søg kunde..."
+                     class="border rounded p-2 flex-1" />
+          <button @onclick="OpenNyKundeDialog"
+                  class="ml-2 bg-blue-500 text-white px-3 py-2 rounded">
+            Ny Kunde
+          </button>
+        </div>
+        @if (filteredCustomers.Any())
+        {
+          <ul class="border rounded mt-2 max-h-40 overflow-y-auto">
+            @foreach (var c in filteredCustomers)
+            {
+              <li @onclick="() => SelectCustomer(c)"
+                  class="px-2 py-1 hover:bg-gray-100 cursor-pointer">
+                @c.Fornavn @c.Efternavn – @c.Email
+              </li>
+            }
+          </ul>
+        }
+        @if (selectedCustomer != null)
+        {
+          <p class="mt-2">Valgt: <strong>@selectedCustomer.Fornavn @selectedCustomer.Efternavn</strong></p>
+        }
+      </div>
 
+        <!-- Titel -->
+            <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenTextBox Name="Titel" @bind-Value=@EditModel.Titel Style="width:100%" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="Titel" Text="Titel skal udfyldes." />
+                </Helper>
+            </RadzenFormField>
 
-        <!-- Tilføj her de øvrige felter på samme måde -->
+            <!-- Beskrivelse -->
+            <RadzenFormField Text="Beskrivelse" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenTextArea Name="Beskrivelse" @bind-Value=@EditModel.Beskrivelse Rows="4" Style="width:100%" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="Beskrivelse" Text="Beskrivelse skal udfyldes." />
+                </Helper>
+            </RadzenFormField>
 
-        <RadzenStack Direction="Row" Gap="1rem">
-          <RadzenButton ButtonType="ButtonType.Submit"
-                        Text="Gem" />
-          <RadzenButton ButtonType="ButtonType.Button"
-                        Text="Annuller"
-                        Click="HandleCancel" />
-        </RadzenStack>
+            <!-- Antal Voksne / Antal Børn -->
+            <RadzenStack Direction="Row" Gap="1rem">
+                <RadzenFormField Text="Antal Voksne" Variant="@ThemeConfig.FormVariant">
+                    <ChildContent>
+                        <RadzenNumeric Name="AntalVoksne" @bind-Value=@EditModel.AntalVoksne Style="width:100%" />
+                    </ChildContent>
+                </RadzenFormField>
+                <RadzenFormField Text="Antal Børn" Variant="@ThemeConfig.FormVariant">
+                    <ChildContent>
+                        <RadzenNumeric Name="AntalBørn" @bind-Value=@EditModel.AntalBørn Style="width:100%" />
+                    </ChildContent>
+                </RadzenFormField>
+            </RadzenStack>
 
-      </RadzenStack>
-    </RadzenFieldset>
-  </ChildContent>
-</RadzenTemplateForm>
+            <!-- Lufthavn -->
+            <RadzenFormField Text="Lufthavn" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenTextBox Name="Lufthavn" @bind-Value=@EditModel.Lufthavn Style="width:100%" />
+                </ChildContent>
+            </RadzenFormField>
+
+            <!-- FlyPris -->
+            <RadzenFormField Text="Fly Pris (DKK)" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenNumeric Name="FlyPris" @bind-Value=@EditModel.FlyPris Style="width:100%" Step="0.01" />
+                </ChildContent>
+            </RadzenFormField>
+
+            <!-- Antal Dage -->
+            <RadzenFormField Text="Antal Dage" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenNumeric Name="AntalDage" @bind-Value=@EditModel.AntalDage Style="width:100%" />
+                </ChildContent>
+            </RadzenFormField>
+
+            <!-- Afrejse Tidspunkt -->
+            <RadzenFormField Text="Afrejse Tidspunkt" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenDatePicker Name="AfrejseTidspunkt" @bind-Value=@EditModel.AfrejseTidspunkt Style="width:100%" ShowTime="true" />
+                </ChildContent>
+            </RadzenFormField>
+      <!-- ... øvrige formfelter som før ... -->
+
+      <h4>Vælg ture:</h4>
+      <TurReorderListComponent InjectedTure="Observableture" OnDelete="OnTurDelete" />
+      <div style="text-align: right; width: 100%;">
+        <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium"
+                      Style="width:150px" Text="Tilføj Tur"
+                      Click="@(() => showAddTur = !showAddTur)" />
+      </div>
+      @if (showAddTur)
+      {
+        <TurListComponent InjectedTure="RejseplanTure" OnSelect="OnTurRowSelect" />
+      }
+
+      <div class="flex gap-2 mt-4">
+        <RadzenButton ButtonType="ButtonType.Submit"
+                      Size="ButtonSize.Large"
+                      Text="Gem ændringer"
+                      Style="width:200px" />
+        <RadzenButton ButtonType="ButtonType.Button"
+                      Size="ButtonSize.Large"
+                      Text="Annuller"
+                      Style="width:200px"
+                      Click="CancelEdit" />
+      </div>
+    </RadzenStack>
+  </RadzenTemplateForm>
+</div>
 
 @code {
   [Parameter, EditorRequired]
@@ -54,37 +151,113 @@
   [Parameter]
   public EventCallback OnCancelled { get; set; }
 
-  private RejseplanUpdateDto Model { get; set; } = new();
+  private RejseplanUpdateDto EditModel = new();
+  private string _token = string.Empty;
+
+    List<TurReadDto> RejseplanTure = new();
+
+  // Kunde-søgning
+  private string customerSearchTerm = string.Empty;
+  private Kunde? selectedCustomer;
+  private List<Kunde> Kunder = new();
+  private IEnumerable<Kunde> filteredCustomers =>
+    string.IsNullOrWhiteSpace(customerSearchTerm)
+      ? Kunder
+      : Kunder.Where(c => c.Fornavn.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase)
+                        || c.Efternavn.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase)
+                        || c.Email.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase));
+
+  // Tur-selection
+  private bool showAddTur;
+  private ObservableCollection<TurReadDto> SelectedtureVar = new();
+  public ObservableCollection<TurReadDto> Observableture
+  {
+    get => SelectedtureVar;
+    set => SelectedtureVar = value;
+  }
+  private List<TurReadDto> TurVar = new();
+  public List<TurReadDto> Ture
+  {
+    get => TurVar.Where(d => !Observableture.Any(o => o.Id == d.Id)).ToList();
+    set => TurVar = value;
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    var state = await AuthStateProvider.GetAuthenticationStateAsync();
+    _token = AuthStateProvider.CurrentUser.Token;
+    Kunder = await ReadKunde.GetAllKunderAsync(_token);
+    TurVar = await TurRepository.ReadAllTure(_token);
+        RejseplanTure = TurVar.Where(t => Item.TurIds.Contains(t.Id)).ToList();
+
+  }
 
   protected override void OnParametersSet()
   {
-    // Kopiér alle felter fra ReadDto til UpdateDto
-    Model = new RejseplanUpdateDto
+      EditModel = new RejseplanUpdateDto
+      {
+          Id               = Item.Id,
+          KundeId          = Item.KundeId,
+          Titel            = Item.Titel,
+          Beskrivelse      = Item.Beskrivelse,
+          AntalVoksne      = Item.AntalVoksne,
+          AntalBørn        = Item.AntalBørn,
+          Lufthavn         = Item.Lufthavn,
+          FlyPris          = Item.FlyPris,
+          AntalDage        = Item.AntalDage,
+          AfrejseTidspunkt = Item.AfrejseTidspunkt,
+          TurIds           = new List<int>(Item.TurIds),
+    // Føj disse to påkrævede felter til:
+          OpfølgningNote   = Item.OpfølgningNote,
+          RowVersion       = Item.RowVersion
+      };
+    selectedCustomer = Kunder.FirstOrDefault(k => k.Id == Item.KundeId);
+    customerSearchTerm = selectedCustomer != null
+      ? $"{selectedCustomer.Fornavn} {selectedCustomer.Efternavn}"
+      : string.Empty;
+    Observableture = new ObservableCollection<TurReadDto>(
+      TurVar.Where(t => Item.TurIds.Contains(t.Id))
+    );
+  }
+
+  private async Task HandleValidSubmit(RejseplanUpdateDto model)
+  {
+    model.TurIds.Clear();
+    foreach (var t in Observableture)
+      model.TurIds.Add(t.Id);
+    await OnSaved.InvokeAsync(model);
+  }
+
+  private Task HandleInvalidSubmit(FormInvalidSubmitEventArgs args)
+    => Task.CompletedTask;
+
+  private Task CancelEdit()
+    => OnCancelled.InvokeAsync();
+
+  private void SelectCustomer(Kunde c)
+  {
+    selectedCustomer = c;
+    EditModel.KundeId = c.Id;
+    customerSearchTerm = $"{c.Fornavn} {c.Efternavn}";
+  }
+
+  private void OnTurRowSelect(TurReadDto tur)
+  {
+    if (!Observableture.Any(t => t.Id == tur.Id))
+      Observableture.Add(tur);
+    showAddTur = false;
+  }
+
+  private void OnTurDelete(TurReadDto tur)
+    => Observableture.Remove(tur);
+
+  private async Task OpenNyKundeDialog()
+  {
+    var result = await DialogService.OpenAsync<CreateKundeComponent>("Opret Kunde", new Dictionary<string, object>());
+    if (result is Kunde nyKunde)
     {
-      Id                 = Item.Id,
-      KundeId            = Item.KundeId,
-      Titel              = Item.Titel,
-      Beskrivelse        = Item.Beskrivelse,
-      AntalVoksne        = Item.AntalVoksne,
-      AntalBørn          = Item.AntalBørn,
-      Lufthavn           = Item.Lufthavn,
-      FlyPris            = Item.FlyPris,
-      AntalDage          = Item.AntalDage,
-      AfrejseTidspunkt   = Item.AfrejseTidspunkt,
-      OpfølgningNote     = Item.OpfølgningNote,
-      RejseplanStatus    = Item.RejseplanStatus, 
-      RowVersion         = Item.RowVersion
-    };
-  }
-
-  private async Task HandleSubmit()
-  {
-
-    await OnSaved.InvokeAsync(Model);
-  }
-
-  private async Task HandleCancel()
-  {
-    await OnCancelled.InvokeAsync();
+      Kunder.Add(nyKunde);
+      SelectCustomer(nyKunde);
+    }
   }
 }

@@ -81,8 +81,7 @@ namespace TANE.Persistence.Repositories
             var client = _factory.CreateClient("rejseplan");
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", jwtToken);
-
-            // PUT til https://.../rejseplan/tur/{id} med dto som JSON-body
+            
             var response = await client.PutAsJsonAsync($"rejseplan/{id}", dto);
 
             // Returner true hvis status er 2xx

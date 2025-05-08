@@ -9,7 +9,10 @@
 
 <h3>Rejseplaner</h3>
 
-<RadzenButton Icon="add_circle" Style="margin-bottom:10px" Text="Ny Rejseplan" Click="CreateNew" />
+<RadzenButton Icon="add_circle"
+              Style="margin-bottom:10px"
+              Text="Ny Rejseplan"
+              Click="CreateNew" />
 
 <RejseplanListComponent Data="AlleRejseplaner" OnEdit="BeginEdit" />
 
@@ -25,9 +28,9 @@
 
 @code {
     private List<RejseplanReadDto> AlleRejseplaner = new();
-    private RejseplanReadDto SelectedRejseplan = new();
+    private RejseplanReadDto SelectedRejseplan = default!;
     private bool isEditing;
-    private string _token = "";
+    private string _token = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -38,25 +41,47 @@
 
     void CreateNew()
     {
-        SelectedRejseplan = new RejseplanReadDto();
+        // New plan has Id = 0
+        SelectedRejseplan = new RejseplanReadDto(); 
         isEditing = true;
     }
 
-    Task BeginEdit(RejseplanReadDto plan)
+    void BeginEdit(RejseplanReadDto plan)
     {
         SelectedRejseplan = plan;
         isEditing = true;
-        return Task.CompletedTask;
     }
 
-    async Task SaveEdit(RejseplanUpdateDto updated)
+    async Task SaveEdit(RejseplanUpdateDto dto)
     {
-    // Opret vs. opdater
-      
-            await RejseplanRepository.UpdateRejseplan(updated.Id, updated, _token);
+    // Update existing plan
+     
+            dto.RowVersion = SelectedRejseplan.RowVersion;
+            await RejseplanRepository.UpdateRejseplan(dto.Id, dto, _token);
         
+        var idx = AlleRejseplaner.FindIndex(r => r.Id == dto.Id);
+        if (idx >= 0)
+        {
+    // Map UpdateDto to ReadDto
+            var updated = new RejseplanReadDto
+            {
+                Id               = dto.Id,
+                KundeId          = dto.KundeId,
+                Titel            = dto.Titel,
+                Beskrivelse      = dto.Beskrivelse,
+                AntalVoksne      = dto.AntalVoksne,
+                AntalBørn        = dto.AntalBørn,
+                Lufthavn         = dto.Lufthavn,
+                FlyPris          = dto.FlyPris,
+                AntalDage        = dto.AntalDage,
+                AfrejseTidspunkt = dto.AfrejseTidspunkt,
+                TurIds           = dto.TurIds
+            };
 
-        AlleRejseplaner = (await ReadRejseplan.ReadRejsePlanerAsync(_token)).ToList();
+            AlleRejseplaner[idx] = updated;
+        }
+    
+    // Exit edit mode
         isEditing = false;
     }
 
