@@ -55,15 +55,16 @@
 @code 
 {
 
-    public Kunde kunde { get; set; }
+	public Kunde kunde { get; set; }
+	[Parameter]
+	public bool NavigateBackOnSubmit { get; set; } = false;
+	Variant variant = Variant.Flat;
 
-    Variant variant = Variant.Flat;
-
-    protected override Task OnInitializedAsync()
-    {
-        kunde = new Kunde();
+	protected override Task OnInitializedAsync()
+	{
+		kunde = new Kunde();
 		return Task.CompletedTask;
-    }
+	}
 	async Task OnSubmit()
 	{
 		Console.WriteLine($"Fornavn: {kunde.Fornavn}\nEfternavn: {kunde.Efternavn}\nEmail: {kunde.Email}\nTlfNummer: {kunde.TlfNummer}");
@@ -75,19 +76,16 @@
 				Duration = 4000
 			});
 
-	    await AuthProvider.RefreshTokenAsync(NavManager, NotificationService);
-	    kunde = await _createkunde.CreateKundeAsync(kunde, AuthProvider.CurrentUser.Token);
-	    CustomerState.Kunde = kunde;
-	    DialogService.Close(kunde);
-	}
+		await AuthProvider.RefreshTokenAsync(NavManager, NotificationService);
+		kunde = await _createkunde.CreateKundeAsync(kunde, AuthProvider.CurrentUser.Token);
+		CustomerState.Kunde = kunde;
+		DialogService.Close(kunde);
 
-    async Task OnValidSubmit()
-    {
-	    await AuthProvider.RefreshTokenAsync(NavManager, NotificationService);
-	    kunde = await _createkunde.CreateKundeAsync(kunde, AuthProvider.CurrentUser.Token);
-	    CustomerState.Kunde = kunde;
-        DialogService.Close(kunde);
-    }
+		if (NavigateBackOnSubmit)
+		{
+			NavManager.NavigateTo("Kunde/Oversigt");
+		}
+	}
 
 	void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
 	{
