@@ -1,0 +1,62 @@
+﻿@using Radzen
+@using Radzen.Blazor
+@using TANE.Domain.Entities
+@using TANE.Application.Groups.Users.Queries.Interfaces
+@using TANE.Application.Groups.Users.Commands
+
+@inject IGetUsers GetUsersService
+@inject CustomStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+
+@if (Users == null)
+{
+    <p>Henter brugere…</p>
+}
+else
+{
+    <RadzenDataGrid TItem="User"
+                    Data="@Users"
+                    RowSelect="OnRowSelect"
+                    AllowPaging="true"
+                    PageSize="10"
+                    AllowSorting="true">
+        <Columns>
+            <RadzenDataGridColumn TItem="User" Property="UserId" Title="ID" />
+            <RadzenDataGridColumn TItem="User" Property="Email" Title="E-mail" />
+            <RadzenDataGridColumn TItem="User" Property="Name" Title="Navn" />
+        </Columns>
+    </RadzenDataGrid>
+}
+
+@code {
+    private IReadOnlyList<User>? Users;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Forny token
+            await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+            // Hent alle brugere
+            Users = await GetUsersService.GetUsersAsync(
+                AuthStateProvider.CurrentUser.Token
+            );
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Fejl ved hentning",
+                    Detail = ex.Message
+                });
+        }
+    }
+
+    void OnRowSelect(User user)
+    {
+        // Brug den korrekte PK-egenskab: UserId
+        NavigationManager.NavigateTo($"/users/update/{user.Id}");
+    }
+}

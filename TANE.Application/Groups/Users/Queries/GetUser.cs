@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using TANE.Application.Groups.Users.Commands.Interfaces;
+using TANE.Application.Groups.Users.Queries.Interfaces;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
 
@@ -23,6 +23,18 @@ namespace TANE.Application.Groups.Users.Commands
             var user = await client.GetFromJsonAsync<User>($"api/Admin/users/{userId}");
             return user!;
         }
+
+        public async Task<IReadOnlyList<User>> GetUsersAsync(string jwtToken)
+        {
+            using var client = _factory.CreateClient("auth");
+            client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
+
+            var users = await client.GetFromJsonAsync<List<User>>("api/Admin/users");
+            return users ?? new List<User>();
+        }
     }
+
+
     
 }
