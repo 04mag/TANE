@@ -129,7 +129,7 @@
       </RadzenFormField> *@
 
       <h4>Vælg ture:</h4>
-            <TurReorderListComponent InjectedTure="RejseplanTure" OnDelete="OnTurDelete" OnReorder="HandleTurReorder" />
+            <TurReorderListComponent @ref="ReorderList" InjectedTure="RejseplanTure" OnDelete="OnTurDelete" OnReorder="HandleTurReorder" />
       <div style="text-align: right; width: 100%;">
         <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium"
                       Style="width:150px" Text="Tilføj Tur"
@@ -156,6 +156,7 @@
 </div>
 
 @code {
+    public TurReorderListComponent ReorderList;
     [Parameter, EditorRequired]
     public RejseplanReadDto Item { get; set; } = default!;
 
@@ -294,7 +295,7 @@
     private async Task HandleTurReorder(IEnumerable<TurReadDto> newOrder)
   {
     // 1) Gem i DB
-      var dto = new TurReorderDto { TurIds = newOrder.Select(t => t.Id).ToList() };
+      var dto = new TurReorderDto { TurIds = newOrder.Select(t => t.Id).ToList(), OriginalRowVersion = Item.RowVersion};
       try
       {
           await RejseplanRepository.ReorderTureAsync(Item.Id, dto, _token);
@@ -306,8 +307,10 @@
       }
 
     // 2) Opdater din List
-      RejseplanTure = newOrder.ToList();
-      StateHasChanged();
+      // RejseplanTure = newOrder.ToList();
+        ReorderList.InjectedTure = newOrder.ToList();
+
+        StateHasChanged();
   }
 
 }

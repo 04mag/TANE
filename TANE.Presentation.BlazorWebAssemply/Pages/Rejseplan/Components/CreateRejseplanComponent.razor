@@ -173,7 +173,6 @@
     }
 
     public RejseplanCreateDto Rejseplan { get; set; } = new RejseplanCreateDto();
-
     private List<TurReadDto> TurVar = new List<TurReadDto>();
 
     public List<TurReadDto> Ture
@@ -200,23 +199,16 @@
 
         Kunder = await ReadKunde.GetAllKunderAsync(_token);
 
-        // if (CustomerState.Kunde != null)
-        // {
-        //     selectedCustomerEmail = CustomerState.Kunde.Email;
-        // }
         Rejseplan = new RejseplanCreateDto();
         Rejseplan.Ture = new List<TurCreateDto>();
+        showAddTur = false;
     }
-
-    
 
     async Task OnSubmit()
     {
         
         Console.WriteLine($"Titel: {Rejseplan.Titel}\nBeskrivelse: {Rejseplan.Beskrivelse}");
         Rejseplan.RejseplanStatus = 0;
-      
-
 
         _RejseplanRepository.CreateRejseplan(Rejseplan, _token);
         CustomerState.Kunde = null;
@@ -240,11 +232,16 @@
             Sekvens = +1,
         };
         Rejseplan.Ture.Add(tur);
-      //  Rejseplan.Ture.Add(tur);
-
-       
-    // opdater database
-
+        Observableture.Add(new TurReadDto
+        {
+            Id = turSkabelon.Id,
+            Titel = turSkabelon.Titel,
+            Beskrivelse = turSkabelon.Beskrivelse,
+            TurStartTidspunkt = DateTime.Today,
+            TurSlutTidspunkt = DateTime.Today.AddDays(7),
+            Sekvens = +1,
+        });
+        showAddTur = false;
     }
 
 
@@ -277,9 +274,7 @@
             Kunder.Add(nyKunde);
             selectedCustomerEmail = nyKunde.Email; // opdaterer den valgte kunde
         }
-
     }
-
 
     private string customerSearchTerm;
     private Kunde selectedCustomer;

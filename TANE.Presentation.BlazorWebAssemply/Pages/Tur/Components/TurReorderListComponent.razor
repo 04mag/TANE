@@ -11,16 +11,15 @@
     }
 </style>
 
-<RadzenDataGrid AllowFiltering="false" AllowColumnResize="false" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="false" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+<RadzenDataGrid @ref="grid" AllowFiltering="false" AllowColumnResize="false" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="false" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
                 Data="@InjectedTure" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single"
                 @bind-Value=@selectedTure RowRender="@RowRender">
     <Columns>
-        <RadzenDataGridColumn Property="@nameof(TurReadDto.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" />
+        <RadzenDataGridColumn Property="@nameof(TurReadDto.Sekvens)" Filterable="false" Title="Nr" TextAlign="TextAlign.Center" Frozen="true" Width="40px" Sortable="true" SortOrder="SortOrder.Ascending" />
         <RadzenDataGridColumn Property="@nameof(TurReadDto.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px" />
         <RadzenDataGridColumn Property="@nameof(TurReadDto.Beskrivelse)" Title="Beskrivelse" Width="auto" MinWidth="150px" />
-        <RadzenDataGridColumn Property="@nameof(TurReadDto.Sekvens)" Filterable="false" Title="Rækkefølge" Frozen="true" Width="150px" Sortable="true" />
         <RadzenDataGridColumn Context="Tur" Filterable="false" Sortable="false" Width="auto" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
-         @*    <Template Context="TurReadDto">
+            <Template Context="TurReadDto">
                 @if (OnSelect.HasDelegate)
                 {
                     <RadzenButton Icon="file_open" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => SelectRow(TurReadDto))" @onclick:stopPropagation="true" />
@@ -33,12 +32,13 @@
                 {
                     <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => DeleteRow(TurReadDto))" @onclick:stopPropagation="true" />
                 }
-            </Template> *@
+            </Template> 
         </RadzenDataGridColumn>
     </Columns>
 </RadzenDataGrid>
 
 @code {
+    RadzenDataGrid<TurReadDto> grid;
     [Parameter, EditorRequired]
     public IList<TurReadDto> InjectedTure { get; set; }
 
@@ -82,7 +82,7 @@
         await OnDelete.InvokeAsync(tur);
     }
 
-    void RowRender(RowRenderEventArgs<TurReadDto> args)
+    async void RowRender(RowRenderEventArgs<TurReadDto> args)
     {
         args.Attributes.Add("title", "Drag row to reorder");
         args.Attributes.Add("style", "cursor:grab");
@@ -93,29 +93,37 @@
             "ondragstart",
             EventCallback.Factory.Create<DragEventArgs>(this, (evt) => draggedItem = args.Data)
             );
-        args.Attributes.Add(
-            "ondrop",
-            EventCallback.Factory.Create<DragEventArgs>(this, async (evt) =>
+        args.Attributes.Add("ondrop",
+            EventCallback.Factory.Create<DragEventArgs>(this, async _ =>
             {
-                if (draggedItem is null) return;
+                if (draggedItem == null) return;
+
                 var from = InjectedTure.IndexOf(draggedItem);
                 var to   = InjectedTure.IndexOf(args.Data);
 
-                InjectedTure.RemoveAt(from);
-                InjectedTure.Insert(from <= to ? to+1 : to, draggedItem);;
+    // Hvis vi dropper på samme række: stop her
+                if (from == to) return;
 
-                 // Fjern highlight
+    // Fjern fra gammel position
+                InjectedTure.RemoveAt(from);
+
+    // Hvis vi fjernede et sted før 'to', så rykkes 'to' et hak tilbage
+                if (to > from) to--;
+
+    // Indsæt på ny position
+                InjectedTure.Insert(to, draggedItem);
+    // Fjern highlight (brug helst en named JS-funktion i stedet for eval)
                 await JSRuntime.InvokeVoidAsync(
                     "eval",
                     "document.querySelector('.my-class').classList.remove('my-class')"
                     );
 
+                await grid.Reload();
                 if (OnReorder.HasDelegate)
                 {
-                    var newOrder = InjectedTure.ToList();
-                    await OnReorder.InvokeAsync(newOrder);
+                    await OnReorder.InvokeAsync(InjectedTure);
                 }
-            })
-            );
+
+            }));
     }
 }

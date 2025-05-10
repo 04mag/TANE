@@ -103,13 +103,15 @@ namespace TANE.Persistence.Repositories
             {
                 throw new Exception($"Failed to reorder tours: {response.StatusCode}");
             }
+            // Hvis API’et returnerer 204 No Content, bliver tours null
+
 
             // Optional: håndter svaret, hvis nødvendigt
-            var result = await response.Content.ReadFromJsonAsync<bool>();
-            if (!result)
-            {
-                throw new Exception("Reordering tours failed.");
-            }
+            //var result = await response.Content.ReadFromJsonAsync<bool>();
+            //if (!result)
+            //{
+            //    throw new Exception("Reordering tours failed.");
+            //}
         }
 
         public async Task AddTurToRejseplanAsync(TurAssignDto dto, string jwtToken)
