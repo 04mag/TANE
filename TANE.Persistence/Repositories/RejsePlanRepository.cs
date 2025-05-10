@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
 using TANE.Application.Dtos;
+using TANE.Application.Dtos.TurDagRejseplan;
 
 namespace TANE.Persistence.Repositories
 {
@@ -101,6 +102,43 @@ namespace TANE.Persistence.Repositories
             if (!response.IsSuccessStatusCode)
             {
                 throw new Exception($"Failed to reorder tours: {response.StatusCode}");
+            }
+
+            // Optional: håndter svaret, hvis nødvendigt
+            var result = await response.Content.ReadFromJsonAsync<bool>();
+            if (!result)
+            {
+                throw new Exception("Reordering tours failed.");
+            }
+        }
+
+        public async Task AddTurToRejseplanAsync(TurAssignDto dto, string jwtToken)
+        {
+            var client = _factory.CreateClient("rejseplan");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
+
+            var response = await client.PostAsJsonAsync($"rejseplan/{dto.RejseplanId}/tur/{dto.TurId}", dto);
+
+            // Returner true hvis status er 2xx
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Failed to add tour to rejseplan: {response.StatusCode}");
+            }
+        }
+
+        public async Task RemoveTurFromRejseplanAsync(TurAssignDto dto, string jwtToken)
+        {
+            var client = _factory.CreateClient("rejseplan");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
+
+            var response = await client.DeleteAsync($"rejseplan/{dto.RejseplanId}/tur/{dto.TurId}");
+
+            // Returner true hvis status er 2xx
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Failed to remove tour from rejseplan: {response.StatusCode}");
             }
         }
     }

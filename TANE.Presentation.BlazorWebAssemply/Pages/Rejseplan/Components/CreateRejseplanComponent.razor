@@ -6,6 +6,8 @@
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
 @using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
+@using TANE.Presentation.BlazorWebAssemply.Pages.Rejseplan.Components
+@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
 
 
 @inject CustomStateProvider AuthStateProvider
@@ -15,7 +17,7 @@
 @inject CustomerState CustomerState
 
 
-<RadzenDialog />
+
 
 <div class="rz-p-0 rz-p-md-12">
     <h4>Opret Ny Rejseplan</h4>
@@ -130,7 +132,7 @@
 
             @if (showAddTur)
             {
-                <TurListComponent InjectedTure="Ture" OnSelect="OnTurRowSelect" />
+                <TurSkabelonListComponent OnSelect="OnTurRowSelect" />
             }
 
             <br />
@@ -203,6 +205,7 @@
         //     selectedCustomerEmail = CustomerState.Kunde.Email;
         // }
         Rejseplan = new RejseplanCreateDto();
+        Rejseplan.Ture = new List<TurCreateDto>();
     }
 
     
@@ -212,10 +215,7 @@
         
         Console.WriteLine($"Titel: {Rejseplan.Titel}\nBeskrivelse: {Rejseplan.Beskrivelse}");
         Rejseplan.RejseplanStatus = 0;
-        foreach (var t in Observableture )
-        {
-            Rejseplan.TurIds.Add(t.Id);
-        }
+      
 
 
         _RejseplanRepository.CreateRejseplan(Rejseplan, _token);
@@ -227,13 +227,26 @@
 
     }
 
-    private void OnTurRowSelect(TurReadDto Tur)
+    private async Task OnTurRowSelect(TurSkabelon turSkabelon)
     {
-        Tur.Sekvens = Observableture.Count + 1;
-        Observableture.Add(Tur);
+        var tur = new TurCreateDto
+        {
 
-        showAddTur = !showAddTur;
+            Titel = turSkabelon.Titel,
+            Beskrivelse = turSkabelon.Beskrivelse,
+            Pris = 0,
+            TurStartTidspunkt = DateTime.Today,
+            TurSlutTidspunkt = DateTime.Today.AddDays(7),
+            Sekvens = +1,
+        };
+        Rejseplan.Ture.Add(tur);
+      //  Rejseplan.Ture.Add(tur);
+
+       
+    // opdater database
+
     }
+
 
     private void OnTurDelete(TurReadDto Tur)
     {
@@ -289,4 +302,4 @@
 
 
 }
-}
+

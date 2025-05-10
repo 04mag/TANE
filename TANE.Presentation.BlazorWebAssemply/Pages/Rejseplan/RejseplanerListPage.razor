@@ -6,6 +6,7 @@
 @inject IReadRejsePlan ReadRejseplan
 @inject CustomStateProvider AuthStateProvider
 @inject IRejsePlanRepository RejseplanRepository
+@inject Radzen.DialogService DialogService
 
 <h3>Rejseplaner</h3>
 
@@ -16,20 +17,9 @@
 
 <RejseplanListComponent Data="AlleRejseplaner" OnEdit="BeginEdit" />
 
-@if (isEditing)
-{
-    <div class="mt-4">
-        <EditRejseplanComponent 
-            Item="SelectedRejseplan" 
-            OnSaved="SaveEdit" 
-            OnCancelled="CancelEdit" />
-    </div>
-}
-
 @code {
     private List<RejseplanReadDto> AlleRejseplaner = new();
     private RejseplanReadDto SelectedRejseplan = default!;
-    private bool isEditing;
     private string _token = string.Empty;
 
     protected override async Task OnInitializedAsync()
@@ -39,31 +29,59 @@
         AlleRejseplaner = (await ReadRejseplan.ReadRejsePlanerAsync(_token)).ToList();
     }
 
-    void CreateNew()
+    async void CreateNew()
     {
-        // New plan has Id = 0
-        SelectedRejseplan = new RejseplanReadDto(); 
-        isEditing = true;
+        var result = await DialogService.OpenAsync<CreateRejseplanComponent>(
+            title: "Ny rejseplan",
+          
+            options: new DialogOptions {   
+                Width      = "80vw",       // 80% af viewport‐bredden
+                Height     = "90vh",       // 90% af viewport‐højden
+                Resizable  = true,         // kan trækkes i hjørner for at ændre størrelse
+                Draggable  = true,         // kan flyttes rundt
+            } 
+            );
     }
 
     void BeginEdit(RejseplanReadDto plan)
     {
         SelectedRejseplan = plan;
-        isEditing = true;
+        OpenEditDialog(plan);
+    }
+
+    async void OpenEditDialog(RejseplanReadDto plan)
+    {
+        var result = await DialogService.OpenAsync<EditRejseplanComponent>(
+            title: plan.Id == 0 ? "Ny rejseplan" : "Rediger rejseplan",
+            parameters: new Dictionary<string, object> {
+                ["Item"]      = plan,
+                ["currentId"] = plan.Id
+            },
+            options: new DialogOptions {   
+                Width      = "80vw",       // 80% af viewport‐bredden
+                Height     = "90vh",       // 90% af viewport‐højden
+                Resizable  = true,         // kan trækkes i hjørner for at ændre størrelse
+                Draggable  = true,         // kan flyttes rundt
+            } 
+        );
+
+        // Når dialogen lukkes, returnerer vi evt. den opdaterede DTO
+        if (result is RejseplanUpdateDto dto)
+        {
+            await SaveEdit(dto);
+            StateHasChanged();  // Genrend listen
+        }
     }
 
     async Task SaveEdit(RejseplanUpdateDto dto)
     {
-    // Update existing plan
-     
-            dto.RowVersion = SelectedRejseplan.RowVersion;
-            await RejseplanRepository.UpdateRejseplan(dto.Id, dto, _token);
-        
+        dto.RowVersion = SelectedRejseplan.RowVersion;
+        await RejseplanRepository.UpdateRejseplan(dto.Id, dto, _token);
+
         var idx = AlleRejseplaner.FindIndex(r => r.Id == dto.Id);
         if (idx >= 0)
         {
-    // Map UpdateDto to ReadDto
-            var updated = new RejseplanReadDto
+            AlleRejseplaner[idx] = new RejseplanReadDto
             {
                 Id               = dto.Id,
                 KundeId          = dto.KundeId,
@@ -75,20 +93,8 @@
                 FlyPris          = dto.FlyPris,
                 AntalDage        = dto.AntalDage,
                 AfrejseTidspunkt = dto.AfrejseTidspunkt,
-                TurIds           = dto.TurIds,
                 RowVersion       = dto.RowVersion,
             };
-
-            AlleRejseplaner[idx] = updated;
         }
-    
-    // Exit edit mode
-        isEditing = false;
-    }
-
-    Task CancelEdit()
-    {
-        isEditing = false;
-        return Task.CompletedTask;
     }
 }

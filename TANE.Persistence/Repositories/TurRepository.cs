@@ -1,5 +1,6 @@
 ﻿    using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Net.Http.Json;
@@ -34,7 +35,7 @@
                 var client = _factory.CreateClient("rejseplan");
 
                 // sæt dit Bearer-token
-               SetJwtToken(client,jwtToken);
+                SetJwtToken(client, jwtToken);
                 // POST til baseAddress/“rejseplan”/tur
                 var response = await client.PostAsJsonAsync("tur", tur);
                 return response.IsSuccessStatusCode;
@@ -46,8 +47,8 @@
                 // her henter du netop den HttpClient, du har konfigureret med AddHttpClient("rejseplan", ...)
                 var client = _factory.CreateClient("rejseplan");
                 SetJwtToken(client, jwtToken);
-            // DELETE til baseAddress/“rejseplan”/tur
-            var response = await client.DeleteAsync($"tur/{turId}");
+                // DELETE til baseAddress/“rejseplan”/tur
+                var response = await client.DeleteAsync($"tur/{turId}");
                 return response.IsSuccessStatusCode;
             }
 
@@ -57,8 +58,8 @@
                 var client = _factory.CreateClient("rejseplan");
                 SetJwtToken(client, jwtToken);
 
-            // Hent og deserialiser direkte til List<TurReadDto>
-            var tours = await client.GetFromJsonAsync<List<TurReadDto>>("Tur");
+                // Hent og deserialiser direkte til List<TurReadDto>
+                var tours = await client.GetFromJsonAsync<List<TurReadDto>>("Tur");
 
                 // Hvis API’et returnerer 204 No Content, bliver tours null
                 return tours ?? new List<TurReadDto>();
@@ -69,8 +70,8 @@
                 var client = _factory.CreateClient("rejseplan");
                 SetJwtToken(client, jwtToken);
 
-            // Problemet: du henter altid "…/rejseplan/tur" uden ID
-            var tur = await client.GetFromJsonAsync<TurReadDto>($"tur/{turId}");
+                // Problemet: du henter altid "…/rejseplan/tur" uden ID
+                var tur = await client.GetFromJsonAsync<TurReadDto>($"tur/{turId}");
 
                 return tur ?? new TurReadDto();
             }
@@ -79,10 +80,10 @@
             public async Task<bool> UpdateTur(int id, TurUpdateDto dto, string jwtToken)
             {
                 var client = _factory.CreateClient("rejseplan");
-                 SetJwtToken(client, jwtToken);
+                SetJwtToken(client, jwtToken);
 
-                 // PUT til https://.../rejseplan/tur/{id} med dto som JSON-body
-            var response = await client.PutAsJsonAsync($"tur/{id}", dto);
+                // PUT til https://.../rejseplan/tur/{id} med dto som JSON-body
+                var response = await client.PutAsJsonAsync($"tur/{id}", dto);
 
                 // Returner true hvis status er 2xx
                 return response.IsSuccessStatusCode;
@@ -124,5 +125,15 @@
 
             }
 
+            public async Task<ObservableCollection<TurReadDto>> ReadAllTurePåRejseplan(int rejseplanId, string jwtToken)
+            {
+                var client = _factory.CreateClient("rejseplan");
+                SetJwtToken(client, jwtToken);
+
+                var response = await client.GetAsync($"tur/rejseplan/{rejseplanId}");
+                response.EnsureSuccessStatusCode();
+                var tours = await response.Content.ReadFromJsonAsync<ObservableCollection<TurReadDto>>();
+                return tours ?? new ObservableCollection<TurReadDto>();
+            }
         }
     }

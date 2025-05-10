@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TANE.Domain.Entities;
 using TANE.Application.Dtos;
+using System.Collections.ObjectModel;
 
 namespace TANE.Application.RepositoryInterfaces
 {
@@ -18,6 +19,8 @@ namespace TANE.Application.RepositoryInterfaces
         Task AddDagToTurAsync(int turId, int dagId, string jwtToken);
         Task ReorderDageAsync(int turId, DagReorderDto dto, string jwtToken);
         Task RemoveDagFromTurAsync(int turId, int dagId, string jwtToken);
+
+        Task<ObservableCollection<TurReadDto>> ReadAllTurePåRejseplan(int rejseplanId, string jwtToken);
 
     }
 }

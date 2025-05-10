@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TANE.Domain.Entities;
 using TANE.Application.Dtos;
+using TANE.Application.Dtos.TurDagRejseplan;
 
 namespace TANE.Application.RepositoryInterfaces
 {
@@ -15,8 +16,9 @@ namespace TANE.Application.RepositoryInterfaces
         Task<bool> DeleteRejseplan(int rejseplanId, string jwtToken);
         Task<RejseplanReadDto> ReadRejseplanById(int rejseplanId, string jwtToken);
         Task<List<RejseplanReadDto>> ReadAllRejseplaner(string jwtToken);
-        //Task AddTurToRejseplanAsync(int rejseplanId, int turId, string jwtToken);
+        Task AddTurToRejseplanAsync(TurAssignDto dto, string jwtToken);
         Task ReorderTureAsync(int rejseplanId, TurReorderDto dto, string jwtToken);
+        Task RemoveTurFromRejseplanAsync(TurAssignDto dto, string jwtToken);
 
     }
 }

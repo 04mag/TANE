@@ -1,11 +1,14 @@
 ﻿@using TANE.Application.Dtos
 @using System.Collections.ObjectModel
+@using TANE.Application.Dtos.TurDagRejseplan
 @using TANE.Application.Groups.Kunder.Queries.Interfaces
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
+@using TANE.Persistence.Repositories
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
 @using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
+@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
 @inject DialogService DialogService
 @inject CustomStateProvider AuthStateProvider
 @inject ITurRepository TurRepository
@@ -113,10 +116,20 @@
                     <RadzenDatePicker Name="AfrejseTidspunkt" @bind-Value=@EditModel.AfrejseTidspunkt Style="width:100%" ShowTime="true" />
                 </ChildContent>
             </RadzenFormField>
-      <!-- ... øvrige formfelter som før ... -->
+      <!-- TurIds-->
+   @*    <RadzenFormField Text="Turids" Variant="@ThemeConfig.FormVariant">
+          <ChildContent>
+              <ul style="margin:0; padding-left:1rem">
+                  @foreach (var turId in EditModel.TurIds)
+                  {
+                      <li>@turId</li>
+                  }
+              </ul>
+          </ChildContent>
+      </RadzenFormField> *@
 
       <h4>Vælg ture:</h4>
-      <TurReorderListComponent InjectedTure="Observableture" OnDelete="OnTurDelete" OnReorder="OnTurReorder" />
+            <TurReorderListComponent InjectedTure="RejseplanTure" OnDelete="OnTurDelete" OnReorder="HandleTurReorder" />
       <div style="text-align: right; width: 100%;">
         <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium"
                       Style="width:150px" Text="Tilføj Tur"
@@ -124,7 +137,7 @@
       </div>
       @if (showAddTur)
       {
-        <TurListComponent InjectedTure="RejseplanTure" OnSelect="OnTurRowSelect" />
+                <TurSkabelonListComponent OnSelect="OnTurRowSelect" />
       }
 
       <div class="flex gap-2 mt-4">
@@ -143,59 +156,69 @@
 </div>
 
 @code {
-  [Parameter, EditorRequired]
-  public RejseplanReadDto Item { get; set; } = default!;
+    [Parameter, EditorRequired]
+    public RejseplanReadDto Item { get; set; } = default!;
 
-  [Parameter]
-  public EventCallback<RejseplanUpdateDto> OnSaved { get; set; }
 
-  [Parameter]
-  public EventCallback OnCancelled { get; set; }
+    [Parameter]
+    public int currentId { get; set; } 
 
-  private RejseplanUpdateDto EditModel = new();
-  private string _token = string.Empty;
+    [Parameter]
+    public EventCallback<RejseplanUpdateDto> OnSaved { get; set; }
 
-    List<TurReadDto> RejseplanTure = new();
+    [Parameter]
+    public EventCallback OnCancelled { get; set; }
 
-  // Kunde-søgning
-  private string customerSearchTerm = string.Empty;
-  private Kunde? selectedCustomer;
-  private List<Kunde> Kunder = new();
-  private IEnumerable<Kunde> filteredCustomers =>
-    string.IsNullOrWhiteSpace(customerSearchTerm)
-      ? Kunder
-      : Kunder.Where(c => c.Fornavn.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase)
-                        || c.Efternavn.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase)
-                        || c.Email.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase));
+    private RejseplanUpdateDto EditModel = new();
+    private string _token = string.Empty;
 
-  // Tur-selection
-  private bool showAddTur;
-  private ObservableCollection<TurReadDto> SelectedtureVar = new();
-  public ObservableCollection<TurReadDto> Observableture
-  {
-    get => SelectedtureVar;
-    set => SelectedtureVar = value;
-  }
-  private List<TurReadDto> TurVar = new();
-  public List<TurReadDto> Ture
-  {
-    get => TurVar.Where(d => !Observableture.Any(o => o.Id == d.Id)).ToList();
-    set => TurVar = value;
-  }
+    List<TurReadDto> RejseplanTure { get; set; } = new List<TurReadDto>();
 
-  protected override async Task OnInitializedAsync()
-  {
-    var state = await AuthStateProvider.GetAuthenticationStateAsync();
-    _token = AuthStateProvider.CurrentUser.Token;
-    Kunder = await ReadKunde.GetAllKunderAsync(_token);
-    TurVar = await TurRepository.ReadAllTure(_token);
-        RejseplanTure = TurVar.Where(t => Item.TurIds.Contains(t.Id)).ToList();
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        _token = AuthStateProvider.CurrentUser.Token;
+        Kunder = await ReadKunde.GetAllKunderAsync(_token);
+        // din repo returnerer en ObservableCollection<TurReadDto>
+        var obs = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
 
-  }
+        // konverter til List<TurReadDto>
+        TurVar = (await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token))
+            .ToList();
 
-  protected override void OnParametersSet()
-  {
-      EditModel = new RejseplanUpdateDto
+        RejseplanTure = obs.ToList();
+    
+
+    }
+
+    // Kunde-søgning
+    private string customerSearchTerm = string.Empty;
+    private Kunde? selectedCustomer;
+    private List<Kunde> Kunder = new();
+    private IEnumerable<Kunde> filteredCustomers =>
+      string.IsNullOrWhiteSpace(customerSearchTerm)
+        ? Kunder
+        : Kunder.Where(c => c.Fornavn.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase)
+                          || c.Efternavn.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase)
+                          || c.Email.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase));
+
+    // Tur-selection
+    private bool showAddTur;
+    private ObservableCollection<TurReadDto> SelectedtureVar = new();
+
+    public ObservableCollection<TurReadDto>? Observableture;
+
+    private List<TurReadDto> TurVar;
+
+    public List<TurReadDto> Ture
+    {
+        get => TurVar.Where(d => !Observableture.Any(o => o.Id == d.Id)).ToList();
+        set => TurVar = value;
+    }
+
+    protected override void OnParametersSet()
+    {
+        EditModel = new RejseplanUpdateDto
       {
           Id               = Item.Id,
           KundeId          = Item.KundeId,
@@ -207,45 +230,55 @@
           FlyPris          = Item.FlyPris,
           AntalDage        = Item.AntalDage,
           AfrejseTidspunkt = Item.AfrejseTidspunkt,
-          TurIds           = new List<int>(Item.TurIds),
+         
           OpfølgningNote   = Item.OpfølgningNote,
           RowVersion       = Item.RowVersion
       };
-    selectedCustomer = Kunder.FirstOrDefault(k => k.Id == Item.KundeId);
-    customerSearchTerm = selectedCustomer != null
-      ? $"{selectedCustomer.Fornavn} {selectedCustomer.Efternavn}"
-      : string.Empty;
-    Observableture = new ObservableCollection<TurReadDto>(
-      TurVar.Where(t => Item.TurIds.Contains(t.Id))
-    );
-  }
+        selectedCustomer = Kunder.FirstOrDefault(k => k.Id == Item.KundeId);
+        customerSearchTerm = selectedCustomer != null
+          ? $"{selectedCustomer.Fornavn} {selectedCustomer.Efternavn}"
+          : string.Empty;
 
-  private async Task HandleValidSubmit(RejseplanUpdateDto model)
-  {
-      await OnSaved.InvokeAsync(model);
-  }
+      
+    }
 
-  private Task HandleInvalidSubmit(FormInvalidSubmitEventArgs args)
-    => Task.CompletedTask;
+    private async Task HandleValidSubmit(RejseplanUpdateDto model)
+    {
+      
+        // skriv til datavbasen
+        await RejseplanRepository.UpdateRejseplan(model.Id, model, _token);
+        await OnSaved.InvokeAsync(model);
+    }
 
-  private Task CancelEdit()
-    => OnCancelled.InvokeAsync();
+    private Task HandleInvalidSubmit(FormInvalidSubmitEventArgs args)
+      => Task.CompletedTask;
 
-  private void SelectCustomer(Kunde c)
-  {
-    selectedCustomer = c;
-    EditModel.KundeId = c.Id;
-    customerSearchTerm = $"{c.Fornavn} {c.Efternavn}";
-  }
+    private Task CancelEdit()
+      => OnCancelled.InvokeAsync();
 
-  private void OnTurRowSelect(TurReadDto tur)
-  {
-    if (!Observableture.Any(t => t.Id == tur.Id))
-      Observableture.Add(tur);
-    showAddTur = false;
-  }
+    private void SelectCustomer(Kunde c)
+    {
+        selectedCustomer = c;
+        EditModel.KundeId = c.Id;
+        customerSearchTerm = $"{c.Fornavn} {c.Efternavn}";
+    }
 
-  private void OnTurDelete(TurReadDto tur)
+    private async Task OnTurRowSelect(TurSkabelon turSkabelon)
+    {
+        var tur = new TurReadDto
+        {
+            Id = turSkabelon.Id,
+            Titel = turSkabelon.Titel,
+            Beskrivelse = turSkabelon.Beskrivelse,
+            RejseplanId = Item.Id
+        };
+        Item.Ture.Add(tur);
+
+     
+
+    }
+
+    private void OnTurDelete(TurReadDto tur)
     => Observableture.Remove(tur);
 
   private async Task OpenNyKundeDialog()
@@ -256,25 +289,25 @@
       Kunder.Add(nyKunde);
       SelectCustomer(nyKunde);
     }
-  }
-    private async Task OnTurReorder(IEnumerable<TurReadDto> newOrder)
-    {
-    // 1) Byg din DTO med de nye Id’er
-        var dto = new TurReorderDto 
-        { 
-            TurIds = newOrder.Select(t => t.Sekvens).ToList(),
-            OriginalRowVersion   = EditModel.RowVersion
-        };
-
-    // 2) Kald reorder-endpointet
-        await RejseplanRepository.ReorderTureAsync(Item.Id, dto, _token);
-
-    // 3) Opdater lokalt, så UI reflekterer den nye rækkefølge
-        Observableture = new ObservableCollection<TurReadDto>(newOrder);
+  } 
     
-        EditModel.TurIds = newOrder.Select(t => t.Sekvens).ToList();
-    // (Hvis du vil, kan du undlade en ekstra “Gem”-knap,
-    //  for drag’n’drop bliver nu gemt med det samme.)
-    }
+    private async Task HandleTurReorder(IEnumerable<TurReadDto> newOrder)
+  {
+    // 1) Gem i DB
+      var dto = new TurReorderDto { TurIds = newOrder.Select(t => t.Id).ToList() };
+      try
+      {
+          await RejseplanRepository.ReorderTureAsync(Item.Id, dto, _token);
+      }
+      catch (Exception ex)
+      {
+          await DialogService.Alert($"Fejl: {ex.Message}");
+          return;
+      }
+
+    // 2) Opdater din List
+      RejseplanTure = newOrder.ToList();
+      StateHasChanged();
+  }
 
 }

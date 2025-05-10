@@ -40,7 +40,7 @@
 
 @code {
     [Parameter, EditorRequired]
-    public ObservableCollection<TurReadDto> InjectedTure { get; set; }
+    public IList<TurReadDto> InjectedTure { get; set; }
 
     [Parameter]
     public EventCallback<TurReadDto> OnSelect { get; set; }
@@ -56,7 +56,7 @@
     public EventCallback<IEnumerable<TurReadDto>> OnReorder { get; set; }
 
 
-    IList<TurReadDto> selectedTure;
+    IList<TurReadDto>? selectedTure = new List<TurReadDto>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -101,8 +101,8 @@
                 var from = InjectedTure.IndexOf(draggedItem);
                 var to   = InjectedTure.IndexOf(args.Data);
 
-                InjectedTure.Remove(draggedItem);
-                InjectedTure.Insert(from <= to ? to + 1 : to, draggedItem);
+                InjectedTure.RemoveAt(from);
+                InjectedTure.Insert(from <= to ? to+1 : to, draggedItem);;
 
                  // Fjern highlight
                 await JSRuntime.InvokeVoidAsync(
