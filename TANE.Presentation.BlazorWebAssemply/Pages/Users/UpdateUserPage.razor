@@ -5,9 +5,9 @@
 @page "/users/update/"
 <PageTitle>Skift password</PageTitle>
 
-<UpdateUserComponent UserId="@UserId" />
+<UpdateUserComponent  />
 
 @code {
-  [Parameter] public Guid UserId { get; set; }
+  public string email { get; set; }
 }
 

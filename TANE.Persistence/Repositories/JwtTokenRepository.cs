@@ -47,6 +47,33 @@ namespace TANE.Persistence.Repositories
             }
         }
 
+        public async Task<bool> UpdateUserAsync(string Email, string newPassword, string jwtToken)
+        {
+            using (HttpClient httpClient = _httpClientFactory.CreateClient("auth"))
+            {
+                httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
+
+                var result = await httpClient.PostAsJsonAsync("api/Account/reset-password", new { Email, newPassword });
+
+                if (result.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+                else if (result.StatusCode == System.Net.HttpStatusCode.Unauthorized || result.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                {
+                    throw new NotAuthorizedException("Unauthorized");
+                }
+                else if (result.StatusCode == System.Net.HttpStatusCode.Conflict)
+                {
+                    throw new ConflictException("JEG VED IKKE HVORFOR DENNE MEDDELELSE KOMMER NU");
+                }
+                else
+                {
+                    throw new Exception("JEG VED IKKE HVORFOR DENNE MEDDELELSE KOMMER NU2!!!");
+                }
+            }
+        }
+
         public async Task<JwtToken> RefreshToken(string accessToken, string refreshToken)
         {
             using (HttpClient httpClient = _httpClientFactory.CreateClient("auth"))
@@ -109,7 +136,7 @@ namespace TANE.Persistence.Repositories
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", jwtToken);
 
-            // Hent og deserialiser direkte til List<RejseplanReadDto>
+            
             var users = await client.GetFromJsonAsync<List<User>>("api/Admin/users");
             return users ?? new List<User>(); 
         }

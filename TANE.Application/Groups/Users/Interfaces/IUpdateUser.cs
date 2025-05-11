@@ -9,6 +9,6 @@ namespace TANE.Application.Groups.Users.Interfaces
 {
     public interface IUpdateUser
     {
-       Task<bool> UpdateUserAsync(Guid userId, string NewPassword, string jwtToken);
+       Task UpdateUserAsync(string email, string newPassword, string jwtToken);
     }
 }

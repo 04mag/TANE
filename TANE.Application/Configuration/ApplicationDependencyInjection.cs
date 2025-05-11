@@ -11,9 +11,8 @@ using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces;
 using TANE.Application.Groups.JwtTokens.Commands;
 using TANE.Application.Groups.JwtTokens.Commands.Interfaces;
 using TANE.Application.Groups.Users.Commands;
-using TANE.Application.Groups.Users.Queries.Interfaces;
 using TANE.Application.Groups.Users.Interfaces;
-using TANE.Application.Groups.Users.Queries;
+
 
 namespace TANE.Application.Configuration
 {
@@ -26,8 +25,6 @@ namespace TANE.Application.Configuration
             services.AddScoped<IRefreshToken, RefreshToken>();
             services.AddScoped<ICreateUser, CreateUser>();
             services.AddScoped<IUpdateUser, UpdateUser>();
-            services.AddScoped<IGetUser, GetUser>();
-            services.AddScoped<IGetUsers, GetUsers>();
 
             services.AddScoped<ICreateDagSkabelon, CreateDagSkabelon>();
             services.AddScoped<IUpdateDagSkabelon, UpdateDagSkabelon>();
