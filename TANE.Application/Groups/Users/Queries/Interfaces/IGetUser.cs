@@ -8,8 +8,5 @@ namespace TANE.Application.Groups.Users.Queries.Interfaces
     {
         Task<User> GetUserByIdAsync(Guid userId, string jwtToken);
     }
-    public interface IGetUsers
-    {
-        Task<IReadOnlyList<User>> GetUsersAsync(string jwtToken);
-    }
+    
 }

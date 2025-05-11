@@ -13,25 +13,31 @@ namespace TANE.Application.Groups.Users.Commands
 {
     public class UpdateUser : IUpdateUser
     {
-        private readonly IHttpClientFactory _factory;
-        public UpdateUser(IHttpClientFactory factory) => _factory = factory;
+        private readonly HttpClient _http;
+        public UpdateUser(HttpClient http) => _http = http;
 
         public async Task<bool> UpdateUserAsync(Guid userId, string newPassword, string jwtToken)
         {
-            using var client = _factory.CreateClient("auth");
-            client.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
+            _http.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
 
-            var result = await client.PutAsJsonAsync("api/Admin/users/change-password",
+            var response = await _http.PutAsJsonAsync("api/Admin/users/change-password",
                 new { userId, password = newPassword });
 
-            if (result.IsSuccessStatusCode) return true;
-            if (result.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
-                throw new NotAuthorizedException("Ikke autoriseret til at ændre password.");
-            if (result.StatusCode == HttpStatusCode.Conflict)
-                throw new ConflictException("Kan ikke ændre password for denne bruger.");
-            throw new Exception("Serverfejl ved password-ændring.");
-        }
+            if (response.StatusCode == HttpStatusCode.Conflict)
 
+                throw new ConflictException("Kan ikke ændre password for denne bruger.");
+
+            else if (response.StatusCode == HttpStatusCode.Unauthorized ||
+                     response.StatusCode == HttpStatusCode.Forbidden)
+
+                throw new NotAuthorizedException("Ikke autoriseret til at ændre password.");
+
+            else if (!response.IsSuccessStatusCode)
+
+                throw new Exception("Serverfejl ved password‐ændring.");
+
+            return true;
+        }
     }
 }

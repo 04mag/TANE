@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using TANE.Application.Groups.Users.Queries.Interfaces;
@@ -10,31 +11,25 @@ namespace TANE.Application.Groups.Users.Commands
 {
     public class GetUser : IGetUser
     {
-        private readonly IHttpClientFactory _factory;
-        public GetUser(IHttpClientFactory factory) => _factory = factory;
+        private readonly HttpClient _http;
+        public GetUser(HttpClient http) => _http = http;
 
         public async Task<User> GetUserByIdAsync(Guid userId, string jwtToken)
         {
-            using var client = _factory.CreateClient("auth");
-            client.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
+            _http.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
 
-            // Antag at API’et returnerer User-objektet
-            var user = await client.GetFromJsonAsync<User>($"api/Admin/users/{userId}");
-            return user!;
-        }
+            var user = await _http
+                .GetFromJsonAsync<User>($"api/Admin/users/{userId}");
 
-        public async Task<IReadOnlyList<User>> GetUsersAsync(string jwtToken)
-        {
-            using var client = _factory.CreateClient("auth");
-            client.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
+            if (user is null)
+                throw new KeyNotFoundException($"Bruger {userId} ikke fundet.");
 
-            var users = await client.GetFromJsonAsync<List<User>>("api/Admin/users");
-            return users ?? new List<User>();
+            return user;
         }
     }
 
 
-    
+
+
 }
