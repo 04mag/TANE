@@ -14,6 +14,7 @@
 @inject ITurRepository TurRepository
 @inject IReadKunde ReadKunde
 @inject IRejsePlanRepository RejseplanRepository
+@inject IJSRuntime JSRuntime
 
 <RadzenDialog />
 
@@ -197,8 +198,9 @@
     private string customerSearchTerm = string.Empty;
     private Kunde? selectedCustomer;
     private List<Kunde> Kunder = new();
-    private IEnumerable<Kunde> filteredCustomers =>
-      string.IsNullOrWhiteSpace(customerSearchTerm)
+
+    private IEnumerable<Kunde> filteredCustomers => 
+        string.IsNullOrWhiteSpace(customerSearchTerm)
         ? Kunder
         : Kunder.Where(c => c.Fornavn.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase)
                           || c.Efternavn.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase)
@@ -232,7 +234,6 @@
           FlyPris          = Item.FlyPris,
           AntalDage        = Item.AntalDage,
           AfrejseTidspunkt = Item.AfrejseTidspunkt,
-         
           OpfølgningNote   = Item.OpfølgningNote,
           RowVersion       = Item.RowVersion
       };
@@ -240,8 +241,6 @@
         customerSearchTerm = selectedCustomer != null
           ? $"{selectedCustomer.Fornavn} {selectedCustomer.Efternavn}"
           : string.Empty;
-
-      
     }
 
     private async Task HandleValidSubmit(RejseplanUpdateDto model)
@@ -275,25 +274,40 @@
             RejseplanId = Item.Id
         };
         Item.Ture.Add(tur);
-
-     
-
     }
 
-    private void OnTurDelete(TurReadDto tur)
+    private async void OnTurDelete(TurReadDto tur)
     {
+        bool confirmed;
         try
         {
-            RejseplanRepository.RemoveTurFromRejseplanAsync(Item.Id, tur.Id, _token);
+            confirmed = await JSRuntime.InvokeAsync<bool>(
+                "confirm", $"Er du sikker på, at du vil fjerne turen ''{tur.Titel}'' fra rejseplanen ''{Item.Titel}''? Handlingen kan IKKE fortrydes!");
         }
-        catch (Exception ex)
+        catch (Exception jsEx)
         {
-            DialogService.Alert($"Fejl: {ex.Message}");
+            await DialogService.Alert($"Beklager, dialogen kunne ikke vises: {jsEx.Message}");
             return;
         }
 
+        if (!confirmed)
+        {
+            return;
+        }
+
+        bool succeeded;
+        try
+        {
+            await RejseplanRepository.RemoveTurFromRejseplanAsync(Item.Id, tur.Id, _token);
+        }
+        catch (Exception ex)
+        {
+            await DialogService.Alert($"Fejl under sletning: {ex.Message}");
+            return;
+        }
         RejseplanTure.Remove(tur);
     }
+
 
     private async Task OpenNyKundeDialog()
   {
