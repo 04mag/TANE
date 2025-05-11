@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
@@ -102,6 +103,17 @@ namespace TANE.Persistence.Repositories
             }
         }
 
+        public async Task<List<User>> GetUsersAsync(string jwtToken)
+        {
+            var client = _httpClientFactory.CreateClient("auth");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
+
+            // Hent og deserialiser direkte til List<RejseplanReadDto>
+            var users = await client.GetFromJsonAsync<List<User>>("api/Admin/users");
+            return users ?? new List<User>(); 
+        }
+        
 
     }
 }

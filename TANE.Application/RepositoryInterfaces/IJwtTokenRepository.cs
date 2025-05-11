@@ -13,5 +13,6 @@ namespace TANE.Application.RepositoryInterfaces
         Task<JwtToken> RefreshToken(string token, string refreshToken);
 
         Task<bool> CreateUserAsync(string email, string password, string jwtToken);
+        Task<List<User>> GetUsersAsync(string jwtToken);
     }
 }
