@@ -1,125 +1,148 @@
 ﻿@using TANE.Application.Dtos
 @using System.Collections.ObjectModel
+@using TANE.Application.Groups.Kunder.Queries.Interfaces
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
 @using TANE.Presentation.BlazorWebAssemply.Pages.Dag.Components
+@using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
+@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.DagSkabeloner.Components
+
 
 @inject CustomStateProvider AuthStateProvider
 @inject IDagRepository DagRepository
+@inject IReadKunde ReadKunde
+@inject DialogService DialogService
+@inject CustomerState CustomerState
+
+
+
 
 <div class="rz-p-0 rz-p-md-12">
+    <h4>Opret Ny Tur</h4>
+    <RadzenTemplateForm TItem="TurCreateDto" Data=@Tur Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+        <RadzenStack Gap="1rem" class="rz-p-sm-12">
+            <!-- Titel -->
+            <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenTextBox Name="Titel" @bind-Value=@Tur.Titel Style="width:100%" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="Titel" Text="Titel skal udfyldes." />
+                </Helper>
+            </RadzenFormField>
 
-    @if (showAddDag)
-    {
-        <DagListComponent InjectedDage="Dage" OnSelect="OnDagRowSelect" />
-    }
+            <!-- Beskrivelse -->
+            <RadzenFormField Text="Beskrivelse" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenTextArea Name="Beskrivelse" @bind-Value=@Tur.Beskrivelse Rows="4" Style="width:100%" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="Beskrivelse" Text="Beskrivelse skal udfyldes." />
+                </Helper>
+            </RadzenFormField>
 
-    @if (!showAddDag)
-    {
-        <h4>Opret Ny Tur </h4>
-        <RadzenTemplateForm TItem="TurCreateDto" Data=@Tur Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
-            <RadzenStack Gap="1rem" class="rz-p-sm-12">
-
-                <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
+            <!-- Antal Voksne / Antal Børn -->
+            <RadzenStack Direction="Row" Gap="1rem">
+                <RadzenFormField Text="Start" Variant="@ThemeConfig.FormVariant">
                     <ChildContent>
-                        <RadzenTextBox Name="Titel" @bind-Value=@Tur.Titel />
+                        <RadzenDatePicker Name="Start" @bind-Value=@Tur.TurStartTidspunkt Style="width:100%" />
                     </ChildContent>
-                    <Helper>
-                        <RadzenRequiredValidator Component="Titel" Text="Titel skal udfyldes." />
-                    </Helper>
                 </RadzenFormField>
-
-
-                <RadzenFormField Text="Beskrivelse" Variant="@ThemeConfig.FormVariant">
+                <RadzenFormField Text="Slut" Variant="@ThemeConfig.FormVariant">
                     <ChildContent>
-                        <RadzenTextArea Name="Beskrivelse" @bind-Value="@Tur.Beskrivelse" Rows="4" />
+                        <RadzenDatePicker Name="Slut" @bind-Value=@Tur.TurSlutTidspunkt Style="width:100%" />
                     </ChildContent>
-                    <Helper>
-                        <RadzenRequiredValidator Component="Beskrivelse" Text="Beskrivelse skal udfyldes." />
-                    </Helper>
                 </RadzenFormField>
-
-                <br />
-
-                <h4>Dage:</h4>
-                <DagReorderListComponent InjectedDage="ObservableDage" OnDelete="OnDagDelete" />
-                <div style="text-align: right; width: 100%;">
-                    <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium" Style="width: 150px" Text="Tilføj Dag" Click="@(() => showAddDag = !showAddDag)"></RadzenButton>
-                </div>
-
-                <br />
-
-                <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Text="Opret tur "></RadzenButton>
             </RadzenStack>
-        </RadzenTemplateForm>
-    }
 
+            <!-- Lufthavn -->
+            <RadzenFormField Text="Pris" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenNumeric Name="Pris" @bind-Value=@Tur.Pris Style="width:100%" />
+                </ChildContent>
+            </RadzenFormField>
+
+            <br />
+
+            <h4>Vælg dage:</h4>
+            <DagReorderListComponent InjectedDage="Observabledage" OnDelete="OnDagDelete" />
+            <div style="text-align: right; width: 100%;">
+                <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium"
+                              Style="width:150px" Text="Tilføj Dag"
+                              Click="@(() => showAddDag = !showAddDag)" 
+                              
+                
+                />
+
+            </div>
+
+            @if (showAddDag)
+            {
+                <DagSkabelonListComponent OnSelect="OnDagRowSelect" />
+            }
+
+            <br />
+
+            <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Text="Opret Tur" Style="width:200px" />
+        </RadzenStack>
+    </RadzenTemplateForm>
 </div>
 
 @code{
+    Kunde? NyKunde { get; set; }
     [Inject] 
-    private ITurRepository _turRepository { get; set; } = default!;
-
-    
+    private ITurRepository _TurRepository { get; set; } = default!;
 
     [Parameter, EditorRequired]
     public List<DagReadDto> InjectedDage { get; set; } = new List<DagReadDto>();
-
-  
+    
+    string selectedCustomerEmail;  // Variable to hold selected customer email
     private string? _token;
     bool showAddDag = false;
 
-    private ObservableCollection<DagReadDto> SelectedDageVar = new ObservableCollection<DagReadDto>();
+    private ObservableCollection<DagReadDto> SelecteddageVar = new ObservableCollection<DagReadDto>();
 
-    public ObservableCollection<DagReadDto> ObservableDage
+    public ObservableCollection<DagReadDto> Observabledage
     {
         get
         {
-            return SelectedDageVar;
+            return SelecteddageVar;
         }
         set 
         { 
-            SelectedDageVar = value;
+            SelecteddageVar = value;
         }
     }
 
     public TurCreateDto Tur { get; set; } = new TurCreateDto();
 
-    private List<DagReadDto> DagVar = new List<DagReadDto>();
-
-    public List<DagReadDto> Dage
-    {
-        get
-        {
-            // Return DagVar excluding entities already in ObservableDag
-            return DagVar.Where(d => !ObservableDage.Any(o => o.Id == d.Id)).ToList();
-        }
-        set
-        {
-            DagVar = value;
-        }
-    }
+    public List<DagReadDto> Dage { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-       
-
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         _token = AuthStateProvider.CurrentUser.Token;
 
     // Faktisk hentning af alle dage:
-        var alleDage = await DagRepository.ReadAllDageAsync(_token);
-        Dage = alleDage;   // udfylder din property, så InjectedDage ikke længere er nødvendig
-    }
+        var alledage = await DagRepository.ReadAllDageAsync(_token);
+        Dage = alledage;   // udfylder din property, så Injecteddage ikke længere er nødvendig
 
-    
+
+        Tur = new TurCreateDto();
+        Tur.Dage = new List<DagCreateDto>();
+        showAddDag = false;
+
+    }
 
     async Task OnSubmit()
     {
         
         Console.WriteLine($"Titel: {Tur.Titel}\nBeskrivelse: {Tur.Beskrivelse}");
-        _turRepository.CreateTur(Tur, _token);
+
+        _TurRepository.CreateTur(Tur, _token);
+        CustomerState.Kunde = null;
     }
 
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
@@ -127,15 +150,36 @@
 
     }
 
-    private void OnDagRowSelect(DagReadDto dag)
+    private async Task OnDagRowSelect(DagSkabelon dagSkabelon)
     {
-        ObservableDage.Add(dag);
+        var dag = new DagCreateDto
+        {
 
-        showAddDag = !showAddDag;
+            Titel = dagSkabelon.Titel,
+            Beskrivelse = dagSkabelon.Beskrivelse,
+           Aktiviteter = dagSkabelon.Aktiviteter,
+            Måltider = dagSkabelon.Måltider,
+            Overnatning = dagSkabelon.Overnatning,
+            Sekvens = Tur.Dage.Count,
+
+        };
+        Tur.Dage.Add(dag);
+        Observabledage.Add(new DagReadDto
+        {
+            Titel = dagSkabelon.Titel,
+            Beskrivelse = dagSkabelon.Beskrivelse,
+            Aktiviteter = dagSkabelon.Aktiviteter,
+            Måltider = dagSkabelon.Måltider,
+            Overnatning = dagSkabelon.Overnatning,
+            Sekvens = Tur.Dage.Count,
+        });
+        showAddDag = false;
     }
 
-    private void OnDagDelete(DagReadDto dag)
+
+    private void OnDagDelete(DagReadDto Dag)
     {
-        ObservableDage.Remove(dag);
+        Observabledage.Remove(Dag);
     }
 }
+

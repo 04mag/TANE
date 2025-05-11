@@ -21,7 +21,7 @@ namespace TANE.Persistence.Repositories
                 Beskrivelse = "Beskrivelse 1",
                 Måltider = "Måltider 1",
                 Aktiviteter = "Aktiviteter 1",
-                Pris = 765
+                
             }
         );
 
@@ -33,7 +33,6 @@ namespace TANE.Persistence.Repositories
                     Beskrivelse = "Beskrivelse 2",
                     Måltider = "Måltider 2",
                     Aktiviteter = "Aktiviteter 2",
-                    Pris = 299.95
                 }
             );
 
@@ -45,7 +44,6 @@ namespace TANE.Persistence.Repositories
                     Beskrivelse = "Beskrivelse 3",
                     Måltider = "Måltider 3",
                     Aktiviteter = "Aktiviteter 3",
-                    Pris = 235
                 }
             );
 
@@ -57,7 +55,6 @@ namespace TANE.Persistence.Repositories
                     Beskrivelse = "Beskrivelse 4",
                     Måltider = "Måltider 4",
                     Aktiviteter = "Aktiviteter 4",
-                    Pris = 123.45
                 }
             );
 
@@ -69,7 +66,6 @@ namespace TANE.Persistence.Repositories
                     Beskrivelse = "Beskrivelse 5",
                     Måltider = "Måltider 5",
                     Aktiviteter = "Aktiviteter 5",
-                    Pris = 456.78
                 }
             );
 
@@ -81,7 +77,6 @@ namespace TANE.Persistence.Repositories
                     Beskrivelse = "Beskrivelse 6",
                     Måltider = "Måltider 6",
                     Aktiviteter = "Aktiviteter 6",
-                    Pris = 987.65
                 }
             );
 
@@ -93,7 +88,6 @@ namespace TANE.Persistence.Repositories
                     Beskrivelse = "Beskrivelse 7",
                     Måltider = "Måltider 7",
                     Aktiviteter = "Aktiviteter 7",
-                    Pris = 543.21
                 }
             );
         }

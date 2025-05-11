@@ -8,8 +8,8 @@
         public double Pris { get; set; }
         public DateTime TurStartTidspunkt { get; set; }
         public DateTime TurSlutTidspunkt { get; set; }
-        public List<DagReadDto> Dage { get; set; } = new();
-        public int? RejseplanId { get; set; } = new();
+        public List<DagReadDto> Dage { get; set; }
+        public int? RejseplanId { get; set; }
         public int Sekvens { get; set; }
         public byte[] RowVersion { get; set; }  // **Til optimistic concurrency**
     }

@@ -13,11 +13,8 @@ namespace TANE.Domain.Entities
         public int Sekvens { get; set; }
         public string Titel { get; set; } = string.Empty;
         public string Beskrivelse { get; set; } = string.Empty;
+        public double Pris { get; set; }
 
-        public double GetPris()
-        {
-            return DagSkabeloner.Sum(d => d.Pris);
-        }
 
         public int GetAntalDage()
         {

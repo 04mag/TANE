@@ -30,7 +30,6 @@ namespace TANE.Persistence.Repositories
                             Beskrivelse = "Beskrivelse 2",
                             Måltider = "Måltider 2",
                             Aktiviteter = "Aktiviteter 2",
-                            Pris = 265
                         }
                     }
                 }
@@ -52,7 +51,6 @@ namespace TANE.Persistence.Repositories
                             Beskrivelse = "Beskrivelse 1",
                             Måltider = "Måltider 1",
                             Aktiviteter = "Aktiviteter 1",
-                            Pris = 765
                         }
                     }
                 }

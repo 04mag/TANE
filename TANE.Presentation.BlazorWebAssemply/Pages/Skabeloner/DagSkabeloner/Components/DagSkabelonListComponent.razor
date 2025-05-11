@@ -8,7 +8,6 @@ Data="@Skabeloner" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOpera
     <Columns>
         <RadzenDataGridColumn Property="@nameof(DagSkabelon.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" />
         <RadzenDataGridColumn Property="@nameof(DagSkabelon.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px" />
-        <RadzenDataGridColumn Property="@nameof(DagSkabelon.Pris)" Title="Pris" Width="auto" MinWidth="150px" />
         <RadzenDataGridColumn Context="DagSkabelon" Filterable="false" Sortable="false" Width="auto" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
             <Template Context="DagSkabelon">
                 @if (OnSelectSkabelon.HasDelegate)

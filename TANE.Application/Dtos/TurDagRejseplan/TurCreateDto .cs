@@ -7,6 +7,9 @@
         public string Titel { get; set; }
         public string Beskrivelse { get; set; }
         public double Pris { get; set; }
+
+        public List<DagCreateDto> Dage { get; set; } = new();
+
         public DateTime TurStartTidspunkt { get; set; }
         public DateTime TurSlutTidspunkt { get; set; }
 

@@ -15,6 +15,5 @@ namespace TANE.Domain.Entities
         public string Aktiviteter { get; set; } = string.Empty;
         public string Måltider { get; set; } = string.Empty;
         public string Overnatning { get; set; } = string.Empty;
-        public double Pris { get; set; }
     }
 }

@@ -47,16 +47,6 @@
                 </ChildContent>
             </RadzenFormField>
 
-            <RadzenFormField Text="Pris (Dkk)" Variant="@ThemeConfig.FormVariant">
-                <ChildContent>
-                    <RadzenNumeric Name="Pris" @bind-Value="@Skabelon.Pris" />
-                </ChildContent>
-                <Helper>
-                    <RadzenRequiredValidator Component="Pris" Text="Pris skal udfyldes." />
-                    <RadzenNumericRangeValidator Component="Pris" Min="0" Text="Pris må ikke være mindre end 0." />
-                </Helper>
-            </RadzenFormField>
-
 
             <RadzenButton ButtonType="ButtonType.Submit" Text="Opret" ></RadzenButton>
         </RadzenStack>
