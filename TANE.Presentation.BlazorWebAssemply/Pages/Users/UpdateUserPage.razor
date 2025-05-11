@@ -1,0 +1,13 @@
+﻿@using Radzen
+@using Radzen.Blazor
+@using TANE.Presentation.BlazorWebAssemply.Pages.Users.Components
+
+@page "/users/update/"
+<PageTitle>Skift password</PageTitle>
+
+<UpdateUserComponent UserId="@UserId" />
+
+@code {
+  [Parameter] public Guid UserId { get; set; }
+}
+

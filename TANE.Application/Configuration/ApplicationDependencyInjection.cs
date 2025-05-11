@@ -14,6 +14,10 @@ using TANE.Application.Groups.Kunder.Commands;
 using TANE.Application.Groups.Kunder.Commands.Interfaces;
 using TANE.Application.Groups.Kunder.Queries;
 using TANE.Application.Groups.Kunder.Queries.Interfaces;
+using TANE.Application.Groups.Users.Commands;
+using TANE.Application.Groups.Users.Queries.Interfaces;
+using TANE.Application.Groups.Users.Interfaces;
+using TANE.Application.Groups.Users.Queries;
 
 namespace TANE.Application.Configuration
 {
@@ -25,6 +29,9 @@ namespace TANE.Application.Configuration
             services.AddScoped<IUserLogin, UserLogin>();
             services.AddScoped<IRefreshToken, RefreshToken>();
             services.AddScoped<ICreateUser, CreateUser>();
+            services.AddScoped<IUpdateUser, UpdateUser>();
+            services.AddScoped<IGetUser, GetUser>();
+            services.AddScoped<IGetUsers, GetUsers>();
 
 
 
@@ -37,6 +44,7 @@ namespace TANE.Application.Configuration
             services.AddScoped<IUpdateDagSkabelon, UpdateDagSkabelon>();
             services.AddScoped<IDeleteDagSkabelon, DeleteDagSkabelon>();
             services.AddScoped<IReadDagSkabelon, ReadDagSkabelon>();
+           
 
             return services;
         }

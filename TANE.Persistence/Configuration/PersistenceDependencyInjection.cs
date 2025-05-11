@@ -65,6 +65,7 @@ namespace TANE.Persistence.Configuration
             services.AddScoped<IRejsePlanSkabelonRepository, RejsePlanSkabelonRepository>();
             services.AddScoped<ITurRepository, TurRepository>();
             services.AddScoped<ITurSkabelonRepository, TurSkabelonRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IReadTurSkabelon, ReadTurSkabelon>();
             services.AddScoped<IReadDag, ReadDag>();
             services.AddScoped<IReadTur, ReadTur>();
