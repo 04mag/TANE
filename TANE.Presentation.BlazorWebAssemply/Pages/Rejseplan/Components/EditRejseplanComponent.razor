@@ -1,5 +1,6 @@
 ﻿@using TANE.Application.Dtos
 @using System.Collections.ObjectModel
+@using TANE.Application.Dtos.Skabeloner
 @using TANE.Application.Dtos.TurDagRejseplan
 @using TANE.Application.Groups.Kunder.Queries.Interfaces
 @using TANE.Application.RepositoryInterfaces
@@ -264,7 +265,7 @@
         customerSearchTerm = $"{c.Fornavn} {c.Efternavn}";
     }
 
-    private async Task OnTurRowSelect(TurSkabelon turSkabelon)
+    private async Task OnTurRowSelect(TurSkabelonReadDto turSkabelon)
     {
         var tur = new TurReadDto
         {

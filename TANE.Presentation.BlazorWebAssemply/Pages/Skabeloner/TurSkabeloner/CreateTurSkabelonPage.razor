@@ -1,20 +1,24 @@
 ﻿@using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
+@using TANE.Application.Dtos.Skabeloner
 
 @inject IReadDagSkabelon ReadDagSkabelon
+@inject CustomStateProvider AuthStateProvider
 
-@page "/skabeloner/tur-skabeloner/create"
+@page "/Ny/turskabelon"
 
 <CreateTurSkabelonComponent InjectedDagSkabeloner="DagSkabeloner"/>
 
 @code {
-
-    public List<DagSkabelon> DagSkabeloner { get; set; } = new List<DagSkabelon>();
+    string _token;
+    public List<DagSkabelonReadDto> DagSkabeloner { get; set; } = new List<DagSkabelonReadDto>();
 
 
     protected override async Task OnInitializedAsync()
     {
-        DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync("test-token");
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _token = AuthStateProvider.CurrentUser.Token;
+        DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync(_token);
     }
 }

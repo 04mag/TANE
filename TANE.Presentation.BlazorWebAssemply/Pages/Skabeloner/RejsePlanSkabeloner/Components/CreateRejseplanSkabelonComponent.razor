@@ -1,4 +1,5 @@
 ﻿@using System.Collections.ObjectModel
+@using TANE.Application.Dtos.Skabeloner
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
@@ -55,7 +56,7 @@
 @code{
 
     [Parameter, EditorRequired]
-    public List<TurSkabelon> InjectedTurSkabeloner { get; set; } = new List<TurSkabelon>();
+    public List<TurSkabelonReadDto> InjectedTurSkabeloner { get; set; } = new List<TurSkabelonReadDto>();
 
     bool showAddTurSkabelon = false;
 
@@ -75,9 +76,9 @@
 
     public RejsePlanSkabelon RejseplanSkabelon { get; set; } = new RejsePlanSkabelon();
 
-    private List<TurSkabelon> TurSkabelonerVar = new List<TurSkabelon>();
+    private List<TurSkabelonReadDto> TurSkabelonerVar = new List<TurSkabelonReadDto>();
 
-    public List<TurSkabelon> TurSkabeloner
+    public List<TurSkabelonReadDto> TurSkabeloner
     {
         get
         {

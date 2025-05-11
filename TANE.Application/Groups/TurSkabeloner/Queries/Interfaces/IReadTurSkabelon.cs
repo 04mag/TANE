@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TANE.Domain.Entities;
+using TANE.Application.Dtos.Skabeloner;
 
 namespace TANE.Application.Groups.TurSkabeloner.Queries.Interfaces
 {
     public interface IReadTurSkabelon
     {
-        Task<TurSkabelon> ReadTurSkabelonByIdAsync(int id, string jwtToken);
-        Task<List<TurSkabelon>> ReadAllTurSkabelonerAsync(string jwtToken);
+        Task<TurSkabelonReadDto> ReadTurSkabelonByIdAsync(int id, string jwtToken);
+        Task<List<TurSkabelonReadDto>> ReadAllTurSkabelonerAsync(string jwtToken);
     }
 }

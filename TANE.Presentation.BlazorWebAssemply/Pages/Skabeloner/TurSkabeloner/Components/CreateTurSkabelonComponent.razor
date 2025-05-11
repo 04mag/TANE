@@ -1,20 +1,26 @@
 ﻿@using System.Collections.ObjectModel
+@using TANE.Application.Dtos.Skabeloner
+@using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
+@using TANE.Persistence.Repositories
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.DagSkabeloner.Components
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
+@inject ITurSkabelonRepository TurSkabelonRepository
+@inject CustomStateProvider AuthStateProvider
+@inject IDagSkabelonRepository DagSkabelonRepository
 
 <div class="rz-p-0 rz-p-md-12">
     
     @if (showAddDagSkabelon)
     {
-        <DagSkabelonListComponent InjectedSkabeloner="DagSkabeloner" OnSelectSkabelon="OnDagSkabelonRowSelect"/>
+        <DagSkabelonListComponent InjectedSkabeloner="DagSkabeloner"  OnSelectSkabelon="OnDagSkabelonRowSelect"/>
     }
 
     @if (!showAddDagSkabelon)
     {
         <h4>Opret Ny Tur Skabelon</h4>
-        <RadzenTemplateForm TItem="TurSkabelon" Data=@TurSkabelon Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+        <RadzenTemplateForm TItem="TurSkabelonCreateDto" Data=@TurSkabelon Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
             <RadzenStack Gap="1rem" class="rz-p-sm-12">
 
                 <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
@@ -54,15 +60,15 @@
 </div>
 
 @code{
-
+    string _token;
     [Parameter, EditorRequired]
-    public List<DagSkabelon> InjectedDagSkabeloner { get; set; } = new List<DagSkabelon>();
+    public List<DagSkabelonReadDto> InjectedDagSkabeloner { get; set; } = new List<DagSkabelonReadDto>();
 
     bool showAddDagSkabelon = false;
 
-    private ObservableCollection<DagSkabelon> SelectedDagSkabelonerVar = new ObservableCollection<DagSkabelon>();
+    private ObservableCollection<DagSkabelonReadDto> SelectedDagSkabelonerVar = new ObservableCollection<DagSkabelonReadDto>();
 
-    public ObservableCollection<DagSkabelon> ObservableDagSkabeloner
+    public ObservableCollection<DagSkabelonReadDto> ObservableDagSkabeloner
     {
         get
         {
@@ -74,38 +80,23 @@
         }
     }
 
-    public TurSkabelon TurSkabelon { get; set; } = new TurSkabelon();
+    public TurSkabelonCreateDto TurSkabelon { get; set; } = new TurSkabelonCreateDto();
 
-    private List<DagSkabelon> DagSkabelonerVar = new List<DagSkabelon>();
+    private List<DagSkabelonReadDto> DagSkabelonerVar = new List<DagSkabelonReadDto>();
 
-    public List<DagSkabelon> DagSkabeloner
+    public List<DagSkabelonReadDto> DagSkabeloner { get; set; }
+
+    protected override async void OnInitialized()
     {
-        get
-        {
-            // Return DagSkabelonerVar excluding entities already in ObservableDagSkabeloner
-            return DagSkabelonerVar.Where(d => !ObservableDagSkabeloner.Any(o => o.Id == d.Id)).ToList();
-        }
-        set
-        {
-            DagSkabelonerVar = value;
-        }
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _token = AuthStateProvider.CurrentUser.Token;
+        var alledage = await DagSkabelonRepository.ReadAllDagSkabeloneAsync(_token);
+        DagSkabeloner = alledage.ToList();
     }
 
-    protected override void OnInitialized()
+    void OnSubmit()
     {
-        DagSkabeloner = InjectedDagSkabeloner;
-    }
-
-    void OnSubmit(TurSkabelon model)
-    {
-        TurSkabelon.DagSkabeloner = ObservableDagSkabeloner.ToList();
-
-        Console.WriteLine($"Titel: {TurSkabelon.Titel}\nBeskrivelse: {TurSkabelon.Beskrivelse}");
-
-        foreach (var dagSkabelon in TurSkabelon.DagSkabeloner)
-        {
-            Console.WriteLine($"Dag: {dagSkabelon.Titel}");
-        }
+        TurSkabelonRepository.CreateTurSkabelon(TurSkabelon, _token);
     }
 
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
@@ -113,14 +104,14 @@
 
     }
 
-    private void OnDagSkabelonRowSelect(DagSkabelon dagSkabelon)
+    private void OnDagSkabelonRowSelect(DagSkabelonReadDto dagSkabelon)
     {
         ObservableDagSkabeloner.Add(dagSkabelon);
 
         showAddDagSkabelon = !showAddDagSkabelon;
     }
 
-    private void OnDagSkabelonDelete(DagSkabelon dagSkabelon)
+    private void OnDagSkabelonDelete(DagSkabelonReadDto dagSkabelon)
     {
         ObservableDagSkabeloner.Remove(dagSkabelon);
     }
