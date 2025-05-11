@@ -46,18 +46,7 @@
                     <RadzenTextBox Name="Overnatning" @bind-Value=@Skabelon.Overnatning />
                 </ChildContent>
             </RadzenFormField>
-
-            <RadzenFormField Text="Pris (Dkk)" Variant="@ThemeConfig.FormVariant">
-                <ChildContent>
-                    <RadzenNumeric Name="Pris" @bind-Value="@Skabelon.Pris" />
-                </ChildContent>
-                <Helper>
-                    <RadzenRequiredValidator Component="Pris" Text="Pris skal udfyldes." />
-                    <RadzenNumericRangeValidator Component="Pris" Min="0" Text="Pris må ikke være mindre end 0." />
-                </Helper>
-            </RadzenFormField>
-
-
+            
             <RadzenButton ButtonType="ButtonType.Submit" Text="Opret" ></RadzenButton>
         </RadzenStack>
     </RadzenTemplateForm>
@@ -70,7 +59,7 @@
 
     void OnSubmit(DagSkabelon model)
     {
-        Console.WriteLine($"Titel: {Skabelon.Titel}\nBeskrivelse: {Skabelon.Beskrivelse}\nAktiviteter: {Skabelon.Aktiviteter}\nMåltider: {Skabelon.Måltider}\nOvernatning: {Skabelon.Overnatning}\nPris: {Skabelon.Pris}");
+        Console.WriteLine($"Titel: {Skabelon.Titel}\nBeskrivelse: {Skabelon.Beskrivelse}\nAktiviteter: {Skabelon.Aktiviteter}\nMåltider: {Skabelon.Måltider}\nOvernatning: {Skabelon.Overnatning}");
     }
 
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args)

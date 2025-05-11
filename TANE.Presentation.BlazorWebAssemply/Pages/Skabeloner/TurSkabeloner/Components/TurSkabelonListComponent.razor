@@ -1,6 +1,8 @@
 ﻿@using TANE.Application.Groups.TurSkabeloner.Queries.Interfaces
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
+@using TANE.Application.Dtos
 @inject ITurSkabelonRepository TurSkabelonRepository
 @inject CustomStateProvider AuthStateProvider
 
@@ -31,7 +33,19 @@
     </Columns>
 </RadzenDataGrid>
 
+@if (showNewTur)
+{
+    <CreateTurComponent OnCreateTur="HandleSubmitNewTur" />
+})
+
+@*Knap til tilføjelse af ny tur*@
+<RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium" Style="width:150px" Text="Tilføj Tur"
+              Click="@(() => showNewTur = !showNewTur)" />
+
 @code {
+    [Parameter] public EventCallback<TurCreateDto> OnCreateTur { get; set; }
+
+    private bool showNewTur = false;
 
     private string _token;
 
@@ -112,5 +126,11 @@
 
         Skabeloner = InjectedSkabeloner;
     }
+
+    async Task HandleSubmitNewTur(TurCreateDto tur)
+	{
+		showNewTur = false;
+        await OnCreateTur.InvokeAsync(tur);
+	}
 
 }

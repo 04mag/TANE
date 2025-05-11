@@ -132,7 +132,7 @@
 
             @if (showAddTur)
             {
-                <TurSkabelonListComponent OnSelect="OnTurRowSelect" />
+                <TurSkabelonListComponent OnSelect="OnTurRowSelect" OnCreateTur="HandleCreateTur"/>
             }
 
             <br />
@@ -277,6 +277,20 @@
         customerSearchTerm = $"{c.Fornavn} {c.Efternavn}";
     // ryd dropdown
     }
+
+    private void HandleCreateTur(TurCreateDto tur)
+	{
+		Rejseplan.Ture.Add(tur);
+		Observableture.Add(new TurReadDto
+		{
+		    Titel = tur.Titel,
+			Beskrivelse = tur.Beskrivelse,
+			TurStartTidspunkt = DateTime.Today,
+			TurSlutTidspunkt = DateTime.Today.AddDays(7),
+			Sekvens = Rejseplan.Ture.Count
+		});
+		showAddTur = false;
+	}
 
 
 }
