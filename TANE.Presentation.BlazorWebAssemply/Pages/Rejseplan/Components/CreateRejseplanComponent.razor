@@ -153,7 +153,7 @@
 
     [Parameter, EditorRequired]
     public List<TurReadDto> InjectedTure { get; set; } = new List<TurReadDto>();
-
+    
     string selectedCustomerEmail;  // Variable to hold selected customer email
     private string? _token;
     bool showAddTur = false;
@@ -173,20 +173,8 @@
     }
 
     public RejseplanCreateDto Rejseplan { get; set; } = new RejseplanCreateDto();
-    private List<TurReadDto> TurVar = new List<TurReadDto>();
 
-    public List<TurReadDto> Ture
-    {
-        get
-        {
-            // return TurVar excluding entities already in ObservableTur
-            return TurVar.Where(d => !Observableture.Any(o => o.Id == d.Id)).ToList();
-        }
-        set
-        {
-            TurVar = value;
-        }
-    }
+    public List<TurReadDto> Ture { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -202,6 +190,7 @@
         Rejseplan = new RejseplanCreateDto();
         Rejseplan.Ture = new List<TurCreateDto>();
         showAddTur = false;
+
     }
 
     async Task OnSubmit()
@@ -229,7 +218,7 @@
             Pris = 0,
             TurStartTidspunkt = DateTime.Today,
             TurSlutTidspunkt = DateTime.Today.AddDays(7),
-            Sekvens = +1,
+            Sekvens = Rejseplan.Ture.Count
         };
         Rejseplan.Ture.Add(tur);
         Observableture.Add(new TurReadDto
@@ -239,7 +228,7 @@
             Beskrivelse = turSkabelon.Beskrivelse,
             TurStartTidspunkt = DateTime.Today,
             TurSlutTidspunkt = DateTime.Today.AddDays(7),
-            Sekvens = +1,
+                Sekvens = Rejseplan.Ture.Count 
         });
         showAddTur = false;
     }
@@ -253,9 +242,6 @@
 
     async Task LoadCustomers(LoadDataArgs args)
     {
-    // Antag du har et repo-metode der tager filter-tekst og returnerer Task<IEnumerable<KundeDto>>
-     //   Kunder = await KundeRepository.SearchCustomersAsync(args.Filter);
-
         string filterText = args.Filter?.ToString().ToLower() ?? string.Empty;
         var filteredCustomers = Kunder.Where(k => k.Email.ToLower().Contains(filterText)).ToList();
         await Task.CompletedTask;
@@ -263,16 +249,13 @@
 
     async Task OpenNyKundeDialog()
     {
-    // Her åbner du fx en RadzenDialog eller navigerer til kundeoprettelse
-      var result = await DialogService.OpenAsync<CreateKundeComponent>("Opret Kunde", new Dictionary<string, object>());
-
-
+        var result = await DialogService.OpenAsync<CreateKundeComponent>("Opret Kunde", new Dictionary<string, object>());
+        
         if (result is Kunde nyKunde)
         {
-            // nu har du dit oprettede kunde-objekt i 'nyKunde'
             CustomerState.Kunde = nyKunde;
             Kunder.Add(nyKunde);
-            selectedCustomerEmail = nyKunde.Email; // opdaterer den valgte kunde
+            selectedCustomerEmail = nyKunde.Email; 
         }
     }
 

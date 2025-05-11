@@ -129,7 +129,7 @@
       </RadzenFormField> *@
 
       <h4>Vælg ture:</h4>
-            <TurReorderListComponent @ref="ReorderList" InjectedTure="RejseplanTure" OnDelete="OnTurDelete" OnReorder="HandleTurReorder" />
+            <TurReorderListComponent InjectedTure="RejseplanTure" OnDelete="OnTurDelete" OnReorder="HandleTurReorder" />
       <div style="text-align: right; width: 100%;">
         <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium"
                       Style="width:150px" Text="Tilføj Tur"
@@ -137,7 +137,7 @@
       </div>
       @if (showAddTur)
       {
-                <TurSkabelonListComponent OnSelect="OnTurRowSelect" />
+                <TurSkabelonListComponent OnSelect="OnTurRowSelect"/>
       }
 
       <div class="flex gap-2 mt-4">
@@ -156,7 +156,6 @@
 </div>
 
 @code {
-    public TurReorderListComponent ReorderList;
     [Parameter, EditorRequired]
     public RejseplanReadDto Item { get; set; } = default!;
 
@@ -173,7 +172,7 @@
     private RejseplanUpdateDto EditModel = new();
     private string _token = string.Empty;
 
-    List<TurReadDto> RejseplanTure { get; set; } = new List<TurReadDto>();
+    ObservableCollection<TurReadDto> RejseplanTure { get; set; } = new ObservableCollection<TurReadDto>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -187,8 +186,10 @@
         TurVar = (await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token))
             .ToList();
 
-        RejseplanTure = obs.ToList();
-    
+
+        var ture = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
+        RejseplanTure = new ObservableCollection<TurReadDto>(ture.OrderBy(t => t.Sekvens));
+        
 
     }
 
@@ -280,9 +281,21 @@
     }
 
     private void OnTurDelete(TurReadDto tur)
-    => Observableture.Remove(tur);
+    {
+        try
+        {
+            RejseplanRepository.RemoveTurFromRejseplanAsync(Item.Id, tur.Id, _token);
+        }
+        catch (Exception ex)
+        {
+            DialogService.Alert($"Fejl: {ex.Message}");
+            return;
+        }
 
-  private async Task OpenNyKundeDialog()
+        RejseplanTure.Remove(tur);
+    }
+
+    private async Task OpenNyKundeDialog()
   {
     var result = await DialogService.OpenAsync<CreateKundeComponent>("Opret Kunde", new Dictionary<string, object>());
     if (result is Kunde nyKunde)
@@ -299,6 +312,9 @@
       try
       {
           await RejseplanRepository.ReorderTureAsync(Item.Id, dto, _token);
+         
+          StateHasChanged();
+
       }
       catch (Exception ex)
       {
@@ -306,11 +322,9 @@
           return;
       }
 
-    // 2) Opdater din List
-      // RejseplanTure = newOrder.ToList();
-        ReorderList.InjectedTure = newOrder.ToList();
-
-        StateHasChanged();
+        var ture = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
+        RejseplanTure = new ObservableCollection<TurReadDto>(ture.OrderBy(t => t.Sekvens));
   }
+   
 
 }

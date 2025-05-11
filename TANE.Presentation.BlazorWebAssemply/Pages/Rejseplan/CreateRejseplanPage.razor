@@ -6,7 +6,7 @@
 
 @page "/rejseplan/create"
 
-<CreateRejseplanComponent InjectedTure="Ture"/>
+<CreateRejseplanComponent/>
 
 @code {
     private string? _token;
@@ -17,10 +17,7 @@
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-    
-        // Nu kan du hente CurrentUser direkte:
         _token = AuthStateProvider.CurrentUser.Token;
 
-        Ture = await ReadTure.ReadAllTureAsync(_token);
     }
 }

@@ -11,7 +11,7 @@
     }
 </style>
 
-<RadzenDataGrid @ref="grid" AllowFiltering="false" AllowColumnResize="false" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="false" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+<RadzenDataGrid @ref="grid" AllowFiltering="false" AllowColumnResize="false" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true"  PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
                 Data="@InjectedTure" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single"
                 @bind-Value=@selectedTure RowRender="@RowRender">
     <Columns>
@@ -98,32 +98,28 @@
             {
                 if (draggedItem == null) return;
 
-                var from = InjectedTure.IndexOf(draggedItem);
-                var to   = InjectedTure.IndexOf(args.Data);
+                var draggedIndex = InjectedTure.IndexOf(draggedItem);
+                var droppedIndex = InjectedTure.IndexOf(args.Data);
 
-    // Hvis vi dropper på samme række: stop her
-                if (from == to) return;
+                if (draggedIndex != droppedIndex)
+                {
+                    InjectedTure.Remove(draggedItem);
+                    InjectedTure.Insert(draggedIndex <= droppedIndex ? droppedIndex++ : droppedIndex, draggedItem);
+                }
 
-    // Fjern fra gammel position
-                InjectedTure.RemoveAt(from);
-
-    // Hvis vi fjernede et sted før 'to', så rykkes 'to' et hak tilbage
-                if (to > from) to--;
-
-    // Indsæt på ny position
-                InjectedTure.Insert(to, draggedItem);
-    // Fjern highlight (brug helst en named JS-funktion i stedet for eval)
                 await JSRuntime.InvokeVoidAsync(
                     "eval",
                     "document.querySelector('.my-class').classList.remove('my-class')"
                     );
-
-                await grid.Reload();
+                StateHasChanged();
                 if (OnReorder.HasDelegate)
                 {
                     await OnReorder.InvokeAsync(InjectedTure);
                 }
+                for (int i = 0; i < InjectedTure.Count; i++)
+                    InjectedTure[i].Sekvens = i + 1;
 
+                InjectedTure = InjectedTure.OrderBy(t => t.Sekvens).ToList();
             }));
     }
 }

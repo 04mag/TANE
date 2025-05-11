@@ -129,13 +129,13 @@ namespace TANE.Persistence.Repositories
             }
         }
 
-        public async Task RemoveTurFromRejseplanAsync(TurAssignDto dto, string jwtToken)
+        public async Task RemoveTurFromRejseplanAsync( int rejseplanId, int turId, string jwtToken)
         {
             var client = _factory.CreateClient("rejseplan");
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", jwtToken);
 
-            var response = await client.DeleteAsync($"rejseplan/{dto.RejseplanId}/tur/{dto.TurId}");
+            var response = await client.DeleteAsync($"rejseplan/{rejseplanId}/tur/{turId}");
 
             // Returner true hvis status er 2xx
             if (!response.IsSuccessStatusCode)
