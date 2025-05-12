@@ -1,5 +1,6 @@
 ﻿@using TANE.Application.Dtos
 @using System.Collections.ObjectModel
+@using TANE.Application.Dtos.Skabeloner
 @using TANE.Application.Groups.Kunder.Queries.Interfaces
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
@@ -8,15 +9,11 @@
 @using TANE.Presentation.BlazorWebAssemply.Pages.Dag.Components
 @using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.DagSkabeloner.Components
-
-
 @inject CustomStateProvider AuthStateProvider
 @inject IDagRepository DagRepository
 @inject IReadKunde ReadKunde
 @inject DialogService DialogService
 @inject CustomerState CustomerState
-
-
 
 
 <div class="rz-p-0 rz-p-md-12">
@@ -77,7 +74,7 @@
 
             @if (showAddDag)
             {
-                <DagSkabelonListComponent OnSelect="OnDagRowSelect" />
+                <RadzenButton Text="Opret Dag" ButtonType="ButtonType.Button" Click="OpenCreateDagDialog" />
             }
 
             <br />
@@ -153,14 +150,14 @@
 
     }
 
-    private async Task OnDagRowSelect(DagSkabelon dagSkabelon)
+    private async Task OnDagRowSelect(DagSkabelonCreateDto dagSkabelon)
     {
         var dag = new DagCreateDto
         {
 
             Titel = dagSkabelon.Titel,
             Beskrivelse = dagSkabelon.Beskrivelse,
-           Aktiviteter = dagSkabelon.Aktiviteter,
+            Aktiviteter = dagSkabelon.Aktiviteter,
             Måltider = dagSkabelon.Måltider,
             Overnatning = dagSkabelon.Overnatning,
             Sekvens = Tur.Dage.Count,
@@ -184,5 +181,32 @@
     {
         Observabledage.Remove(Dag);
     }
+
+    private async Task HandleAddDag(DagCreateDto dag)
+    {
+        Tur.Dage.Add(dag);
+        Observabledage.Add(new DagReadDto
+        {
+            Titel = dag.Titel,
+            Beskrivelse = dag.Beskrivelse,
+            Aktiviteter = dag.Aktiviteter,
+            Måltider = dag.Måltider,
+            Overnatning = dag.Overnatning,
+        });
+        showAddDag = false;
+    }
+
+    private async Task OpenCreateDagDialog()
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "OnAdd", EventCallback.Factory.Create<DagCreateDto>(this, HandleAddDag) }
+        };
+
+    // Åbner CreateDagComponent i en dialog
+        var result = await DialogService.OpenAsync<CreateDagComponent>("Opret Ny Dag", parameters);
+    }
+  
+
 }
 
