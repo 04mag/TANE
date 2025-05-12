@@ -46,6 +46,27 @@
             }
         </AuthorizeView>
         
+        <AuthorizeView>
+            @if (AuthStateProvider.CurrentUser.Roles.Contains("Admin"))
+            {
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/users/update/">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Update user
+                    </NavLink>
+                </div>
+            }
+        </AuthorizeView>
+
+        <AuthorizeView>
+            @if (AuthStateProvider.CurrentUser.Roles.Contains("Admin"))
+            {
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/users/create">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Create user
+                    </NavLink>
+                </div>
+            }
+        </AuthorizeView>
 
     </nav>
 </div>
