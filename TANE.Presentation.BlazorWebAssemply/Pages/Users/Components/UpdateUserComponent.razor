@@ -1,4 +1,6 @@
-﻿@using TANE.Domain.Entities
+﻿@using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Application.Common.Exceptions;
+@using TANE.Domain.Entities
 @using TANE.Application.Groups.Users.Interfaces
 @using TANE.Application.Common.Exceptions
 @using Radzen
@@ -6,6 +8,7 @@
 @using TANE.Persistence.Repositories
 @using TANE.Presentation.BlazorWebAssemply.Services
 @using TANE.Application.RepositoryInterfaces
+@inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject NotificationService NotificationService
 @inject CustomStateProvider AuthStateProvider
@@ -17,6 +20,16 @@
 
 <RadzenTemplateForm TItem="PasswordModel" Data="@Pwd" Submit="@OnSubmit" InvalidSubmit="@OnInvalidSubmit">
     <RadzenStack Gap="1rem" Style="max-width:400px">
+
+        <RadzenFormField Text="E-mail (bruger)" Variant="@ThemeConfig.FormVariant">
+            <ChildContent>
+                <RadzenTextBox Name="Email" @bind-Value="Pwd.Email" Style="width:100%" />
+            </ChildContent>
+            <Helper>
+                <RadzenRequiredValidator Component="Email" Text="E-mail kræves." />
+                <RadzenEmailValidator Component="Email" Text="Indtast en gyldig e-mail." />
+            </Helper>
+        </RadzenFormField>
 
         <RadzenFormField Text="Nyt password">
             <ChildContent>
@@ -53,6 +66,7 @@
 
     class PasswordModel
     {
+        public string Email { get; set; } = "";
         public string NewPassword { get; set; } = "";
         public string ConfirmNewPassword { get; set; } = "";
     }
@@ -90,19 +104,22 @@
     {
         try
         {
-            // Kald dit UpdateUserPassword-interface
+            // Forny token hvis nødvendigt
+            await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+
+            // Kald det nye IUpdateUser-interface
             await JwtTokenRepository.UpdateUserAsync(
-                AuthStateProvider.CurrentUser.Email,
-                model.NewPassword,
-                AuthStateProvider.CurrentUser.Token
+              model.Email,
+              model.NewPassword,
+              AuthStateProvider.CurrentUser.Token
             );
 
-            // Success-notifikation
+            // Success
             NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Success,
                     Summary = "Password opdateret",
-                    Detail = $"Password for {email} er skiftet.",
+                    Detail = $"Password for {model.Email} er skiftet.",
                     Duration = 4000
                 });
 

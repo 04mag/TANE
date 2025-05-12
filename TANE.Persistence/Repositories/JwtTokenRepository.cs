@@ -53,7 +53,7 @@ namespace TANE.Persistence.Repositories
             {
                 httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
 
-                var result = await httpClient.PostAsJsonAsync("api/Account/reset-password", new { Email, newPassword });
+                var result = await httpClient.PostAsJsonAsync("api/Admin/reset-password", new { Email, newPassword });
 
                 if (result.IsSuccessStatusCode)
                 {
