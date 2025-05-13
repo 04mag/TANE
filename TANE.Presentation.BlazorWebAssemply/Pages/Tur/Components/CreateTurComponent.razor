@@ -62,15 +62,22 @@
             </RadzenFormField>
 
             <br />
+            @if (Observabledage.Count < 1)
+            {
+                <h4>Ingen dage at vise</h4>
+            }
+            @if (Observabledage.Count > 0)
+            { 
+                
+                <h4>Dage:</h4>
+                <DagReorderListComponent InjectedDage="Observabledage" OnDelete="OnDagDelete"/>
+                <div style="text-align: right; width: 100%;">
 
-            <h4>Vælg dage:</h4>
-            <DagReorderListComponent InjectedDage="Observabledage" OnDelete="OnDagDelete" />
-            <div style="text-align: right; width: 100%;">
-                <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium"
-                              Style="width:150px" Text="Tilføj Dag"
-                              Click="@(() => showAddDag = !showAddDag)"/>
-
-            </div>
+                </div>
+            }
+                    <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium"
+                                  Style="width: 150px" Text="Tilføj Dag"
+                                  Click="@(() => showAddDag = !showAddDag)"/>
 
             @if (showAddDag)
             {
@@ -79,7 +86,7 @@
 
             <br />
 
-            <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Text="Opret Tur" Style="width:200px" />
+            <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Text="@ButtonText" Style="width:200px" />
         </RadzenStack>
     </RadzenTemplateForm>
 </div>
@@ -89,9 +96,22 @@
     [Inject] 
     private ITurRepository _TurRepository { get; set; } = default!;
 
-    [Parameter] public EventCallback<TurCreateDto> OnCreateTur { get; set; }
+    [Parameter]
+    public EventCallback<TurCreateDto> OnAdd { get; set; }
+    [Parameter]
+    public EventCallback<TurReadDto> OnEdit { get; set; }
 
-    [Parameter, EditorRequired]
+    [Parameter]
+    public EventCallback<TurCreateDto> OnEditTur { get; set; }
+
+    [Parameter] 
+    public TurReadDto? ExistingTur { get; set; }
+
+
+    [Parameter]
+    public EventCallback<TurCreateDto> OnCreateTur { get; set; }
+
+    [Parameter]
     public List<DagReadDto> InjectedDage { get; set; } = new List<DagReadDto>();
     
     string selectedCustomerEmail;  // Variable to hold selected customer email
@@ -115,34 +135,57 @@
     public TurCreateDto Tur { get; set; } = new TurCreateDto();
 
     public List<DagReadDto> Dage { get; set; }
+    private string ButtonText => ExistingTur == null ? "Opret Tur" : "Opdater Tur";
 
     protected override async Task OnInitializedAsync()
     {
+        if (ExistingTur != null)
+        {
+
+            Tur.Titel = ExistingTur.Titel;
+            Tur.Beskrivelse = ExistingTur.Beskrivelse;
+            Tur.TurStartTidspunkt = ExistingTur.TurStartTidspunkt;
+            Tur.TurSlutTidspunkt = ExistingTur.TurSlutTidspunkt;
+            Tur.Sekvens = ExistingTur.Sekvens;
+            Tur.Pris = ExistingTur.Pris;
+            Tur.Dage =  ExistingTur.Dage?.Select(d => new DagCreateDto
+            {
+                Titel = d.Titel,
+                Beskrivelse = d.Beskrivelse,
+                Aktiviteter = d.Aktiviteter,
+                Måltider = d.Måltider,
+                Overnatning = d.Overnatning,
+                Sekvens = d.Sekvens
+            }).ToList();
+
+   
+            StateHasChanged();
+        }
+        else
+        {
+            Tur = new TurCreateDto();
+            Tur.Dage = new List<DagCreateDto>();
+        }
+    
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         _token = AuthStateProvider.CurrentUser.Token;
 
-    // Faktisk hentning af alle dage:
-        var alledage = await DagRepository.ReadAllDageAsync(_token);
-        Dage = alledage;   // udfylder din property, så Injecteddage ikke længere er nødvendig
-
-
-        Tur = new TurCreateDto();
-        Tur.Dage = new List<DagCreateDto>();
         showAddDag = false;
 
     }
 
     async Task OnSubmit()
     {
-        
-        Console.WriteLine($"Titel: {Tur.Titel}\nBeskrivelse: {Tur.Beskrivelse}");
+        if (ExistingTur != null)
+        {
+            await OnEditTur.InvokeAsync(Tur);
+        }
 
-        _TurRepository.CreateTur(Tur, _token);
-     //   CustomerState.Kunde = null;
-
-        // Hent turen fra databasen
-
-        await OnCreateTur.InvokeAsync(Tur);
+        else
+        {
+            await OnCreateTur.InvokeAsync(Tur);
+        }
+        DialogService.Close();
     }
 
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args)

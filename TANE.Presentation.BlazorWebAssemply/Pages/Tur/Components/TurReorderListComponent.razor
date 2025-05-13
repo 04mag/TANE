@@ -3,6 +3,7 @@
 @using TANE.Application.Dtos
 @using TANE.Domain.Entities
 @inject IJSRuntime JSRuntime;
+@inject DialogService DialogService
 
 <style>
     .my-class td {
@@ -49,6 +50,9 @@
     public EventCallback<TurReadDto> OnEdit { get; set; }
 
     [Parameter]
+    public EventCallback<TurCreateDto> OnEditCreateDto { get; set; }
+
+    [Parameter]
     public EventCallback<TurReadDto> OnDelete { get; set; }
 
 
@@ -74,7 +78,69 @@
 
     async Task EditRow(TurReadDto tur)
     {
-        await OnEdit.InvokeAsync(tur);
+        var createDto = new TurCreateDto
+        {
+            
+            Titel = tur.Titel,
+            Beskrivelse = tur.Beskrivelse,
+            Sekvens = tur.Sekvens,
+            TurStartTidspunkt = tur.TurStartTidspunkt,
+            TurSlutTidspunkt = tur.TurSlutTidspunkt,
+            Pris = tur.Pris,
+            Dage = tur.Dage?.Select(d => new DagCreateDto
+            {
+                Titel = d.Titel,
+                Beskrivelse = d.Beskrivelse,
+                Sekvens = d.Sekvens,
+                Måltider = d.Måltider,
+                Overnatning = d.Overnatning,
+                Aktiviteter = d.Aktiviteter,
+            }).ToList()
+        };
+
+        await OnEditCreateDto.InvokeAsync(createDto);
+        var parameters = new Dictionary<string, object>
+        {
+            { "ExistingTur", tur },
+            { "OnEditTur", EventCallback.Factory.Create<TurCreateDto>(this, HandleEdit) },
+        };
+
+    // Åbner CreateDagComponent i en dialog
+        var result = await DialogService.OpenAsync<CreateTurComponent>("Rediger Tur", parameters);
+    
+    }
+
+   async void HandleEdit(TurCreateDto tur)
+    {
+        var readDto = new TurReadDto
+        {
+            Titel = tur.Titel,
+            Beskrivelse = tur.Beskrivelse,
+            Sekvens = tur.Sekvens,
+            TurStartTidspunkt = tur.TurStartTidspunkt,
+            TurSlutTidspunkt = tur.TurSlutTidspunkt,
+            Pris = tur.Pris,
+            Dage = tur.Dage?.Select(d => new DagReadDto
+            {
+                Titel = d.Titel,
+                Beskrivelse = d.Beskrivelse,
+                Sekvens = d.Sekvens,
+                Måltider = d.Måltider,
+                Overnatning = d.Overnatning,
+                Aktiviteter = d.Aktiviteter,
+            }).ToList()
+        };
+       var turIndex = InjectedTure.IndexOf(InjectedTure.FirstOrDefault(t => t.Sekvens == tur.Sekvens));
+        if (turIndex != -1)
+        {
+            InjectedTure[turIndex] = readDto;
+            await OnEdit.InvokeAsync(readDto);
+        }
+        else
+        {
+            InjectedTure.Add(readDto);
+        }
+        StateHasChanged();
     }
 
     async Task DeleteRow(TurReadDto tur)

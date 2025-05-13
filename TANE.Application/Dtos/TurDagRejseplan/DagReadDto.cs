@@ -9,7 +9,7 @@
         public string Aktiviteter { get; set; }
         public string Måltider { get; set; } 
         public string Overnatning { get; set; }
-        public int Sekvens { get; set; }
+        public int? Sekvens { get; set; }
         public byte[] RowVersion { get; set; }
     }
 }

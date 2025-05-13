@@ -118,22 +118,45 @@
             </RadzenFormField>
 
             <br />
+            
+            @if(Observableture.Count > 0)
+            {
+                <h4>Vælg ture:</h4>
+                <TurReorderListComponent InjectedTure="Observableture" OnDelete="OnTurDelete" OnEdit="HandleEditTur" />
+                <div style="text-align: right; width: 100%;">
 
-            <h4>Vælg ture:</h4>
-            <TurReorderListComponent InjectedTure="Observableture" OnDelete="OnTurDelete" />
-            <div style="text-align: right; width: 100%;">
-                <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium"
-                              Style="width:150px" Text="Tilføj Tur"
-                              Click="@(() => showAddTur = !showAddTur)" 
-                              
-                
-                />
+                </div>
 
+            }
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:1rem;">
+                <!-- Venstre knap -->
+                <RadzenButton 
+                    ButtonType="ButtonType.Button" 
+                    Size="ButtonSize.Medium"
+                    Style="width:150px" 
+                    Text="Vælg tur-skabelon"
+                    Click="@(() => showAddTur = !showAddTur)" />
+
+                <!-- Højre knap -->
+                <RadzenButton 
+                    ButtonType="ButtonType.Button"
+                    Size="ButtonSize.Medium"
+                    Text="Ny tur"
+                    Style="background-color:greenyellow;"
+                    Click="OpenCreateTurDialog" />
             </div>
 
+          
             @if (showAddTur)
             {
-                <TurSkabelonListComponent OnSelect="OnTurRowSelect" OnCreateTur="HandleCreateTur"/>
+                <div style="border:1px solid #ccc;
+                            padding:1rem;
+                            border-radius:6px;
+                            box-shadow:0 2px 4px rgba(0,0,0,0.1);
+                            margin-bottom:1rem;">
+                    <TurSkabelonListComponent OnSelect="OnTurRowSelect" 
+                        OnCreateTur="HandleCreateTur"/>
+                </div>
             }
 
             <br />
@@ -154,7 +177,7 @@
 
     [Parameter, EditorRequired]
     public List<TurReadDto> InjectedTure { get; set; } = new List<TurReadDto>();
-    
+
     string selectedCustomerEmail;  // Variable to hold selected customer email
     private string? _token;
     bool showAddTur = false;
@@ -175,16 +198,12 @@
 
     public RejseplanCreateDto Rejseplan { get; set; } = new RejseplanCreateDto();
 
-    public List<TurReadDto> Ture { get; set; }
+    
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         _token = AuthStateProvider.CurrentUser.Token;
-
-    // Faktisk hentning af alle ture:
-        var alleture = await TurRepository.ReadAllTure(_token);
-        Ture = alleture;   // udfylder din property, så Injectedture ikke længere er nødvendig
 
         Kunder = await ReadKunde.GetAllKunderAsync(_token);
 
@@ -196,7 +215,7 @@
 
     async Task OnSubmit()
     {
-        
+
         Console.WriteLine($"Titel: {Rejseplan.Titel}\nBeskrivelse: {Rejseplan.Beskrivelse}");
         Rejseplan.RejseplanStatus = 0;
 
@@ -229,9 +248,10 @@
             Beskrivelse = turSkabelon.Beskrivelse,
             TurStartTidspunkt = DateTime.Today,
             TurSlutTidspunkt = DateTime.Today.AddDays(7),
-                Sekvens = Rejseplan.Ture.Count 
+                Sekvens = Observableture.Count 
         });
         showAddTur = false;
+        StateHasChanged();
     }
 
 
@@ -239,7 +259,7 @@
     {
         Observableture.Remove(Tur);
     }
-  
+
 
     async Task LoadCustomers(LoadDataArgs args)
     {
@@ -251,7 +271,7 @@
     async Task OpenNyKundeDialog()
     {
         var result = await DialogService.OpenAsync<CreateKundeComponent>("Opret Kunde", new Dictionary<string, object>());
-        
+
         if (result is Kunde nyKunde)
         {
             CustomerState.Kunde = nyKunde;
@@ -276,23 +296,80 @@
         selectedCustomer = c;
         Rejseplan.KundeId = c.Id;
         customerSearchTerm = $"{c.Fornavn} {c.Efternavn}";
-    // ryd dropdown
+        // ryd dropdown
     }
 
     private void HandleCreateTur(TurCreateDto tur)
-	{
-		Rejseplan.Ture.Add(tur);
-		Observableture.Add(new TurReadDto
+    {
+        tur.Sekvens = Rejseplan.Ture.Count + 1;
+        Rejseplan.Ture.Add(tur);
+        Observableture.Add(new TurReadDto
 		{
 		    Titel = tur.Titel,
 			Beskrivelse = tur.Beskrivelse,
 			TurStartTidspunkt = DateTime.Today,
 			TurSlutTidspunkt = DateTime.Today.AddDays(7),
-			Sekvens = Rejseplan.Ture.Count
+			Sekvens = Observableture.Count +1
 		});
-		showAddTur = false;
-	}
+        showAddTur = false;
+    }
 
+    private async Task OpenCreateTurDialog()
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "OnCreateTur", EventCallback.Factory.Create<TurCreateDto>(this, HandleCreateTur) }
+            
+        };
+
+        // Åbner CreateDagComponent i en dialog
+        var result = await DialogService.OpenAsync<CreateTurComponent>("Opret Ny Tur", parameters);
+    }
+
+    private async Task HandleEditTur(TurReadDto tur)
+    {
+       var edit = Rejseplan.Ture.FirstOrDefault(t => t.Sekvens == tur.Sekvens);
+        edit.Titel = tur.Titel;
+        edit.Beskrivelse = tur.Beskrivelse;
+        edit.TurStartTidspunkt = tur.TurStartTidspunkt;
+        edit.TurSlutTidspunkt = tur.TurSlutTidspunkt;
+        edit.Sekvens = tur.Sekvens;
+        edit.Pris = tur.Pris;
+
+        // var parameters = new Dictionary<string, object>
+        // {
+        //     { "OnEditTur", EventCallback.Factory.Create<TurCreateDto>(this, HandleEdit) },
+        //     { "ExistingTur", tur }
+        // };
+
+        // // Åbner CreateDagComponent i en dialog
+        // var result = await DialogService.OpenAsync<CreateTurComponent>("Rediger Tur", parameters);
+    }
+
+    private void HandleEdit (TurCreateDto tur)
+    {
+        var turToEdit = Observableture.FirstOrDefault(t => t.Sekvens == tur.Sekvens);
+        if (turToEdit != null)
+        {
+            turToEdit.Titel = tur.Titel;
+            turToEdit.Beskrivelse = tur.Beskrivelse;
+            turToEdit.TurStartTidspunkt = tur.TurStartTidspunkt;
+            turToEdit.TurSlutTidspunkt = tur.TurSlutTidspunkt;
+            turToEdit.Sekvens = tur.Sekvens;
+
+            // opdater på Rejseplan.Ture
+            var turToUpdate = Rejseplan.Ture.FirstOrDefault(t => t.Sekvens == tur.Sekvens);
+            if (turToUpdate != null)
+            {
+                turToUpdate.Titel = tur.Titel;
+                turToUpdate.Beskrivelse = tur.Beskrivelse;
+                turToUpdate.TurStartTidspunkt = tur.TurStartTidspunkt;
+                turToUpdate.TurSlutTidspunkt = tur.TurSlutTidspunkt;
+                turToUpdate.Sekvens = tur.Sekvens;
+            }
+            StateHasChanged();
+        }
+    }
 
 }
 
