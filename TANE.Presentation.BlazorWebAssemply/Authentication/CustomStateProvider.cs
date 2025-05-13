@@ -132,20 +132,20 @@ namespace TANE.Presentation.BlazorWebAssemply.Authentication
             catch (Exception)
             {
 
-                await LogoutAsync();
+                //await LogoutAsync();
 
 
-                notificationService.Notify(new NotificationMessage()
-                {
-                    Severity = NotificationSeverity.Error,
-                    Summary = "Session expired",
-                    Detail = "Your session has expired. Please log in again.",
-                    Duration = 5000
-                });
+                //notificationService.Notify(new NotificationMessage()
+                //{
+                //    Severity = NotificationSeverity.Error,
+                //    Summary = "Session expired",
+                //    Detail = "Your session has expired. Please log in again.",
+                //    Duration = 5000
+                //});
 
 
-                navigationManager.NavigateTo("/login");
-                return;
+                //navigationManager.NavigateTo("/login");
+                //return;
             }
 
             await _browserStorageService.SaveToLocalStorage(userStorageKey, user);
