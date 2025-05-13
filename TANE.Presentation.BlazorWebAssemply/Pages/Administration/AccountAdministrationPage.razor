@@ -1,0 +1,43 @@
+﻿@using TANE.Presentation.BlazorWebAssemply.Pages.Users.Components
+
+@inject CustomStateProvider AuthStateProvider
+
+@page "/account-administration"
+
+
+<AuthorizeView>
+    <Authorized>
+
+        <div class="row">
+
+            
+            <div class="col-md-6 mb-2">
+                <UpdatePasswordComponent />
+            </div>
+
+            @if (AuthStateProvider.CurrentUser.Roles.Contains("Admin"))
+            {
+                <div class="col-md-6 mb-2">
+                    <UpdateUserComponent />
+                </div>
+                <div class="col-md-6 mb-2">
+                    <CreateUsersComponent />
+                </div>
+                <div class="col-md-6 mb-2">
+                    <RevokeTokensComponent />
+                </div>
+            }
+
+
+        </div>
+
+    </Authorized>
+    <NotAuthorized>
+        <h3>Du har ikke adgang til denne side</h3>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+
+}

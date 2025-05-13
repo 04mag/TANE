@@ -165,7 +165,39 @@ namespace TANE.Persistence.Repositories
             var users = await client.GetFromJsonAsync<List<User>>("api/Admin/users");
             return users ?? new List<User>(); 
         }
-        
 
+        public async Task<bool> RevokeAllTokensAsync(string jwtToken)
+        {
+            using (HttpClient httpClient = _httpClientFactory.CreateClient("auth"))
+            {
+                httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
+                var result = await httpClient.PostAsJsonAsync("api/Admin/revoke-all", "");
+                if (result.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public async Task<bool> RevokeTokenAsync(string email, string jwtToken)
+        {
+            using (HttpClient httpClient = _httpClientFactory.CreateClient("auth"))
+            {
+                httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
+                var result = await httpClient.PostAsJsonAsync("api/Admin/revoke", new { email });
+                if (result.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
     }
 }

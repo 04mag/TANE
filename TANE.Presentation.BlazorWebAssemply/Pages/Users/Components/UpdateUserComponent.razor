@@ -16,10 +16,12 @@
 
 
 
-<h4>Bruger: @AuthStateProvider.CurrentUser.Email</h4>
+
 
 <RadzenTemplateForm TItem="PasswordModel" Data="@Pwd" Submit="@OnSubmit" InvalidSubmit="@OnInvalidSubmit">
-    <RadzenStack Gap="1rem" Style="max-width:400px">
+    <RadzenStack Gap="1rem" Class="rz-p-sm-12">
+        
+        <h4>Reset password for bruger</h4>
 
         <RadzenFormField Text="E-mail (bruger)" Variant="@ThemeConfig.FormVariant">
             <ChildContent>
@@ -31,7 +33,7 @@
             </Helper>
         </RadzenFormField>
 
-        <RadzenFormField Text="Nyt password">
+        <RadzenFormField Text="Nyt password" Variant="@ThemeConfig.FormVariant">
             <ChildContent>
                 <RadzenPassword Name="NewPassword" @bind-Value="Pwd.NewPassword" Style="width:100%" />
             </ChildContent>
@@ -43,7 +45,7 @@
             </Helper>
         </RadzenFormField>
 
-        <RadzenFormField Text="Bekræft nyt password">
+        <RadzenFormField Text="Bekræft nyt password" Variant="@ThemeConfig.FormVariant">
             <ChildContent>
                 <RadzenPassword Name="ConfirmNew" @bind-Value="Pwd.ConfirmNewPassword" Style="width:100%" />
             </ChildContent>

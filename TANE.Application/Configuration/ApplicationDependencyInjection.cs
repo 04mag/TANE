@@ -23,6 +23,7 @@ namespace TANE.Application.Configuration
             //Registrer application services her
             services.AddScoped<IUserLogin, UserLogin>();
             services.AddScoped<IRefreshToken, RefreshToken>();
+            services.AddScoped<IRevokeToken, RevokeToken>();
             services.AddScoped<ICreateUser, CreateUser>();
             services.AddScoped<IUpdateUser, UpdateUser>();
 

@@ -1,0 +1,97 @@
+﻿@using TANE.Application.Groups.JwtTokens.Commands.Interfaces
+@using TANE.Presentation.BlazorWebAssemply.Configuration
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject CustomStateProvider AuthStateProvider
+@inject IRevokeToken RevokeTokenService
+
+
+<RadzenTemplateForm Data="@RevokeToken" TItem="RevokeTokenModel" Submit="@OnSubmit" InvalidSubmit="@OnInvalidSubmit">
+    <RadzenStack Gap="1rem" Class="rz-p-sm-12">
+
+        <h4>Tilbagekald token for en enkelt konto</h4>
+        <RadzenFormField Text="E-mail" Variant="@ThemeConfig.FormVariant">
+            <ChildContent>
+                <RadzenTextBox Name="Email" @bind-Value="RevokeToken.Email" Style="width:100%" />
+            </ChildContent>
+        </RadzenFormField>
+
+        <RadzenButton ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Warning" Text="Tilbagekald" Style="margin-top:1rem" />
+        
+        <br />
+
+        <h4>Tilbagekald alle tokens</h4>
+        <RadzenButton ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Danger" Text="Tilbagekald alle" Click="RevokeAllTokens" />
+
+    </RadzenStack>
+</RadzenTemplateForm>
+
+@code {
+    private RevokeTokenModel RevokeToken { get; set; } = new RevokeTokenModel();
+
+    class RevokeTokenModel
+    {
+        public string Email { get; set; } = string.Empty;
+    }
+
+    private async Task RevokeAllTokens()
+    {
+        await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+
+        var result = await RevokeTokenService.RevokeAllTokensAsync(AuthStateProvider.CurrentUser.Token);
+
+        if (result)
+        {
+            NotificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Tokens tilbagekaldt",
+                    Detail = "Alle tokens er blevet tilbagekaldt.",
+                    Duration = 4000
+                });
+        }
+        else
+        {
+            NotificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Fejl",
+                    Detail = "Der opstod en fejl under tilbagekaldelse af tokens. Konto findes muligvis ikke, eller du har ikke rettighed til denne aktion.",
+                    Duration = 4000
+                });
+        }
+    }
+
+    private async Task OnSubmit(RevokeTokenModel model)
+    {
+        await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+
+        var result = await RevokeTokenService.RevokeTokenAsync(model.Email, AuthStateProvider.CurrentUser.Token);
+
+        if (result)
+        {
+            NotificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Token tilbagekaldt",
+                    Detail = $"Token for {model.Email} er blevet tilbagekaldt.",
+                    Duration = 4000
+                });
+        }
+        else
+        {
+            NotificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Fejl",
+                    Detail = "Der opstod en fejl under tilbagekaldelse af token. Du har muligvis ikke rettigheder til dette.",
+                    Duration = 4000
+                });
+        }
+    }
+
+    private void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    {
+
+    }
+}
