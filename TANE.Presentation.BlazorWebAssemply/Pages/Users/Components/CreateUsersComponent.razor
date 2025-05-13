@@ -9,10 +9,10 @@
 @inject CustomStateProvider AuthStateProvider
 @inject ICreateUser CreateUser
 
-<h3>Opret ny bruger</h3>
+
 <RadzenTemplateForm TItem="User" Data="@User" Submit="@OnSubmit" InvalidSubmit="@OnInvalidSubmit">
     <RadzenStack Gap="1rem" Class="rz-p-sm-12">
-
+        <h4>Opret ny bruger</h4>
         <!-- E-mail -->
         <RadzenFormField Text="E-mail" Variant="@ThemeConfig.FormVariant">
             <ChildContent>
