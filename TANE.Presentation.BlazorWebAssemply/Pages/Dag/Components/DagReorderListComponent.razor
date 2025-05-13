@@ -15,7 +15,7 @@
                 Data="@InjectedDage" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single"
                 @bind-Value=@selectedDage RowRender="@RowRender">
     <Columns>
-        <RadzenDataGridColumn Property="@nameof(DagReadDto.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" />
+        <RadzenDataGridColumn Property="@nameof(DagReadDto.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" Visible="false" />
         <RadzenDataGridColumn Property="@nameof(DagReadDto.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px" />
         <RadzenDataGridColumn Property="@nameof(DagReadDto.Beskrivelse)" Title="Beskrivelse" Width="auto" MinWidth="150px" />
         <RadzenDataGridColumn Context="Dag" Filterable="false" Sortable="false" Width="auto" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">

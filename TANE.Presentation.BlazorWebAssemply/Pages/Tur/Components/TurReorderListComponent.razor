@@ -19,21 +19,25 @@
         <RadzenDataGridColumn Property="@nameof(TurReadDto.Sekvens)" Filterable="false" Title="Nr" TextAlign="TextAlign.Center" Frozen="true" Width="40px" Sortable="true" SortOrder="SortOrder.Ascending" />
         <RadzenDataGridColumn Property="@nameof(TurReadDto.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px" />
         <RadzenDataGridColumn Property="@nameof(TurReadDto.Beskrivelse)" Title="Beskrivelse" Width="auto" MinWidth="150px" />
+            <RadzenDataGridColumn Property="@nameof(TurReadDto.Id)" Visible="false" />
+            <RadzenDataGridColumn Property="@nameof(TurReadDto.TurSlutTidspunkt)" Visible="false" />
+            <RadzenDataGridColumn Property="@nameof(TurReadDto.TurStartTidspunkt)" Visible="false" />
+            <RadzenDataGridColumn Property="@nameof(TurReadDto.Pris)" Visible="false" />
         <RadzenDataGridColumn Context="Tur" Filterable="false" Sortable="false" Width="auto" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
             <Template Context="TurReadDto">
                 @if (OnSelect.HasDelegate)
                 {
-                    <RadzenButton Icon="file_open" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => SelectRow(TurReadDto))" @onclick:stopPropagation="true" />
+                    <RadzenButton Icon="file_open" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => SelectRow(TurReadDto))" @onclick:stopPropagation="true"/>
                 }
                 @if (OnEdit.HasDelegate)
                 {
-                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" Click="@(args => EditRow(TurReadDto))" @onclick:stopPropagation="true" />
+                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" Click="@(args => EditRow(TurReadDto))" @onclick:stopPropagation="true"/>
                 }
                 @if (OnDelete.HasDelegate)
                 {
-                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => DeleteRow(TurReadDto))" @onclick:stopPropagation="true" />
+                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => DeleteRow(TurReadDto))" @onclick:stopPropagation="true"/>
                 }
-            </Template> 
+            </Template>
         </RadzenDataGridColumn>
     </Columns>
 </RadzenDataGrid>
@@ -49,8 +53,6 @@
     [Parameter]
     public EventCallback<TurReadDto> OnEdit { get; set; }
 
-    [Parameter]
-    public EventCallback<TurCreateDto> OnEditCreateDto { get; set; }
 
     [Parameter]
     public EventCallback<TurReadDto> OnDelete { get; set; }
@@ -78,27 +80,8 @@
 
     async Task EditRow(TurReadDto tur)
     {
-        var createDto = new TurCreateDto
-        {
-            
-            Titel = tur.Titel,
-            Beskrivelse = tur.Beskrivelse,
-            Sekvens = tur.Sekvens,
-            TurStartTidspunkt = tur.TurStartTidspunkt,
-            TurSlutTidspunkt = tur.TurSlutTidspunkt,
-            Pris = tur.Pris,
-            Dage = tur.Dage?.Select(d => new DagCreateDto
-            {
-                Titel = d.Titel,
-                Beskrivelse = d.Beskrivelse,
-                Sekvens = d.Sekvens,
-                Måltider = d.Måltider,
-                Overnatning = d.Overnatning,
-                Aktiviteter = d.Aktiviteter,
-            }).ToList()
-        };
-
-        await OnEditCreateDto.InvokeAsync(createDto);
+      
+        await OnEdit.InvokeAsync(tur);
         var parameters = new Dictionary<string, object>
         {
             { "ExistingTur", tur },
@@ -134,7 +117,6 @@
         if (turIndex != -1)
         {
             InjectedTure[turIndex] = readDto;
-            await OnEdit.InvokeAsync(readDto);
         }
         else
         {

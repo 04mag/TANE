@@ -321,9 +321,15 @@
             { "OnCreateTur", EventCallback.Factory.Create<TurCreateDto>(this, HandleCreateTur) }
             
         };
+        var options = new DialogOptions
+        {
+            Width = "90vw",    
+            Height = "90vw",   
+            Resizable = true    // gør den kan flyttes/størrelsesændres, hvis ønsket
+        };
 
         // Åbner CreateDagComponent i en dialog
-        var result = await DialogService.OpenAsync<CreateTurComponent>("Opret Ny Tur", parameters);
+        var result = await DialogService.OpenAsync<CreateTurComponent>("Opret Ny Tur", parameters, options);
     }
 
     private async Task HandleEditTur(TurReadDto tur)

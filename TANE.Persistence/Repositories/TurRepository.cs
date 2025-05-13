@@ -71,7 +71,7 @@
                 SetJwtToken(client, jwtToken);
 
                 // Problemet: du henter altid "…/rejseplan/tur" uden ID
-                var tur = await client.GetFromJsonAsync<TurReadDto>($"tur/{turId}");
+                var tur = await client.GetFromJsonAsync<TurReadDto>($"Tur/{turId}");
 
                 return tur ?? new TurReadDto();
             }
