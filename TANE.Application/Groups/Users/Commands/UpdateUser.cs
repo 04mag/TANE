@@ -27,9 +27,17 @@ namespace TANE.Application.Groups.Users.Commands
             {
                 return await _jwtTokenRepository.UpdatePasswordAsync(jwtToken, currentPassword, newPassword);
             }
-            catch
+            catch (NotAuthorizedException ex)
             {
-                return false;
+                throw new NotAuthorizedException(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                throw new ArgumentException(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
 

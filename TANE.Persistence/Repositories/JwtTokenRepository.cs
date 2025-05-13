@@ -47,12 +47,12 @@ namespace TANE.Persistence.Repositories
             }
         }
 
-        public async Task<bool> UpdatePasswordAsync(string jwtToken, string currentPassword, string newPassword)
+        public async Task<bool> UpdatePasswordAsync(string token, string currentPassword, string newPassword)
         {
             using (HttpClient httpClient = _httpClientFactory.CreateClient("auth"))
             {
-                httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
-                var result = await httpClient.PostAsJsonAsync("api/account/change-password", new { jwtToken, currentPassword, newPassword });
+                httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                var result = await httpClient.PostAsJsonAsync("api/account/update-password", new { token, currentPassword, newPassword });
                 if (result.IsSuccessStatusCode)
                 {
                     return true;
@@ -61,9 +61,13 @@ namespace TANE.Persistence.Repositories
                 {
                     throw new NotAuthorizedException("Unauthorized");
                 }
+                else if (result.StatusCode == System.Net.HttpStatusCode.Conflict)
+                {
+                    throw new ArgumentException("Current password is invalid");
+                }
                 else
                 {
-                    throw new Exception(await result.Content.ReadAsStringAsync());
+                    throw new Exception("Failed to update password");
                 }
             }
         }
