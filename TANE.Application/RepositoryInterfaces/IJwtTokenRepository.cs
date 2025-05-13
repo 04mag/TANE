@@ -16,5 +16,9 @@ namespace TANE.Application.RepositoryInterfaces
         Task<List<User>> GetUsersAsync(string jwtToken);
         Task<bool> UpdateUserAsync(string email, string password, string jwtToken);
         Task<bool> UpdatePasswordAsync(string jwtToken, string currentPassword, string newPassword);
+
+        Task<bool> RevokeAllTokensAsync(string jwtToken);
+
+        Task<bool> RevokeTokenAsync(string email, string jwtToken);
     }
 }
