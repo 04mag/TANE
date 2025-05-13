@@ -21,6 +21,26 @@ namespace TANE.Application.Groups.Users.Commands
             this._jwtTokenRepository = jwtTokenRepository;
         }
 
+        public async Task<bool> UpdatePasswordAsync(string jwtToken, string currentPassword, string newPassword)
+        {
+            try
+            {
+                return await _jwtTokenRepository.UpdatePasswordAsync(jwtToken, currentPassword, newPassword);
+            }
+            catch (NotAuthorizedException ex)
+            {
+                throw new NotAuthorizedException(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                throw new ArgumentException(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task UpdateUserAsync(string email, string password, string jwtToken)
         {
             await _jwtTokenRepository.UpdateUserAsync(email, password, jwtToken);
