@@ -1,5 +1,111 @@
-﻿<h3>RejseplanSkabelonListComponent</h3>
+﻿@using TANE.Application.Groups.RejsePlanSkabeloner.Queries.Interfaces
+@using TANE.Domain.Entities
+
+@inject IReadRejsePlanSkabelon ReadRejsePlanSkabelon
+@inject CustomStateProvider AuthStateProvider
+@inject NotificationService NotificationService
+@inject NavigationManager NavigationManager
+
+<RadzenTextBox @bind-Value="searchText" @oninput=@HandleInput Placeholder="Søg efter titel" Style="width: 100%" />
+<RadzenDataGrid AllowFiltering="true" AllowColumnResize="false" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+Data="@Skabeloner" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single" @bind-Value=@SelectedSkabeloner>
+    <Columns>
+        <RadzenDataGridColumn Property="@nameof(RejsePlanSkabelon.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" />
+        <RadzenDataGridColumn Property="@nameof(RejsePlanSkabelon.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px" />
+        <RadzenDataGridColumn Property="@nameof(RejsePlanSkabelon.Beskrivelse)" Title="Beskrivelse" Width="auto" MinWidth="150px" />
+        <RadzenDataGridColumn Context="TurSkabelon" Filterable="false" Sortable="false" Width="auto" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+            <Template Context="RejsePlanSkabelon">
+                @if (OnSelect.HasDelegate)
+                {
+                    <RadzenButton Icon="file_open" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => SelectRow(RejsePlanSkabelon))" @onclick:stopPropagation="true" />
+                }
+                @if (OnEdit.HasDelegate)
+                {
+                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" Click="@(args => EditRow(RejsePlanSkabelon))" @onclick:stopPropagation="true" />
+                }
+                @if (OnDelete.HasDelegate)
+                {
+                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => DeleteRow(RejsePlanSkabelon))" @onclick:stopPropagation="true" />
+                }
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
 
 @code {
+    [Parameter, EditorRequired]
+    public List<RejsePlanSkabelon> InjectedSkabeloner { get; set; }
 
+    [Parameter]
+    public EventCallback<RejsePlanSkabelon> OnSelect { get; set; }
+
+    [Parameter]
+    public EventCallback<RejsePlanSkabelon> OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<RejsePlanSkabelon> OnDelete { get; set; }
+
+    private bool allowVirtualization = false;
+
+    private string searchText = string.Empty;
+
+    private List<RejsePlanSkabelon> SkabelonerVar = new List<RejsePlanSkabelon>();
+
+    public List<RejsePlanSkabelon> Skabeloner
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(searchText))
+            {
+                return SkabelonerVar;
+            }
+            else
+            {
+                return SkabelonerVar.Where(x => x.Titel.ToLower().Contains(searchText.ToLower())).ToList();
+            }
+        }
+        set { SkabelonerVar = value; }
+    }
+
+    public IList<RejsePlanSkabelon> SelectedSkabeloner { get; set; } = new List<RejsePlanSkabelon>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+
+        Skabeloner = await ReadRejsePlanSkabelon.ReadRejsePlanSkabelonerAsync(AuthStateProvider.CurrentUser.Token);
+
+        SelectedSkabeloner = new List<RejsePlanSkabelon>() { Skabeloner.FirstOrDefault()! };
+    }
+
+    private void HandleInput(ChangeEventArgs args)
+    {
+        if (args.Value == null)
+        {
+            searchText = string.Empty;
+            return;
+        }
+        searchText = args.Value.ToString()!;
+    }
+
+    async Task SelectRow(RejsePlanSkabelon turskabelon)
+    {
+        await OnSelect.InvokeAsync(turskabelon);
+
+        Skabeloner = InjectedSkabeloner;
+    }
+
+    async Task EditRow(RejsePlanSkabelon turskabelon)
+    {
+        await OnEdit.InvokeAsync(turskabelon);
+
+        Skabeloner = InjectedSkabeloner;
+    }
+
+    async Task DeleteRow(RejsePlanSkabelon turskabelon)
+    {
+        await OnDelete.InvokeAsync(turskabelon);
+
+        Skabeloner = InjectedSkabeloner;
+    }
 }
