@@ -10,12 +10,12 @@ namespace TANE.Persistence.Repositories
 {
     internal class RejsePlanSkabelonRepository : IRejsePlanSkabelonRepository
     {
-        public Task CreateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon, string jwtToken)
+        public Task<bool> CreateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task DeleteRejsePlanSkabelonAsync(int id, string jwtToken)
+        public Task<bool> DeleteRejsePlanSkabelonAsync(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }
@@ -30,7 +30,7 @@ namespace TANE.Persistence.Repositories
             throw new NotImplementedException();
         }
 
-        public Task UpdateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon, string jwtToken)
+        public Task<bool> UpdateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon, string jwtToken)
         {
             throw new NotImplementedException();
         }
