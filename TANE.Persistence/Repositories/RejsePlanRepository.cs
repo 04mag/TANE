@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using AutoMapper;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
 using TANE.Application.Dtos;
@@ -14,10 +15,12 @@ namespace TANE.Persistence.Repositories
     public class RejsePlanRepository : IRejsePlanRepository
     {
         private readonly IHttpClientFactory _factory;
+        private Mapper _mapper;
 
-        public RejsePlanRepository(IHttpClientFactory factory)
+        public RejsePlanRepository(IHttpClientFactory factory, Mapper mapper)
         {
             _factory = factory;
+            _mapper = mapper;
         }
 
         private void SetJwtToken(HttpClient client, string jwtToken)
@@ -27,15 +30,19 @@ namespace TANE.Persistence.Repositories
         }
 
 
-        public async Task<bool> CreateRejseplan(RejseplanCreateDto rejseplan, string jwtToken)
+        public async Task<bool> CreateRejseplan(Rejseplan rejseplan, string jwtToken)
         {
+            //Map rejserplan til create dto
+            var rejseplanCreateDto = _mapper.Map<RejseplanCreateDto>(rejseplan);
+
+
             // her henter du netop den HttpClient, du har konfigureret med AddHttpClient("rejseplan", ...)
             var client = _factory.CreateClient("rejseplan");
 
             // sæt dit Bearer-token
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
             // POST til baseAddress/“rejseplan”/rejseplan
-            var response = await client.PostAsJsonAsync("rejseplan", rejseplan);
+            var response = await client.PostAsJsonAsync("rejseplan", rejseplanCreateDto);
             return response.IsSuccessStatusCode;
         }
 
@@ -53,45 +60,58 @@ namespace TANE.Persistence.Repositories
         }
 
 
-        public async Task<List<RejseplanReadDto>> ReadAllRejseplaner(string jwtToken)
+        public async Task<List<Rejseplan>> ReadAllRejseplaner(string jwtToken)
         {
             var client = _factory.CreateClient("rejseplan");
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", jwtToken);
 
             // Hent og deserialiser direkte til List<RejseplanReadDto>
-            var tours = await client.GetFromJsonAsync<List<RejseplanReadDto>>("rejseplan");
+            var dtos = await client.GetFromJsonAsync<List<RejseplanReadDto>>("rejseplan");
+
+            //map
+            var tours = _mapper.Map<List<Rejseplan>>(dtos);
 
             // Hvis API’et returnerer 204 No Content, bliver tours null
-            return tours ?? new List<RejseplanReadDto>();
+            return tours ?? new List<Rejseplan>();
         }
 
-        public async Task<RejseplanReadDto> ReadRejseplanById(int rejseplanId, string jwtToken)
+        public async Task<Rejseplan> ReadRejseplanById(int rejseplanId, string jwtToken)
         {
             var client = _factory.CreateClient("rejseplan");
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", jwtToken);
 
             // Problemet: du henter altid "…/rejseplan/rejseplan" uden ID
-            var rejseplan = await client.GetFromJsonAsync<RejseplanReadDto>($"rejseplan/{rejseplanId}");
+            var dto = await client.GetFromJsonAsync<RejseplanReadDto>($"rejseplan/{rejseplanId}");
 
-            return rejseplan ?? new RejseplanReadDto();
+            //map
+            var rejseplan = _mapper.Map<Rejseplan>(dto);
+
+            return rejseplan ?? new Rejseplan();
         }
 
-        public async Task<bool> UpdateRejseplan(int id, RejseplanUpdateDto dto, string jwtToken)
+        public async Task<bool> UpdateRejseplan(int id, Rejseplan rejseplan, string jwtToken)
         {
+            //Map rejseplan til update dto
+            var rejseplanUpdateDto = _mapper.Map<RejseplanUpdateDto>(rejseplan);
+
             var client = _factory.CreateClient("rejseplan");
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", jwtToken);
 
-            var response = await client.PutAsJsonAsync($"rejseplan/{id}", dto);
+            var response = await client.PutAsJsonAsync($"rejseplan/{id}", rejseplanUpdateDto);
 
             // Returner true hvis status er 2xx
             return response.IsSuccessStatusCode;
         }
 
-        public async Task ReorderTureAsync(int rejseplanId, TurReorderDto dto, string jwtToken)
+        public async Task ReorderTureAsync(int rejseplanId, Tur tur, string jwtToken)
         {
+
+            //Map tur til reorder dto
+            var dto = _mapper.Map<TurReorderDto>(tur);
+
             var client = _factory.CreateClient("rejseplan");
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", jwtToken);
@@ -114,8 +134,10 @@ namespace TANE.Persistence.Repositories
             //}
         }
 
-        public async Task AddTurToRejseplanAsync(TurAssignDto dto, string jwtToken)
+        public async Task AddTurToRejseplanAsync(Tur tur, string jwtToken)
         {
+            //Map tur til assign dto
+            var dto = _mapper.Map<TurAssignDto>(tur);
             var client = _factory.CreateClient("rejseplan");
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", jwtToken);

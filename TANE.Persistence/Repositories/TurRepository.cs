@@ -5,7 +5,7 @@
     using System.Net.Http.Headers;
     using System.Net.Http.Json;
     using System.Threading.Tasks;
-   
+    using AutoMapper;
     using TANE.Application.RepositoryInterfaces;
     using TANE.Domain.Entities;
     using TANE.Application.Dtos;
@@ -16,10 +16,12 @@
         {
 
             private readonly IHttpClientFactory _factory;
+            private Mapper _mapper;
 
-            public TurRepository(IHttpClientFactory factory)
+            public TurRepository(IHttpClientFactory factory, Mapper mapper)
             {
                 _factory = factory;
+                _mapper = mapper;
             }
 
             private void SetJwtToken(HttpClient client, string jwtToken)
@@ -29,15 +31,18 @@
             }
 
 
-            public async Task<bool> CreateTur(TurCreateDto tur, string jwtToken)
+            public async Task<bool> CreateTur(Tur tur, string jwtToken)
             {
-                // her henter du netop den HttpClient, du har konfigureret med AddHttpClient("rejseplan", ...)
-                var client = _factory.CreateClient("rejseplan");
+            //map 
+            var dto = _mapper.Map<TurCreateDto>(tur);
+
+            // her henter du netop den HttpClient, du har konfigureret med AddHttpClient("rejseplan", ...)
+            var client = _factory.CreateClient("rejseplan");
 
                 // sæt dit Bearer-token
                 SetJwtToken(client, jwtToken);
                 // POST til baseAddress/“rejseplan”/tur
-                var response = await client.PostAsJsonAsync("tur", tur);
+                var response = await client.PostAsJsonAsync("tur", dto);
                 return response.IsSuccessStatusCode;
             }
 
@@ -53,33 +58,44 @@
             }
 
 
-            public async Task<List<TurReadDto>> ReadAllTure(string jwtToken)
+            public async Task<List<Tur>> ReadAllTure(string jwtToken)
             {
                 var client = _factory.CreateClient("rejseplan");
                 SetJwtToken(client, jwtToken);
 
-                // Hent og deserialiser direkte til List<TurReadDto>
-                var tours = await client.GetFromJsonAsync<List<TurReadDto>>("Tur");
+                // Hent og deserialiser direkte til List<Tur>
+                var dtos = await client.GetFromJsonAsync<List<TurReadDto>>("Tur");
 
-                // Hvis API’et returnerer 204 No Content, bliver tours null
-                return tours ?? new List<TurReadDto>();
+            //map
+            var tours = _mapper.Map<List<Tur>>(dtos);
+
+            // Hvis API’et returnerer 204 No Content, bliver tours null
+            return tours ?? new List<Tur>();
             }
 
-            public async Task<TurReadDto> ReadTurById(int turId, string jwtToken)
+            public async Task<Tur> ReadTurById(int turId, string jwtToken)
             {
                 var client = _factory.CreateClient("rejseplan");
                 SetJwtToken(client, jwtToken);
 
-                // Problemet: du henter altid "…/rejseplan/tur" uden ID
-                var tur = await client.GetFromJsonAsync<TurReadDto>($"Tur/{turId}");
+                var dto = await client.GetFromJsonAsync<TurReadDto>($"Tur/{turId}");
 
-                return tur ?? new TurReadDto();
+            //map
+            var tur = _mapper.Map<Tur>(dto);
+
+            // Hvis API’et returnerer 204 No Content, bliver tur null
+
+            return tur ?? new Tur();
             }
 
 
-            public async Task<bool> UpdateTur(int id, TurUpdateDto dto, string jwtToken)
+            public async Task<bool> UpdateTur(int id, Tur tur, string jwtToken)
             {
-                var client = _factory.CreateClient("rejseplan");
+
+            //map
+            var dto = _mapper.Map<TurUpdateDto>(tur);
+
+            var client = _factory.CreateClient("rejseplan");
                 SetJwtToken(client, jwtToken);
 
                 // PUT til https://.../rejseplan/tur/{id} med dto som JSON-body
@@ -101,15 +117,17 @@
                 response.EnsureSuccessStatusCode();
             }
 
-            public async Task ReorderDageAsync(int turId, DagReorderDto dto, string jwtToken)
+            public async Task ReorderDageAsync(int turId, Dag tur, string jwtToken)
             {
-                var client = _factory.CreateClient("rejseplan");
+
+            //map
+            var dto = _mapper.Map<DagReorderDto>(tur);
+
+            var client = _factory.CreateClient("rejseplan");
                 SetJwtToken(client, jwtToken);
 
                 var response = await client.PostAsJsonAsync(
-                    $"tur/{turId}/dage/reorder",
-                    dto
-                );
+                    $"tur/{turId}/dage/reorder", dto);
                 response.EnsureSuccessStatusCode();
             }
 
@@ -125,15 +143,20 @@
 
             }
 
-            public async Task<ObservableCollection<TurReadDto>> ReadAllTurePåRejseplan(int rejseplanId, string jwtToken)
+            public async Task<ObservableCollection<Tur>> ReadAllTurePåRejseplan(int rejseplanId, string jwtToken)
             {
                 var client = _factory.CreateClient("rejseplan");
                 SetJwtToken(client, jwtToken);
 
                 var response = await client.GetAsync($"tur/rejseplan/{rejseplanId}");
                 response.EnsureSuccessStatusCode();
-                var tours = await response.Content.ReadFromJsonAsync<ObservableCollection<TurReadDto>>();
-                return tours ?? new ObservableCollection<TurReadDto>();
+                var dtos = await response.Content.ReadFromJsonAsync<ObservableCollection<TurReadDto>>();
+
+            //map
+            var tours = _mapper.Map<ObservableCollection<Tur>>(dtos);
+
+            // Hvis API’et returnerer 204 No Content, bliver tours null
+            return tours ?? new ObservableCollection<Tur>();
             }
         }
     }

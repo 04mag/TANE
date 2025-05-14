@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-
+using AutoMapper;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
 using TANE.Application.Dtos;
@@ -15,10 +15,12 @@ namespace TANE.Persistence.Repositories
     {
 
         private readonly IHttpClientFactory _factory;
+        private Mapper _mapper;
 
-        public DagRepository(IHttpClientFactory factory)
+        public DagRepository(IHttpClientFactory factory, Mapper mapper)
         {
             _factory = factory;
+            _mapper = mapper;
         }
 
         private void SetJwtToken(HttpClient client, string jwtToken)
@@ -28,8 +30,12 @@ namespace TANE.Persistence.Repositories
         }
 
 
-        public async Task<bool> CreateDagAsync(DagCreateDto dag, string jwtToken)
+        public async Task<bool> CreateDagAsync(Dag dag, string jwtToken)
         {
+
+            //map
+            var dto = _mapper.Map<DagCreateDto>(dag);
+
             // her henter du netop den HttpClient, du har konfigureret med AddHttpClient("rejseplan", ...)
             var client = _factory.CreateClient("rejseplan");
 
@@ -54,36 +60,45 @@ namespace TANE.Persistence.Repositories
         }
 
 
-        public async Task<List<DagReadDto>> ReadAllDageAsync(string jwtToken)
+        public async Task<List<Dag>> ReadAllDageAsync(string jwtToken)
         {
             var client = _factory.CreateClient("rejseplan");
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", jwtToken);
 
-            // Hent og deserialiser direkte til List<DagReadDto>
-            var dage = await client.GetFromJsonAsync<List<DagReadDto>>("dag");
+            // Hent og deserialiser direkte til List<Dag>
+            var dtos = await client.GetFromJsonAsync<List<DagReadDto>>("dag");
+
+            //map
+            var dage = _mapper.Map<List<Dag>>(dtos);
 
             // Hvis API’et returnerer 204 No Content, bliver tours null
-            return dage ?? new List<DagReadDto>();
+            return dage ?? new List<Dag>();
         }
 
-        public async Task<DagReadDto> ReadDagByIdAsync(int dagId, string jwtToken)
+        public async Task<Dag> ReadDagByIdAsync(int dagId, string jwtToken)
         {
             var client = _factory.CreateClient("rejseplan");
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", jwtToken);
 
-            // Hent og deserialiser direkte til List<DagReadDto>
-            var dag = await client.GetFromJsonAsync<DagReadDto>($"dag/{dagId}");
+            // Hent og deserialiser direkte til List<Dag>
+            var dto = await client.GetFromJsonAsync<DagReadDto>($"dag/{dagId}");
+
+            // map
+            var dag = _mapper.Map<Dag>(dto);
 
 
             // Hvis API’et returnerer 204 No Content, bliver tours null
-            return dag ?? new DagReadDto();
+            return dag ?? new Dag();
 
         }
 
-        public async Task<bool> UpdateDagAsync(int id, DagUpdateDto dto, string jwtToken)
+        public async Task<bool> UpdateDagAsync(int id, Dag dag, string jwtToken)
         {
+            //mapper
+            var dto = _mapper.Map<DagUpdateDto>(dag);
+
             var client = _factory.CreateClient("rejseplan");
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", jwtToken);

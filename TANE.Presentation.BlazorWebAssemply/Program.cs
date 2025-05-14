@@ -14,6 +14,7 @@ using TANE.Persistence.Repositories;
 using TANE.Presentation.BlazorWebAssemply.Authentication;
 using TANE.Presentation.BlazorWebAssemply.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using TANE.Application.Mappings;
 
 namespace TANE.Presentation.BlazorWebAssemply
 {
@@ -42,6 +43,11 @@ namespace TANE.Presentation.BlazorWebAssemply
             builder.Services.AddScoped<CustomStateProvider>();
             builder.Services.AddScoped<DialogService>();
             builder.Services.AddScoped<CustomerState>();
+
+
+            builder.Services
+                .AddAutoMapper(typeof(MappingProfile).Assembly);
+
 
 
 
