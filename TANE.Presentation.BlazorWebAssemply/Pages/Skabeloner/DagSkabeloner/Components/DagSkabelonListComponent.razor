@@ -71,10 +71,8 @@ else
 
     public IList<DagSkabelonReadDto> SelectedSkabeloner { get; set; } = new List<DagSkabelonReadDto>();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await base.OnInitializedAsync();
-
         Skabeloner = InjectedSkabeloner.AsQueryable();
 
         SelectedSkabeloner = new List<DagSkabelonReadDto>() { Skabeloner.FirstOrDefault()! };

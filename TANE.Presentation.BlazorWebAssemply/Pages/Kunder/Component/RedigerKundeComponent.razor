@@ -1,5 +1,4 @@
-﻿
-@using Radzen
+﻿@using Radzen
 @using Radzen.Blazor
 @using TANE.Application.Common.Exceptions
 @using TANE.Domain.Entities
@@ -12,12 +11,14 @@
 @inject NavigationManager NavManager
 @inject NotificationService NotificationService
 @inject CustomStateProvider Authprovider 
+@inject DialogService DialogService
+
 
 <h3>Rediger kunde</h3>
 
 @if (kunde == null)
 {
-	<RadzenProgressBar Mode="ProgressBarMode.Indeterminate" />
+	<p>Kunden du prøver at redigere, findes ikke!</p>
 }
 else
 {
@@ -46,7 +47,7 @@ else
 			</RadzenFormField>
 
 			<RadzenButton Text="Gem" ButtonType="ButtonType.Submit" />
-			<RadzenButton Text="Slet" ButtonStyle="ButtonStyle.Danger" Click="OnDeleteKunde" />
+			<RadzenButton Text="Slet" ButtonStyle="ButtonStyle.Danger" Click="@(() => OnDeleteKunde())" />
 		</RadzenStack>
 	</RadzenTemplateForm>
 }
@@ -55,7 +56,7 @@ else
 @code {
 	[Parameter]
 	public int Id { get; set; }
-	private Kunde kunde;
+	private Kunde? kunde = new Kunde();
 	protected override async Task OnInitializedAsync()
 	{
 		if (Authprovider.CurrentUser.Token == string.Empty)
@@ -63,7 +64,16 @@ else
 			return;
 		}
 		await Authprovider.RefreshTokenAsync(NavManager, NotificationService);
-		kunde = await ReadKunde.GetKundeByIdAsync(Id, Authprovider.CurrentUser.Token);
+		
+		try
+		{
+			kunde = await ReadKunde.GetKundeByIdAsync(Id, Authprovider.CurrentUser.Token);
+
+		}
+		catch (Exception)
+		{
+			kunde = null;
+		}
 	}
 
 	private async Task HandleSubmit(Kunde kunde)
@@ -78,7 +88,7 @@ else
 
 			await UpdateKunde.UpdateKundeAsync(kunde, Authprovider.CurrentUser.Token);
 			NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Kunde opdateret" });
-			NavManager.NavigateTo("/kundepage/oversigt");
+			NavManager.NavigateTo("/kunde/oversigt");
 		}
 		catch (Exception ex)
 		{
@@ -88,22 +98,27 @@ else
 
 	private async Task OnDeleteKunde()
 	{
-		try
+		var confirmationResult = await this.DialogService.Confirm("Er du sikker?", "Slet kunde", new ConfirmOptions { OkButtonText = "Ja", CancelButtonText = "Nej" });
+		if (confirmationResult == true)
 		{
-			if (Authprovider.CurrentUser.Token == string.Empty)
+			try
 			{
-				return;
-			}
-			await Authprovider.RefreshTokenAsync(NavManager, NotificationService);
+				if (Authprovider.CurrentUser.Token == string.Empty)
+				{
+					return;
+				}
+				await Authprovider.RefreshTokenAsync(NavManager, NotificationService);
 
-			await DeleteKunde.DeleteKundeAsync(kunde.Id, Authprovider.CurrentUser.Token);
-			NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Kunde slettet" });
-			NavManager.NavigateTo("/kundepage/oversigt");
+				await DeleteKunde.DeleteKundeAsync(kunde.Id, Authprovider.CurrentUser.Token);
+				NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Kunde slettet" });
+				NavManager.NavigateTo("/kunde/oversigt");
+			}
+			catch (Exception ex)
+			{
+				NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = "Error", Detail = ex.Message });
+			}
 		}
-		catch (Exception ex)
-		{
-			NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = "Error", Detail = ex.Message });
-		}
+		
 	}
 
 

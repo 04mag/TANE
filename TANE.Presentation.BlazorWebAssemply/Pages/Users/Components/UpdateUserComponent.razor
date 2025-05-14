@@ -1,68 +1,72 @@
-﻿@using TANE.Domain.Entities
-@using TANE.Application.Groups.Users.Queries.Interfaces
+﻿@using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Application.Common.Exceptions;
+@using TANE.Domain.Entities
 @using TANE.Application.Groups.Users.Interfaces
 @using TANE.Application.Common.Exceptions
 @using Radzen
 @using Radzen.Blazor
+@using TANE.Persistence.Repositories
+@using TANE.Presentation.BlazorWebAssemply.Services
+@using TANE.Application.RepositoryInterfaces
+@inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject NotificationService NotificationService
 @inject CustomStateProvider AuthStateProvider
-@inject IGetUser GetUserService
-@inject IUpdateUser UpdateUserService
+@inject IJwtTokenRepository JwtTokenRepository
 
-@if (IsLoading)
-{
-    <p>Henter bruger …</p>
-}
-else if (LoadError is not null)
-{
-    <p class="text-danger">@LoadError</p>
-}
-else
-{
-    <h4>Bruger: @User.Email</h4>
 
-    <RadzenTemplateForm TItem="PasswordModel" Data="@Pwd" Submit="@OnSubmit" InvalidSubmit="@OnInvalidSubmit">
-        <RadzenStack Gap="1rem" Style="max-width:400px">
 
-            <RadzenFormField Text="Nyt password">
-                <ChildContent>
-                    <RadzenPassword Name="NewPassword" @bind-Value="Pwd.NewPassword" Style="width:100%" />
-                </ChildContent>
-                <Helper>
-                    <RadzenRequiredValidator Component="NewPassword" Text="Password kræves." />
-                    <RadzenRegexValidator Component="NewPassword"
-                    Pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$"
-                    Text="8+ tegn, 1 stort, 1 lille, 1 tal & 1 spec." />
-                </Helper>
-            </RadzenFormField>
+<h4>Bruger: @AuthStateProvider.CurrentUser.Email</h4>
 
-            <RadzenFormField Text="Bekræft nyt password">
-                <ChildContent>
-                    <RadzenPassword Name="ConfirmNew" @bind-Value="Pwd.ConfirmNewPassword" Style="width:100%" />
-                </ChildContent>
-                <Helper>
-                    <RadzenRequiredValidator Component="ConfirmNew" Text="Bekræft password." />
-                    <RadzenCompareValidator Component="ConfirmNew"
-                    Value="@Pwd.NewPassword"
-                    Text="Passwords skal være ens." />
-                </Helper>
-            </RadzenFormField>
+<RadzenTemplateForm TItem="PasswordModel" Data="@Pwd" Submit="@OnSubmit" InvalidSubmit="@OnInvalidSubmit">
+    <RadzenStack Gap="1rem" Style="max-width:400px">
 
-            <RadzenButton ButtonType="ButtonType.Submit" Text="Opdater" Style="margin-top:1rem" />
-        </RadzenStack>
-    </RadzenTemplateForm>
-}
+        <RadzenFormField Text="E-mail (bruger)" Variant="@ThemeConfig.FormVariant">
+            <ChildContent>
+                <RadzenTextBox Name="Email" @bind-Value="Pwd.Email" Style="width:100%" />
+            </ChildContent>
+            <Helper>
+                <RadzenRequiredValidator Component="Email" Text="E-mail kræves." />
+                <RadzenEmailValidator Component="Email" Text="Indtast en gyldig e-mail." />
+            </Helper>
+        </RadzenFormField>
+
+        <RadzenFormField Text="Nyt password">
+            <ChildContent>
+                <RadzenPassword Name="NewPassword" @bind-Value="Pwd.NewPassword" Style="width:100%" />
+            </ChildContent>
+            <Helper>
+                <RadzenRequiredValidator Component="NewPassword" Text="Password kræves." />
+                <RadzenRegexValidator Component="NewPassword"
+                Pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$"
+                Text="8+ tegn, 1 stort, 1 lille, 1 tal & 1 spec." />
+            </Helper>
+        </RadzenFormField>
+
+        <RadzenFormField Text="Bekræft nyt password">
+            <ChildContent>
+                <RadzenPassword Name="ConfirmNew" @bind-Value="Pwd.ConfirmNewPassword" Style="width:100%" />
+            </ChildContent>
+            <Helper>
+                <RadzenRequiredValidator Component="ConfirmNew" Text="Bekræft password." />
+                <RadzenCompareValidator Component="ConfirmNew"
+                Value="@Pwd.NewPassword"
+                Text="Passwords skal være ens." />
+            </Helper>
+        </RadzenFormField>
+
+        <RadzenButton ButtonType="ButtonType.Submit" Text="Opdater" Style="margin-top:1rem" />
+    </RadzenStack>
+</RadzenTemplateForm>
+
 
 @code {
-    [Parameter] public Guid UserId { get; set; }
+    public string email;
 
-    User User = new();
-    bool IsLoading = true;
-    string? LoadError;
 
     class PasswordModel
     {
+        public string Email { get; set; } = "";
         public string NewPassword { get; set; } = "";
         public string ConfirmNewPassword { get; set; } = "";
     }
@@ -74,16 +78,14 @@ else
         try
         {
             await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
-            User = await GetUserService.GetUserByIdAsync(UserId, AuthStateProvider.CurrentUser.Token);
+            await JwtTokenRepository.UpdateUserAsync(email, Pwd.NewPassword, AuthStateProvider.CurrentUser.Token);
+            email = AuthStateProvider.CurrentUser.Email;
         }
         catch (Exception ex)
         {
-            LoadError = ex.Message;
+            
         }
-        finally
-        {
-            IsLoading = false;
-        }
+        
     }
 
     private void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
@@ -102,19 +104,22 @@ else
     {
         try
         {
-            // Kald dit UpdateUserPassword-interface
-            await UpdateUserService.UpdateUserAsync(
-                UserId,
-                model.NewPassword,
-                AuthStateProvider.CurrentUser.Token
+            // Forny token hvis nødvendigt
+            await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+
+            // Kald det nye IUpdateUser-interface
+            await JwtTokenRepository.UpdateUserAsync(
+              model.Email,
+              model.NewPassword,
+              AuthStateProvider.CurrentUser.Token
             );
 
-            // Success-notifikation
+            // Success
             NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Success,
                     Summary = "Password opdateret",
-                    Detail = $"Password for {User.Email} er skiftet.",
+                    Detail = $"Password for {model.Email} er skiftet.",
                     Duration = 4000
                 });
 

@@ -45,8 +45,14 @@ namespace TANE.Persistence.Repositories
                 httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
 
                 var response = await httpClient.DeleteAsync($"api/Kunde/{id}");
-
-                return response.IsSuccessStatusCode;
+                if(response.IsSuccessStatusCode) 
+                {
+                    return true;
+                }
+                else
+                {
+                    throw new ArgumentException("Fejl ved sletning af kunde");
+                }
             }
         }
 
@@ -93,7 +99,7 @@ namespace TANE.Persistence.Repositories
             {
                 httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
                 
-                var result = await httpClient.PutAsJsonAsync("api/Kunde/update", kunde);
+                var result = await httpClient.PutAsJsonAsync("api/Kunde", kunde);
                 if (result.IsSuccessStatusCode)
                 {
                     return await result.Content.ReadFromJsonAsync<Kunde>();

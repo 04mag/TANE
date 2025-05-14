@@ -1,6 +1,7 @@
 ﻿using Moq;
 using TANE.Application.Groups.Kunder.Commands;
 using TANE.Application.RepositoryInterfaces;
+using TANE.Domain.Entities;
 
 
 namespace TANE.Application.Test.Groups.Kunder
@@ -35,6 +36,9 @@ namespace TANE.Application.Test.Groups.Kunder
             // Arrange
             var kundeRepository = new Mock<IKundeRepository>();
 
+            kundeRepository.Setup(repo => repo.DeleteKundeAsync(It.IsAny<int>(), jwtToken))
+                .ReturnsAsync(() => false);
+
             // Setup the mock to return a Kunde object when DeleteKundeAsync is called
             DeleteKunde deleteKundeCommand = new DeleteKunde(kundeRepository.Object);
 
@@ -42,8 +46,8 @@ namespace TANE.Application.Test.Groups.Kunder
             Func<Task> act = async () => await deleteKundeCommand.DeleteKundeAsync(1, jwtToken);
 
             // Assert
-            var exception = await Assert.ThrowsAsync<ArgumentException>(act);
-            Assert.Equal("kundeId er ikke valid", exception.Message);
+            var exception = await Assert.ThrowsAsync<Exception>(act);
+            Assert.Equal("der skete en fejl ved sletning af kunden", exception.Message);
         }
     }
     

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,6 +43,33 @@ namespace TANE.Persistence.Repositories
                 else
                 {
                     throw new Exception("Failed to create user");
+                }
+            }
+        }
+
+        public async Task<bool> UpdateUserAsync(string Email, string newPassword, string jwtToken)
+        {
+            using (HttpClient httpClient = _httpClientFactory.CreateClient("auth"))
+            {
+                httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
+
+                var result = await httpClient.PostAsJsonAsync("api/Admin/reset-password", new { Email, newPassword });
+
+                if (result.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+                else if (result.StatusCode == System.Net.HttpStatusCode.Unauthorized || result.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                {
+                    throw new NotAuthorizedException("Unauthorized");
+                }
+                else if (result.StatusCode == System.Net.HttpStatusCode.Conflict)
+                {
+                    throw new ConflictException("JEG VED IKKE HVORFOR DENNE MEDDELELSE KOMMER NU");
+                }
+                else
+                {
+                    throw new Exception("JEG VED IKKE HVORFOR DENNE MEDDELELSE KOMMER NU2!!!");
                 }
             }
         }
@@ -102,6 +130,17 @@ namespace TANE.Persistence.Repositories
             }
         }
 
+        public async Task<List<User>> GetUsersAsync(string jwtToken)
+        {
+            var client = _httpClientFactory.CreateClient("auth");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
+
+            
+            var users = await client.GetFromJsonAsync<List<User>>("api/Admin/users");
+            return users ?? new List<User>(); 
+        }
+        
 
     }
 }
