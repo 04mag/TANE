@@ -1,69 +1,135 @@
-﻿@using System.Collections.ObjectModel
+﻿@using TANE.Application.Dtos
+@using System.Collections.ObjectModel
 @using TANE.Application.Dtos.Skabeloner
+@using TANE.Application.Groups.Kunder.Queries.Interfaces
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
-@using TANE.Persistence.Repositories
 @using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.DagSkabeloner.Components
-@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
-@inject ITurSkabelonRepository TurSkabelonRepository
 @inject CustomStateProvider AuthStateProvider
 @inject IDagSkabelonRepository DagSkabelonRepository
+@inject IReadKunde ReadKunde
+@inject DialogService DialogService
+@inject CustomerState CustomerState
+@inject NavigationManager NavigationManager
+
+
 
 <div class="rz-p-0 rz-p-md-12">
-    @if (!showAddDagSkabelon)
-    {
-        <h4>Opret Ny Tur Skabelon</h4>
-        <RadzenTemplateForm TItem="TurSkabelonCreateDto" Data=@TurSkabelon Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
-            <RadzenStack Gap="1rem" class="rz-p-sm-12">
-
-                <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
-                    <ChildContent>
-                        <RadzenTextBox Name="Titel" @bind-Value=@TurSkabelon.Titel />
-                    </ChildContent>
-                    <Helper>
-                        <RadzenRequiredValidator Component="Titel" Text="Titel skal udfyldes." />
-                    </Helper>
-                </RadzenFormField>
-
-
-                <RadzenFormField Text="Beskrivelse" Variant="@ThemeConfig.FormVariant">
-                    <ChildContent>
-                        <RadzenTextArea Name="Beskrivelse" @bind-Value="@TurSkabelon.Beskrivelse" Rows="4" />
-                    </ChildContent>
-                    <Helper>
-                        <RadzenRequiredValidator Component="Beskrivelse" Text="Beskrivelse skal udfyldes." />
-                    </Helper>
-                </RadzenFormField>
-
-                <br />
-
-                <h4>Dage:</h4>
-                <DagSkabelonReorderListComponent InjectedSkabeloner="ObservableDagSkabeloner" OnDeleteSkabelon="OnDagSkabelonDelete" />
-                <div style="text-align: right; width: 100%;">
-                    <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium" Style="width: 150px" Text="Tilføj Dag" Click="@(() => showAddDagSkabelon = !showAddDagSkabelon)"></RadzenButton>
-                </div>
-
-                <br />
-
-                <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Text="Opret tur skabelon"></RadzenButton>
-            </RadzenStack>
-        </RadzenTemplateForm>
-    }
+    <!-- Flex-container med 100% bredde -->
     
-    @if (showAddDagSkabelon)
-    {
-        <CreateDagSkabelonComponent OnAddSkabelon="OnDagSkabelonRowSelect"/>
-    }
 
+
+
+   
+
+    <RadzenTemplateForm TItem="TurSkabelonCreateDto" Data=@TurSkabelon Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+        <RadzenStack Gap="1rem" class="rz-p-sm-12">
+            
+
+    <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
+        <RadzenButton 
+            ButtonType="ButtonType.Submit" 
+            Size="ButtonSize.Large" 
+            Text="@ButtonText" 
+        />
+    </div>
+            
+
+            <!-- Titel -->
+            <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenTextBox Name="Titel" @bind-Value=@TurSkabelon.Titel Style="width: 100%"/>
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="Titel" Text="Titel skal udfyldes."/>
+                </Helper>
+            </RadzenFormField>
+
+            <!-- Beskrivelse -->
+            <RadzenFormField Text="Beskrivelse" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenTextArea Name="Beskrivelse" @bind-Value=@TurSkabelon.Beskrivelse Rows="4" Style="width: 100%"/>
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="Beskrivelse" Text="Beskrivelse skal udfyldes."/>
+                </Helper>
+            </RadzenFormField>
+
+            <!-- Lufthavn -->
+            <RadzenFormField Text="Pris" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenNumeric Name="Pris" @bind-Value=@TurSkabelon.Pris Style="width: 100%"/>
+                </ChildContent>
+            </RadzenFormField>
+
+            <br/>
+            @if (ObservableDagSkabeloner.Count < 1)
+            {
+                <h4>Ingen DagSkabeloner at vise</h4>
+            }
+            @if (ObservableDagSkabeloner.Count > 0)
+            {
+
+                <h4>DagSkabeloner:</h4>
+                <DagSkabelonReorderListComponent InjectedDagSkabeloner="ObservableDagSkabeloner" OnDelete="OnDagSkabelonDelete"/>
+                <div style="text-align: right; width: 100%;">
+
+                </div>
+            }
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <RadzenButton
+                    ButtonType="ButtonType.Button"
+                    Size="ButtonSize.Medium"
+                    Style="width: 150px;"
+                    Text="Vælg fra skabelon"
+                    Click="@(() => showAddDagSkabelon = !showAddDagSkabelon)"/>
+
+                <RadzenButton
+                    ButtonType="ButtonType.Button"
+                    Text="Ny DagSkabelon"
+                    Click="OpenCreateDagSkabelonDialog"/>
+
+            </div>
+            @if (showAddDagSkabelon)
+            {
+                <div style="border: 1px solid #ccc; padding: 1rem; border-radius: 6px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); margin-bottom: 1rem;">
+                    <DagSkabelonSkabelonListComponent OnSelect="OnDagSkabelonRowSelect"/>
+                </div>
+            }
+
+
+            <br/>
+        </RadzenStack>
+    </RadzenTemplateForm>
 </div>
 
 @code{
-    string _token;
-    [Parameter, EditorRequired]
+    Kunde? NyKunde { get; set; }
+    [Inject] 
+    private ITurSkabelonRepository _TurSkabelonRepository { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<TurSkabelonCreateDto> OnAdd { get; set; }
+    [Parameter]
+    public EventCallback<TurSkabelonReadDto> OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<TurSkabelonCreateDto> OnEditTurSkabelon { get; set; }
+
+    [Parameter] 
+    public TurSkabelonReadDto? ExistingTurSkabelon { get; set; }
+
+
+    [Parameter]
+    public EventCallback<TurSkabelonCreateDto> OnCreateTurSkabelon { get; set; }
+
+    [Parameter]
     public List<DagSkabelonReadDto> InjectedDagSkabeloner { get; set; } = new List<DagSkabelonReadDto>();
-
-
+    
+    string selectedCustomerEmail;  // Variable to hold selected customer email
+    private string? _token;
     bool showAddDagSkabelon = false;
 
     private ObservableCollection<DagSkabelonReadDto> SelectedDagSkabelonerVar = new ObservableCollection<DagSkabelonReadDto>();
@@ -82,21 +148,61 @@
 
     public TurSkabelonCreateDto TurSkabelon { get; set; } = new TurSkabelonCreateDto();
 
-    private List<DagSkabelonReadDto> DagSkabelonerVar = new List<DagSkabelonReadDto>();
-
     public List<DagSkabelonReadDto> DagSkabeloner { get; set; }
+    private string ButtonText => ExistingTurSkabelon == null ? "Opret TurSkabelon" : "Opdater TurSkabelon";
 
-    protected override async void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        if (ExistingTurSkabelon != null)
+        {
+
+            TurSkabelon.Titel = ExistingTurSkabelon.Titel;
+            TurSkabelon.Beskrivelse = ExistingTurSkabelon.Beskrivelse;
+          //  TurSkabelon.Sekvens = ExistingTurSkabelon.Sekvens;
+            TurSkabelon.Pris = ExistingTurSkabelon.Pris;
+            TurSkabelon.Dage =  ExistingTurSkabelon.Dage?.Select(d => new DagSkabelonCreateDto
+            {
+                Titel = d.Titel,
+                Beskrivelse = d.Beskrivelse,
+                Aktiviteter = d.Aktiviteter,
+                Måltider = d.Måltider,
+                Overnatning = d.Overnatning,
+           //     Sekvens = d.Sekvens
+            }).ToList();
+
+   
+            StateHasChanged();
+        }
+        else
+        {
+            TurSkabelon = new TurSkabelonCreateDto();
+            TurSkabelon.Dage = new List<DagSkabelonCreateDto>();
+        }
+    
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         _token = AuthStateProvider.CurrentUser.Token;
-        var alledage = await DagSkabelonRepository.ReadAllDagSkabeloneAsync(_token);
-        DagSkabeloner = alledage.ToList();
+
+        showAddDagSkabelon = false;
+
     }
 
-    void OnSubmit()
+    async Task OnSubmit()
     {
-        TurSkabelonRepository.CreateTurSkabelon(TurSkabelon, _token);
+        if (ExistingTurSkabelon != null)
+        {
+            await OnEditTurSkabelon.InvokeAsync(TurSkabelon);
+        }
+
+        else
+        {
+            await OnCreateTurSkabelon.InvokeAsync(TurSkabelon);
+            _TurSkabelonRepository.CreateTurSkabelon(TurSkabelon,_token);
+        }
+
+        DialogService.Close();
+        // redirect til liste
+        // await DialogService.CloseAsync();
+        NavigationManager.NavigateTo("/turskabeloner");
     }
 
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
@@ -104,24 +210,62 @@
 
     }
 
-    private void OnDagSkabelonRowSelect(DagSkabelonCreateDto dagSkabelon)
-    { 
-      var  readSkabelon = new DagSkabelonReadDto()
+    private async Task OnDagSkabelonRowSelect(DagSkabelonReadDto DagSkabelonSkabelon)
+    {
+        var DagSkabelon = new DagSkabelonCreateDto
         {
-            Titel = dagSkabelon.Titel,
-            Beskrivelse = dagSkabelon.Beskrivelse,
-            Aktiviteter = dagSkabelon.Aktiviteter,
-            Måltider = dagSkabelon.Måltider,
-            Overnatning = dagSkabelon.Overnatning
+
+            Titel = DagSkabelonSkabelon.Titel,
+            Beskrivelse = DagSkabelonSkabelon.Beskrivelse,
+            Aktiviteter = DagSkabelonSkabelon.Aktiviteter,
+            Måltider = DagSkabelonSkabelon.Måltider,
+            Overnatning = DagSkabelonSkabelon.Overnatning,
+          //  Sekvens = TurSkabelon.Dage.Count,
+
+        };
+        TurSkabelon.Dage.Add(DagSkabelon);
+        ObservableDagSkabeloner.Add(new DagSkabelonReadDto
+        {
+            Titel = DagSkabelonSkabelon.Titel,
+            Beskrivelse = DagSkabelonSkabelon.Beskrivelse,
+            Aktiviteter = DagSkabelonSkabelon.Aktiviteter,
+            Måltider = DagSkabelonSkabelon.Måltider,
+            Overnatning = DagSkabelonSkabelon.Overnatning,
+           // Sekvens = TurSkabelon.Dage.Count,
+        });
+        showAddDagSkabelon = false;
+    }
+
+
+    private void OnDagSkabelonDelete(DagSkabelonReadDto DagSkabelon)
+    {
+        ObservableDagSkabeloner.Remove(DagSkabelon);
+    }
+
+    private async Task HandleAddDagSkabelon(DagSkabelonCreateDto DagSkabelon)
+    {
+        TurSkabelon.Dage.Add(DagSkabelon);
+        ObservableDagSkabeloner.Add(new DagSkabelonReadDto
+        {
+            Titel = DagSkabelon.Titel,
+            Beskrivelse = DagSkabelon.Beskrivelse,
+            Aktiviteter = DagSkabelon.Aktiviteter,
+            Måltider = DagSkabelon.Måltider,
+            Overnatning = DagSkabelon.Overnatning,
+        });
+        showAddDagSkabelon = false;
+    }
+
+    private async Task OpenCreateDagSkabelonDialog()
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "OnAdd", EventCallback.Factory.Create<DagSkabelonCreateDto>(this, HandleAddDagSkabelon) }
         };
 
-        ObservableDagSkabeloner.Add(readSkabelon);
-
-        showAddDagSkabelon = !showAddDagSkabelon;
+    // Åbner CreateDagSkabelonComponent i en dialog
+        var result = await DialogService.OpenAsync<CreateDagSkabelonComponent>("Opret Ny DagSkabelon", parameters);
     }
-
-    private void OnDagSkabelonDelete(DagSkabelonReadDto dagSkabelon)
-    {
-        ObservableDagSkabeloner.Remove(dagSkabelon);
-    }
+    
 }
+

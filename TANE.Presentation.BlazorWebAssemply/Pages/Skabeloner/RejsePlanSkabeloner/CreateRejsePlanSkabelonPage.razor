@@ -1,7 +1,7 @@
 ﻿@using TANE.Application.Groups.TurSkabeloner.Queries.Interfaces
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.RejsePlanSkabeloner.Components
 @using TANE.Application.Dtos.Skabeloner
-
+@inject CustomStateProvider AuthStateProvider
 
 @inject IReadTurSkabelon ReadTurSkabelon
 
@@ -12,10 +12,12 @@
 @code {
 
     public List<TurSkabelonReadDto> TurSkabeloner { get; set; } = new List<TurSkabelonReadDto>();
-
+    string _token;
 
     protected override async Task OnInitializedAsync()
     {
-        TurSkabeloner = await ReadTurSkabelon.ReadAllTurSkabelonerAsync("test-token");
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _token = AuthStateProvider.CurrentUser.Token;
+        TurSkabeloner = await ReadTurSkabelon.ReadAllTurSkabelonerAsync(_token);
     }
 }

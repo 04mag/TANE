@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
+﻿using System.Collections.ObjectModel;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 using TANE.Application.Dtos;
 using TANE.Application.Dtos.Skabeloner;
 using TANE.Application.RepositoryInterfaces;

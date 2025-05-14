@@ -59,11 +59,12 @@
 </div>
 
 @code {
-    [Parameter]
-    public DagSkabelonCreateDto Skabelon { get; set; }
+
+    
+    public DagSkabelonCreateDto Skabelon { get; set; } = new DagSkabelonCreateDto();
 
     [Parameter]
-    public EventCallback<DagSkabelonCreateDto> OnAddSkabelon { get; set; }
+    public EventCallback<DagSkabelonCreateDto> OnAdd { get; set; }
 
     string _token;
 
@@ -81,8 +82,8 @@
 
     void OnSubmit()
     {
-        DagSkabelonRepository.CreateDagSkabelonAsync(Skabelon, _token);
-        InvokeAsync(() => OnAddSkabelon.InvokeAsync(Skabelon));
+     
+        InvokeAsync(() => OnAdd.InvokeAsync(Skabelon));
     }
 }
 

@@ -5,10 +5,11 @@
 
 @inject IReadDagSkabelon ReadDagSkabelon
 @inject CustomStateProvider AuthStateProvider
+@inject DialogService DialogService
 
 @page "/Ny/turskabelon"
 
-<CreateTurSkabelonComponent InjectedDagSkabeloner="DagSkabeloner"/>
+<CreateTurSkabelonComponent InjectedDagSkabeloner="DagSkabeloner" />
 
 @code {
     string _token;
