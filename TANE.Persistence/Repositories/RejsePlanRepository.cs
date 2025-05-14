@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
 using TANE.Application.Dtos;
@@ -15,12 +16,17 @@ namespace TANE.Persistence.Repositories
     public class RejseplanRepository : IRejseplanRepository
     {
         private readonly IHttpClientFactory _factory;
-        private IMapper _mapper;
+        private readonly IMapper _mapper;
+        private readonly ILogger<RejseplanRepository> _logger;
 
-        public RejseplanRepository(IHttpClientFactory factory, IMapper mapper)
+        public RejseplanRepository(
+            IHttpClientFactory factory,
+            IMapper mapper,
+            ILogger<RejseplanRepository> logger)
         {
             _factory = factory;
             _mapper = mapper;
+            _logger = logger;
         }
 
         private void SetJwtToken(HttpClient client, string jwtToken)
@@ -29,140 +35,194 @@ namespace TANE.Persistence.Repositories
                 new AuthenticationHeaderValue("Bearer", jwtToken);
         }
 
-
         public async Task<bool> CreateRejseplan(Rejseplan rejseplan, string jwtToken)
         {
-            //Map rejserplan til create dto
-            var rejseplanCreateDto = _mapper.Map<RejseplanCreateDto>(rejseplan);
+            try
+            {
+                var dto = _mapper.Map<RejseplanCreateDto>(rejseplan);
+                var client = _factory.CreateClient("rejseplan");
+                SetJwtToken(client, jwtToken);
 
-
-            // her henter du netop den HttpClient, du har konfigureret med AddHttpClient("rejseplan", ...)
-            var client = _factory.CreateClient("rejseplan");
-
-            // sæt dit Bearer-token
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
-            // POST til baseAddress/“rejseplan”/rejseplan
-            var response = await client.PostAsJsonAsync("rejseplan", rejseplanCreateDto);
-            return response.IsSuccessStatusCode;
+                var response = await client.PostAsJsonAsync("rejseplan", dto);
+                return response.IsSuccessStatusCode;
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "Fejl ved HTTP-opkald under oprettelse af rejseplan.");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Uventet fejl ved oprettelse af rejseplan.");
+                throw new Exception("Der opstod en uventet fejl under oprettelsen af rejseplanen.", ex);
+            }
         }
-
 
         public async Task<bool> DeleteRejseplan(int rejseplanId, string jwtToken)
         {
-            // her henter du netop den HttpClient, du har konfigureret med AddHttpClient("rejseplan", ...)
-            var client = _factory.CreateClient("rejseplan");
+            try
+            {
+                var client = _factory.CreateClient("rejseplan");
+                SetJwtToken(client, jwtToken);
 
-            // sæt dit Bearer-token
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
-            // DELETE til baseAddress/“rejseplan”/rejseplan
-            var response = await client.DeleteAsync($"rejseplan/{rejseplanId}");
-            return response.IsSuccessStatusCode;
+                var response = await client.DeleteAsync($"rejseplan/{rejseplanId}");
+                return response.IsSuccessStatusCode;
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "Fejl ved HTTP-opkald under sletning af rejseplan med ID {Id}.", rejseplanId);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Uventet fejl ved sletning af rejseplan.");
+                throw new Exception("Der opstod en uventet fejl under sletningen af rejseplanen.", ex);
+            }
         }
-
 
         public async Task<List<Rejseplan>> ReadAllRejseplaner(string jwtToken)
         {
-            var client = _factory.CreateClient("rejseplan");
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", jwtToken);
+            try
+            {
+                var client = _factory.CreateClient("rejseplan");
+                SetJwtToken(client, jwtToken);
 
-            // Hent og deserialiser direkte til List<RejseplanReadDto>
-            var dtos = await client.GetFromJsonAsync<List<RejseplanReadDto>>("rejseplan");
+                var dtos = await client.GetFromJsonAsync<List<RejseplanReadDto>>("rejseplan");
+                var items = _mapper.Map<List<Rejseplan>>(dtos);
 
-            //map
-            var tours = _mapper.Map<List<Rejseplan>>(dtos);
-
-            // Hvis API’et returnerer 204 No Content, bliver tours null
-            return tours ?? new List<Rejseplan>();
+                return items ?? new List<Rejseplan>();
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "Fejl ved HTTP-opkald under hentning af alle rejseplaner.");
+                return new List<Rejseplan>();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Uventet fejl ved hentning af rejseplaner.");
+                throw new Exception("Der opstod en uventet fejl under hentning af rejseplanerne.", ex);
+            }
         }
 
         public async Task<Rejseplan> ReadRejseplanById(int rejseplanId, string jwtToken)
         {
-            var client = _factory.CreateClient("rejseplan");
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", jwtToken);
+            try
+            {
+                var client = _factory.CreateClient("rejseplan");
+                SetJwtToken(client, jwtToken);
 
-            // Problemet: du henter altid "…/rejseplan/rejseplan" uden ID
-            var dto = await client.GetFromJsonAsync<RejseplanReadDto>($"rejseplan/{rejseplanId}");
-
-            //map
-            var rejseplan = _mapper.Map<Rejseplan>(dto);
-
-            return rejseplan ?? new Rejseplan();
+                var dto = await client.GetFromJsonAsync<RejseplanReadDto>($"rejseplan/{rejseplanId}");
+                return _mapper.Map<Rejseplan>(dto) ?? new Rejseplan();
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "Fejl ved HTTP-opkald under hentning af rejseplan med ID {Id}.", rejseplanId);
+                return new Rejseplan();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Uventet fejl ved hentning af rejseplan.");
+                throw new Exception("Der opstod en uventet fejl under hentning af rejseplanen.", ex);
+            }
         }
 
         public async Task<bool> UpdateRejseplan(int id, Rejseplan rejseplan, string jwtToken)
         {
-            //Map rejseplan til update dto
-            var rejseplanUpdateDto = _mapper.Map<RejseplanUpdateDto>(rejseplan);
+            try
+            {
+                var dto = _mapper.Map<RejseplanUpdateDto>(rejseplan);
+                var client = _factory.CreateClient("rejseplan");
+                SetJwtToken(client, jwtToken);
 
-            var client = _factory.CreateClient("rejseplan");
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", jwtToken);
-
-            var response = await client.PutAsJsonAsync($"rejseplan/{id}", rejseplanUpdateDto);
-
-            // Returner true hvis status er 2xx
-            return response.IsSuccessStatusCode;
+                var response = await client.PutAsJsonAsync($"rejseplan/{id}", dto);
+                return response.IsSuccessStatusCode;
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "Fejl ved HTTP-opkald under opdatering af rejseplan med ID {Id}.", id);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Uventet fejl ved opdatering af rejseplan.");
+                throw new Exception("Der opstod en uventet fejl under opdatering af rejseplanen.", ex);
+            }
         }
 
         public async Task ReorderTureAsync(int rejseplanId, Tur tur, string jwtToken)
         {
-
-            //Map tur til reorder dto
-            var dto = _mapper.Map<TurReorderDto>(tur);
-
-            var client = _factory.CreateClient("rejseplan");
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", jwtToken);
-
-            var response = await client.PostAsJsonAsync($"rejseplan/{rejseplanId}/ture/reorder", dto);
-
-            // Returner true hvis status er 2xx
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                throw new Exception($"Failed to reorder tours: {response.StatusCode}");
+                var dto = _mapper.Map<TurReorderDto>(tur);
+                var client = _factory.CreateClient("rejseplan");
+                SetJwtToken(client, jwtToken);
+
+                var response = await client.PostAsJsonAsync($"rejseplan/{rejseplanId}/ture/reorder", dto);
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception($"Kunne ikke ændre rækkefølgen af ture: {response.StatusCode}.");
+                }
             }
-            // Hvis API’et returnerer 204 No Content, bliver tours null
-
-
-            // Optional: håndter svaret, hvis nødvendigt
-            //var result = await response.Content.ReadFromJsonAsync<bool>();
-            //if (!result)
-            //{
-            //    throw new Exception("Reordering tours failed.");
-            //}
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "Fejl ved HTTP-opkald under omrokering af ture for rejseplan ID {Id}.", rejseplanId);
+                throw new Exception("Der opstod en HTTP-fejl under omrokering af ture.", ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Uventet fejl ved omrokering af ture.");
+                throw new Exception("Der opstod en uventet fejl under omrokering af ture.", ex);
+            }
         }
 
         public async Task AddTurToRejseplanAsync(Tur tur, string jwtToken)
         {
-            //Map tur til assign dto
-            var dto = _mapper.Map<TurAssignDto>(tur);
-            var client = _factory.CreateClient("rejseplan");
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", jwtToken);
-
-            var response = await client.PostAsJsonAsync($"rejseplan/{dto.RejseplanId}/tur/{dto.TurId}", dto);
-
-            // Returner true hvis status er 2xx
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                throw new Exception($"Failed to add tour to rejseplan: {response.StatusCode}");
+                var dto = _mapper.Map<TurAssignDto>(tur);
+                var client = _factory.CreateClient("rejseplan");
+                SetJwtToken(client, jwtToken);
+
+                var response = await client.PostAsJsonAsync($"rejseplan/{dto.RejseplanId}/tur/{dto.TurId}", dto);
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception($"Kunne ikke tilføje tur til rejseplan: {response.StatusCode}.");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "Fejl ved HTTP-opkald under tilføjelse af tur til rejseplan ID {Id}.", tur.RejseplanId);
+                throw new Exception("Der opstod en HTTP-fejl under tilføjelse af tur.", ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Uventet fejl ved tilføjelse af tur til rejseplan.");
+                throw new Exception("Der opstod en uventet fejl under tilføjelse af tur til rejseplan.", ex);
             }
         }
 
-        public async Task RemoveTurFromRejseplanAsync( int rejseplanId, int turId, string jwtToken)
+        public async Task RemoveTurFromRejseplanAsync(int rejseplanId, int turId, string jwtToken)
         {
-            var client = _factory.CreateClient("rejseplan");
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", jwtToken);
-
-            var response = await client.DeleteAsync($"rejseplan/{rejseplanId}/tur/{turId}");
-
-            // Returner true hvis status er 2xx
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                throw new Exception($"Failed to remove tour from rejseplan: {response.StatusCode}");
+                var client = _factory.CreateClient("rejseplan");
+                SetJwtToken(client, jwtToken);
+
+                var response = await client.DeleteAsync($"rejseplan/{rejseplanId}/tur/{turId}");
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception($"Kunne ikke fjerne tur fra rejseplan: {response.StatusCode}.");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "Fejl ved HTTP-opkald under fjernelse af tur {TurId} fra rejseplan {PlanId}.", turId, rejseplanId);
+                throw new Exception("Der opstod en HTTP-fejl under fjernelse af tur fra rejseplan.", ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Uventet fejl ved fjernelse af tur fra rejseplan.");
+                throw new Exception("Der opstod en uventet fejl under fjernelse af tur fra rejseplan.", ex);
             }
         }
     }
