@@ -9,7 +9,7 @@ using TANE.Application.Dtos.TurDagRejseplan;
 
 namespace TANE.Application.RepositoryInterfaces
 {
-    public interface IRejsePlanRepository
+    public interface IRejseplanRepository
     {
         Task<bool> CreateRejseplan(Rejseplan rejseplan, string jwtToken);
         Task<bool> UpdateRejseplan(int id, Rejseplan tur, string jwtToken);

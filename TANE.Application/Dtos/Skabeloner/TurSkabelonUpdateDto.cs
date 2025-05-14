@@ -5,7 +5,7 @@
     public class TurSkabelonUpdateDto
     {
         public int Id { get; set; }
-        //public ICollection<RejsePlan> RejsePlaner { get; set; } = new List<RejsePlan>();
+        //public ICollection<Rejseplan> Rejseplaner { get; set; } = new List<Rejseplan>();
         public List<int> RejseplanSkabelonIds { get; set; } = new();
 
         public string Titel { get; set; }

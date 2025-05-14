@@ -16,9 +16,9 @@
         {
 
             private readonly IHttpClientFactory _factory;
-            private Mapper _mapper;
+            private IMapper _mapper;
 
-            public TurRepository(IHttpClientFactory factory, Mapper mapper)
+            public TurRepository(IHttpClientFactory factory, IMapper mapper)
             {
                 _factory = factory;
                 _mapper = mapper;

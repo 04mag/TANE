@@ -8,29 +8,29 @@ using TANE.Domain.Entities;
 
 namespace TANE.Persistence.Repositories
 {
-    internal class RejsePlanSkabelonRepository : IRejsePlanSkabelonRepository
+    internal class RejseplanSkabelonRepository : IRejseplanSkabelonRepository
     {
-        public Task<bool> CreateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon, string jwtToken)
+        public Task<bool> CreateRejseplanSkabelonAsync(RejseplanSkabelon rejseplanSkabelon, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> DeleteRejsePlanSkabelonAsync(int id, string jwtToken)
+        public Task<bool> DeleteRejseplanSkabelonAsync(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<RejsePlanSkabelon>> ReadAllRejsePlanSkabelonerAsync(string jwtToken)
+        public Task<List<RejseplanSkabelon>> ReadAllRejseplanSkabelonerAsync(string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<RejsePlanSkabelon> ReadRejsePlanSkabelonByIdAsync(int id, string jwtToken)
+        public Task<RejseplanSkabelon> ReadRejseplanSkabelonByIdAsync(int id, string jwtToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> UpdateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon, string jwtToken)
+        public Task<bool> UpdateRejseplanSkabelonAsync(RejseplanSkabelon rejseplanSkabelon, string jwtToken)
         {
             throw new NotImplementedException();
         }

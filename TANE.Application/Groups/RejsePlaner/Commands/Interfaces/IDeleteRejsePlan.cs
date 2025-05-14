@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TANE.Application.Groups.RejsePlaner.Commands.Interfaces
+namespace TANE.Application.Groups.Rejseplaner.Commands.Interfaces
 {
-    internal interface IDeleteRejsePlan
+    internal interface IDeleteRejseplan
     {
-        Task<bool> DeleteRejsePlanAsync(int Id, string jwtToken);
+        Task<bool> DeleteRejseplanAsync(int Id, string jwtToken);
     }
 }

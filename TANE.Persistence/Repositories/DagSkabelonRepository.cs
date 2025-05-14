@@ -4,9 +4,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-
+using AutoMapper;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Application.Dtos.Skabeloner;
+using TANE.Domain.Entities;
 
 namespace TANE.Persistence.Repositories
 {
@@ -14,10 +15,12 @@ namespace TANE.Persistence.Repositories
     {
 
         private readonly IHttpClientFactory _factory;
+        private IMapper _mapper;
 
-        public DagSkabelonRepository(IHttpClientFactory factory)
+        public DagSkabelonRepository(IHttpClientFactory factory, IMapper mapper)
         {
             _factory = factory;
+            _mapper = mapper;
         }
 
         private void SetJwtToken(HttpClient client, string jwtToken)
@@ -27,9 +30,11 @@ namespace TANE.Persistence.Repositories
         }
 
 
-        public async Task<bool> CreateDagSkabelonAsync(DagSkabelonCreateDto dag, string jwtToken)
+        public async Task<bool> CreateDagSkabelonAsync(DagSkabelon dag, string jwtToken)
         {
-        
+            //map
+            var dto = _mapper.Map<DagSkabelonCreateDto>(dag);
+
             var client = _factory.CreateClient("skabelon");
 
             // sæt dit Bearer-token
@@ -53,36 +58,47 @@ namespace TANE.Persistence.Repositories
         }
 
 
-        public async Task<List<DagSkabelonReadDto>> ReadAllDagSkabeloneAsync(string jwtToken)
+        public async Task<List<DagSkabelon>> ReadAllDagSkabeloneAsync(string jwtToken)
+        {
+            //map
+
+            var client = _factory.CreateClient("skabelon");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
+
+            // Hent og deserialiser direkte til List<DagSkabelon>
+            var dtos = await client.GetFromJsonAsync<List<DagSkabelonReadDto>>("api/DagSkabelon");
+
+            //map
+            var dage = _mapper.Map<List<DagSkabelon>>(dtos);
+
+            // Hvis API’et returnerer 204 No Content, bliver tours null
+            return dage ?? new List<DagSkabelon>();
+        }
+
+        public async Task<DagSkabelon> ReadDagSkabelonByIdAsync(int dagId, string jwtToken)
         {
             var client = _factory.CreateClient("skabelon");
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", jwtToken);
 
-            // Hent og deserialiser direkte til List<DagSkabelonReadDto>
-            var dage = await client.GetFromJsonAsync<List<DagSkabelonReadDto>>("api/DagSkabelon");
+            // Hent og deserialiser direkte til List<DagSkabelon>
+            var dto = await client.GetFromJsonAsync<DagSkabelonReadDto>($"api/DagSkabelon/{dagId}");
 
-            // Hvis API’et returnerer 204 No Content, bliver tours null
-            return dage ?? new List<DagSkabelonReadDto>();
-        }
-
-        public async Task<DagSkabelonReadDto> ReadDagSkabelonByIdAsync(int dagId, string jwtToken)
-        {
-            var client = _factory.CreateClient("skabelon");
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", jwtToken);
-
-            // Hent og deserialiser direkte til List<DagSkabelonReadDto>
-            var dag = await client.GetFromJsonAsync<DagSkabelonReadDto>($"api/DagSkabelon/{dagId}");
+            //map
+            var dag = _mapper.Map<DagSkabelon>(dto);
 
 
             // Hvis API’et returnerer 204 No Content, bliver tours null
-            return dag ?? new DagSkabelonReadDto();
+            return dag ?? new DagSkabelon();
 
         }
 
-        public async Task<bool> UpdateDagSkabelonAsync(int id, DagSkabelonUpdateDto dto, string jwtToken)
+        public async Task<bool> UpdateDagSkabelonAsync(int id, DagSkabelon dag, string jwtToken)
         {
+            //map
+            var dto = _mapper.Map<DagSkabelonUpdateDto>(dag);
+
             var client = _factory.CreateClient("skabelon");
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", jwtToken);

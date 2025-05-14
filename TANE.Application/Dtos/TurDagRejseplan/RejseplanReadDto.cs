@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using TANE.Application.Dtos.TurDagRejseplan;
+using TANE.Domain.Entities;
 
 namespace TANE.Application.Dtos
 {
@@ -16,7 +17,7 @@ namespace TANE.Application.Dtos
         public double? FlyPris { get; set; }
         public int? AntalDage { get; set; }
         public DateTime? AfrejseTidspunkt { get; set; }
-        public List<TurReadDto> Ture { get; set; }
+        public List<Tur> Ture { get; set; }
         public string OpfølgningNote { get; set; }
         public RejseplanStatusDto? RejseplanStatus { get; set; }
         public byte[] RowVersion { get; set; }  // **Til optimistic concurrency**

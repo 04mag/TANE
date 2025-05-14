@@ -15,9 +15,9 @@ namespace TANE.Persistence.Repositories
     {
 
         private readonly IHttpClientFactory _factory;
-        private Mapper _mapper;
+        private IMapper _mapper;
 
-        public DagRepository(IHttpClientFactory factory, Mapper mapper)
+        public DagRepository(IHttpClientFactory factory, IMapper mapper)
         {
             _factory = factory;
             _mapper = mapper;

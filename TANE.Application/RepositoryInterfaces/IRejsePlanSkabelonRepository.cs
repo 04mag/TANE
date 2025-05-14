@@ -7,12 +7,12 @@ using TANE.Domain.Entities;
 
 namespace TANE.Application.RepositoryInterfaces
 {
-    public interface IRejsePlanSkabelonRepository
+    public interface IRejseplanSkabelonRepository
     {
-        Task<List<RejsePlanSkabelon>> ReadAllRejsePlanSkabelonerAsync(string jwtToken);
-        Task<RejsePlanSkabelon> ReadRejsePlanSkabelonByIdAsync(int id, string jwtToken);
-        Task<bool> CreateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon, string jwtToken);
-        Task<bool> UpdateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon, string jwtToken);
-        Task<bool> DeleteRejsePlanSkabelonAsync(int id, string jwtToken);
+        Task<List<RejseplanSkabelon>> ReadAllRejseplanSkabelonerAsync(string jwtToken);
+        Task<RejseplanSkabelon> ReadRejseplanSkabelonByIdAsync(int id, string jwtToken);
+        Task<bool> CreateRejseplanSkabelonAsync(RejseplanSkabelon rejseplanSkabelon, string jwtToken);
+        Task<bool> UpdateRejseplanSkabelonAsync(RejseplanSkabelon rejseplanSkabelon, string jwtToken);
+        Task<bool> DeleteRejseplanSkabelonAsync(int id, string jwtToken);
     }
 }

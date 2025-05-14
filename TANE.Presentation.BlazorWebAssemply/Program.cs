@@ -44,9 +44,7 @@ namespace TANE.Presentation.BlazorWebAssemply
             builder.Services.AddScoped<DialogService>();
             builder.Services.AddScoped<CustomerState>();
 
-
-            builder.Services
-                .AddAutoMapper(typeof(MappingProfile).Assembly);
+            builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
 
 

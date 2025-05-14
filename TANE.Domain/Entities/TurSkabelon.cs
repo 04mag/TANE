@@ -9,7 +9,7 @@ namespace TANE.Domain.Entities
     public class TurSkabelon
     {
         public int Id { get; set; }
-        public List<DagSkabelon> DagSkabeloner { get; set; } = new List<DagSkabelon>();
+        public List<DagSkabelon> Dage{ get; set; } = new List<DagSkabelon>();
         public int Sekvens { get; set; }
         public string Titel { get; set; } = string.Empty;
         public string Beskrivelse { get; set; } = string.Empty;
@@ -18,7 +18,7 @@ namespace TANE.Domain.Entities
 
         public int GetAntalDage()
         {
-            return DagSkabeloner.Count;
+            return Dage.Count;
         }
     }
 }

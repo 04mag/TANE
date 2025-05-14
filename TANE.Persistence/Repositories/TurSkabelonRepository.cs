@@ -1,9 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using AutoMapper;
 using TANE.Application.Dtos;
 using TANE.Application.Dtos.Skabeloner;
 using TANE.Application.RepositoryInterfaces;
+using TANE.Domain.Entities;
 
 namespace TANE.Persistence.Repositories
 {
@@ -11,10 +13,11 @@ namespace TANE.Persistence.Repositories
     {
 
         private readonly IHttpClientFactory _factory;
-
-        public TurSkabelonRepository(IHttpClientFactory factory)
+        private IMapper _mapper;
+        public TurSkabelonRepository(IHttpClientFactory factory, IMapper mapper)
         {
             _factory = factory;
+            _mapper = mapper;
         }
 
         private void SetJwtToken(HttpClient client, string jwtToken)
@@ -24,15 +27,18 @@ namespace TANE.Persistence.Repositories
         }
 
 
-        public async Task<bool> CreateTurSkabelon(TurSkabelonCreateDto tur, string jwtToken)
+        public async Task<bool> CreateTurSkabelon(TurSkabelon tur, string jwtToken)
         {
+            //map
+            var dto = _mapper.Map<TurSkabelonCreateDto>(tur);
+
             // her henter du netop den HttpClient, du har konfigureret med AddHttpClient("rejseplan", ...)
             var client = _factory.CreateClient("skabelon");
 
             // sæt dit Bearer-token
             SetJwtToken(client, jwtToken);
             // POST til baseAddress/“rejseplan”/tur
-            var response = await client.PostAsJsonAsync("api/TurSkabelon", tur);
+            var response = await client.PostAsJsonAsync("api/TurSkabelon", dto);
             return response.IsSuccessStatusCode;
         }
 
@@ -48,32 +54,41 @@ namespace TANE.Persistence.Repositories
         }
 
 
-        public async Task<List<TurSkabelonReadDto>> ReadAllTurSkabeloner(string jwtToken)
+        public async Task<List<TurSkabelon>> ReadAllTurSkabeloner(string jwtToken)
         {
             var client = _factory.CreateClient("skabelon");
             SetJwtToken(client, jwtToken);
 
-            // Hent og deserialiser direkte til List<TurSkabelonReadDto>
-            var tours = await client.GetFromJsonAsync<List<TurSkabelonReadDto>>("api/TurSkabelon");
+            // Hent og deserialiser direkte til List<TurSkabelon>
+            var dtos = await client.GetFromJsonAsync<List<TurSkabelonReadDto>>("api/TurSkabelon");
+
+            //map
+            var tours = _mapper.Map<List<TurSkabelon>>(dtos);
 
             // Hvis API’et returnerer 204 No Content, bliver tours null
-            return tours ?? new List<TurSkabelonReadDto>();
+            return tours ?? new List<TurSkabelon>();
         }
 
-        public async Task<TurSkabelonReadDto> ReadTurSkabelonById(int turId, string jwtToken)
+        public async Task<TurSkabelon> ReadTurSkabelonById(int turId, string jwtToken)
         {
             var client = _factory.CreateClient("skabelon");
             SetJwtToken(client, jwtToken);
 
             // Problemet: du henter altid "…/rejseplan/tur" uden ID
-            var tur = await client.GetFromJsonAsync<TurSkabelonReadDto>($"api/TurSkabelon/{turId}");
+            var dto = await client.GetFromJsonAsync<TurSkabelonReadDto>($"api/TurSkabelon/{turId}");
 
-            return tur ?? new TurSkabelonReadDto();
+            //map
+            var tur = _mapper.Map<TurSkabelon>(dto);
+
+            return tur ?? new TurSkabelon();
         }
 
 
-        public async Task<bool> UpdateTurSkabelon(int id, TurSkabelonUpdateDto dto, string jwtToken)
+        public async Task<bool> UpdateTurSkabelon(int id, TurSkabelon tur, string jwtToken)
         {
+            //map
+            var dto = _mapper.Map<TurSkabelonUpdateDto>(tur);
+
             var client = _factory.CreateClient("skabelon");
             SetJwtToken(client, jwtToken);
 
@@ -120,16 +135,20 @@ namespace TANE.Persistence.Repositories
 
         }
 
-        public async Task<ObservableCollection<TurSkabelonReadDto>> ReadAllTurSkabelonePåRejseplan(int rejseplanId,
-            string jwtToken)
+        public async Task<ObservableCollection<TurSkabelon>> ReadAllTurSkabelonePåRejseplan(int rejseplanId, string jwtToken)
         {
             var client = _factory.CreateClient("skabelon");
             SetJwtToken(client, jwtToken);
 
             var response = await client.GetAsync($"api/TurSkabelon/rejseplan/{rejseplanId}");
+
             response.EnsureSuccessStatusCode();
-            var tours = await response.Content.ReadFromJsonAsync<ObservableCollection<TurSkabelonReadDto>>();
-            return tours ?? new ObservableCollection<TurSkabelonReadDto>();
+            var dtos = await response.Content.ReadFromJsonAsync<ObservableCollection<TurSkabelon>>();
+
+            //mapping
+            var tours = _mapper.Map<ObservableCollection<TurSkabelon>>(dtos);
+
+            return tours ?? new ObservableCollection<TurSkabelon>();
         }
     }
 }

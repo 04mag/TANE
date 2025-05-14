@@ -5,7 +5,7 @@ namespace TANE.Application.Dtos
     public class TurUpdateDto
     {
 
-        //public ICollection<RejsePlan> RejsePlaner { get; set; } = new List<RejsePlan>();
+        //public ICollection<Rejseplan> Rejseplaner { get; set; } = new List<Rejseplan>();
         public int Id { get; set; }
         public string? Titel { get; set; }
         public string? Beskrivelse { get; set; }

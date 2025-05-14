@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TANE.Domain.Entities
 {
-    public class RejsePlanSkabelon
+    public class RejseplanSkabelon
     {
         public int  Id { get; set; }
         public List<TurSkabelon> TurSkabeloner { get; set; }

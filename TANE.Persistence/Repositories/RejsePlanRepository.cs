@@ -12,12 +12,12 @@ using TANE.Application.Dtos.TurDagRejseplan;
 
 namespace TANE.Persistence.Repositories
 {
-    public class RejsePlanRepository : IRejsePlanRepository
+    public class RejseplanRepository : IRejseplanRepository
     {
         private readonly IHttpClientFactory _factory;
-        private Mapper _mapper;
+        private IMapper _mapper;
 
-        public RejsePlanRepository(IHttpClientFactory factory, Mapper mapper)
+        public RejseplanRepository(IHttpClientFactory factory, IMapper mapper)
         {
             _factory = factory;
             _mapper = mapper;

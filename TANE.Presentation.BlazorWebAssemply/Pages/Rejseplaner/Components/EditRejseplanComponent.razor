@@ -8,13 +8,13 @@
 @using TANE.Persistence.Repositories
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
-@using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
+@using TANE.Presentation.BlazorWebAssemply.Pages.Ture.Components
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
 @inject DialogService DialogService
 @inject CustomStateProvider AuthStateProvider
 @inject ITurRepository TurRepository
 @inject IReadKunde ReadKunde
-@inject IRejsePlanRepository RejseplanRepository
+@inject IRejseplanRepository RejseplanRepository
 @inject IJSRuntime JSRuntime
 
 <RadzenDialog />
@@ -22,7 +22,7 @@
 <div class="rz-p-0 rz-p-md-12">
   <h4>Rediger Rejseplan</h4>
 
-  <RadzenTemplateForm TItem="RejseplanUpdateDto"
+  <RadzenTemplateForm TItem="Rejseplan"
                       Data="@EditModel"
                       Submit="HandleValidSubmit"
                       InvalidSubmit="HandleInvalidSubmit">
@@ -159,38 +159,38 @@
 
 @code {
     [Parameter, EditorRequired]
-    public RejseplanReadDto Item { get; set; } = default!;
+    public Rejseplan Item { get; set; } = default!;
 
 
     [Parameter]
     public int currentId { get; set; } 
 
     [Parameter]
-    public EventCallback<RejseplanUpdateDto> OnSaved { get; set; }
+    public EventCallback<Rejseplan> OnSaved { get; set; }
 
     [Parameter]
     public EventCallback OnCancelled { get; set; }
 
-    private RejseplanUpdateDto EditModel = new();
+    private Rejseplan EditModel = new();
     private string _token = string.Empty;
 
-    ObservableCollection<TurReadDto> RejseplanTure { get; set; } = new ObservableCollection<TurReadDto>();
+    ObservableCollection<Tur> RejseplanTure { get; set; } = new ObservableCollection<Tur>();
 
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
         _token = AuthStateProvider.CurrentUser.Token;
         Kunder = await ReadKunde.GetAllKunderAsync(_token);
-        // din repo returnerer en ObservableCollection<TurReadDto>
+        // din repo returnerer en ObservableCollection<Tur>
         var obs = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
 
-        // konverter til List<TurReadDto>
+        // konverter til List<Tur>
         TurVar = (await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token))
             .ToList();
 
 
         var ture = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
-        RejseplanTure = new ObservableCollection<TurReadDto>(ture.OrderBy(t => t.Sekvens));
+        RejseplanTure = new ObservableCollection<Tur>(ture.OrderBy(t => t.Sekvens));
         
 
     }
@@ -209,13 +209,13 @@
 
     // Tur-selection
     private bool showAddTur;
-    private ObservableCollection<TurReadDto> SelectedtureVar = new();
+    private ObservableCollection<Tur> SelectedtureVar = new();
 
-    public ObservableCollection<TurReadDto>? Observableture;
+    public ObservableCollection<Tur>? Observableture;
 
-    private List<TurReadDto> TurVar;
+    private List<Tur> TurVar;
 
-    public List<TurReadDto> Ture
+    public List<Tur> Ture
     {
         get => TurVar.Where(d => !Observableture.Any(o => o.Id == d.Id)).ToList();
         set => TurVar = value;
@@ -223,7 +223,7 @@
 
     protected override void OnParametersSet()
     {
-        EditModel = new RejseplanUpdateDto
+        EditModel = new Rejseplan
       {
           Id               = Item.Id,
           KundeId          = Item.KundeId,
@@ -244,7 +244,7 @@
           : string.Empty;
     }
 
-    private async Task HandleValidSubmit(RejseplanUpdateDto model)
+    private async Task HandleValidSubmit(Rejseplan model)
     {
       
         // skriv til datavbasen
@@ -265,9 +265,9 @@
         customerSearchTerm = $"{c.Fornavn} {c.Efternavn}";
     }
 
-    private async Task OnTurRowSelect(TurSkabelonReadDto turSkabelon)
+    private async Task OnTurRowSelect(TurSkabelon turSkabelon)
     {
-        var tur = new TurReadDto
+        var tur = new Tur
         {
             Id = turSkabelon.Id,
             Titel = turSkabelon.Titel,
@@ -277,7 +277,7 @@
         Item.Ture.Add(tur);
     }
 
-    private async void OnTurDelete(TurReadDto tur)
+    private async void OnTurDelete(Tur tur)
     {
         bool confirmed;
         try
@@ -320,26 +320,26 @@
     }
   } 
     
-    private async Task HandleTurReorder(IEnumerable<TurReadDto> newOrder)
-  {
-    // 1) Gem i DB
-      var dto = new TurReorderDto { TurIds = newOrder.Select(t => t.Id).ToList(), OriginalRowVersion = Item.RowVersion};
-      try
-      {
-          await RejseplanRepository.ReorderTureAsync(Item.Id, dto, _token);
+     private async Task HandleTurReorder(IEnumerable<Tur> newOrder){}
+  // {
+  //   // 1) Gem i DB
+  //     var dto = new Tur { TurIds = newOrder.Select(t => t.Id).ToList(), RowVersion = Item.RowVersion};
+  //     try
+  //     {
+  //         await RejseplanRepository.ReorderTureAsync(Item.Id, dto, _token);
          
-          StateHasChanged();
+  //         StateHasChanged();
 
-      }
-      catch (Exception ex)
-      {
-          await DialogService.Alert($"Fejl: {ex.Message}");
-          return;
-      }
+  //     }
+  //     catch (Exception ex)
+  //     {
+  //         await DialogService.Alert($"Fejl: {ex.Message}");
+  //         return;
+  //     }
 
-        var ture = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
-        RejseplanTure = new ObservableCollection<TurReadDto>(ture.OrderBy(t => t.Sekvens));
-  }
+  //       var ture = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
+  //       RejseplanTure = new ObservableCollection<Tur>(ture.OrderBy(t => t.Sekvens));
+  // }
    
 
 }

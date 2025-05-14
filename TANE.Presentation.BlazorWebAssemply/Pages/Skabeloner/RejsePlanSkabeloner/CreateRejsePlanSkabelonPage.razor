@@ -1,6 +1,6 @@
 ﻿@using TANE.Application.Groups.TurSkabeloner.Queries.Interfaces
-@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.RejsePlanSkabeloner.Components
 @using TANE.Application.Dtos.Skabeloner
+@using TANE.Domain.Entities
 @inject CustomStateProvider AuthStateProvider
 
 @inject IReadTurSkabelon ReadTurSkabelon
@@ -11,7 +11,7 @@
 
 @code {
 
-    public List<TurSkabelonReadDto> TurSkabeloner { get; set; } = new List<TurSkabelonReadDto>();
+    public List<TurSkabelon> TurSkabeloner { get; set; } = new List<TurSkabelon>();
     string _token;
 
     protected override async Task OnInitializedAsync()

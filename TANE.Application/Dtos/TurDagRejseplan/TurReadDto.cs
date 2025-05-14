@@ -1,4 +1,6 @@
-﻿namespace TANE.Application.Dtos
+﻿using TANE.Domain.Entities;
+
+namespace TANE.Application.Dtos
 {
     public class TurReadDto
     {
@@ -8,7 +10,7 @@
         public double Pris { get; set; }
         public DateTime? TurStartTidspunkt { get; set; }
         public DateTime? TurSlutTidspunkt { get; set; }
-        public List<DagReadDto>? Dage { get; set; }
+        public List<Dag>? Dage { get; set; }
         public int? RejseplanId { get; set; }
         public int? Sekvens { get; set; }
         public byte[] RowVersion { get; set; }  // **Til optimistic concurrency**

@@ -3,23 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TANE.Application.Groups.RejsePlanSkabeloner.Commands.Interfaces;
+using TANE.Application.Groups.RejseplanSkabeloner.Commands.Interfaces;
 using TANE.Application.RepositoryInterfaces;
 
-namespace TANE.Application.Groups.RejsePlanSkabeloner.Commands
+namespace TANE.Application.Groups.RejseplanSkabeloner.Commands
 {
-    public class DeleteRejsePlanSkabelon : IDeleteRejsePlanSkabelon
+    public class DeleteRejseplanSkabelon : IDeleteRejseplanSkabelon
     {
-        private readonly IRejsePlanSkabelonRepository _rejsePlanSkabelonRepository;
+        private readonly IRejseplanSkabelonRepository _rejseplanSkabelonRepository;
 
-        public DeleteRejsePlanSkabelon(IRejsePlanSkabelonRepository rejsePlanSkabelonRepository)
+        public DeleteRejseplanSkabelon(IRejseplanSkabelonRepository rejseplanSkabelonRepository)
         {
-            _rejsePlanSkabelonRepository = rejsePlanSkabelonRepository;
+            _rejseplanSkabelonRepository = rejseplanSkabelonRepository;
         }
 
-        public async Task<bool> DeleteRejsePlanSkabelonAsync(int id, string jwtToken)
+        public async Task<bool> DeleteRejseplanSkabelonAsync(int id, string jwtToken)
         {
-            return await _rejsePlanSkabelonRepository.DeleteRejsePlanSkabelonAsync(id, jwtToken);
+            return await _rejseplanSkabelonRepository.DeleteRejseplanSkabelonAsync(id, jwtToken);
         }
     }
 }

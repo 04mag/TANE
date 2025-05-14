@@ -23,7 +23,7 @@ using TANE.Domain.Entities;
 @if(!showAddTur)
     {
         < h4 > Opret Ny Rejseplan</ h4 >
-        < RadzenTemplateForm TItem = "RejsePlan" Data = @Rejseplan Submit = @OnSubmit InvalidSubmit = @OnInvalidSubmit >
+        < RadzenTemplateForm TItem = "Rejseplan" Data = @Rejseplan Submit = @OnSubmit InvalidSubmit = @OnInvalidSubmit >
             < RadzenStack Gap = "1rem" class= "rz-p-sm-12" >
 
                 < RadzenFormField Text = "Titel" Variant = "@ThemeConfig.FormVariant" >
@@ -65,14 +65,14 @@ using TANE.Domain.Entities;
 @code{
 
     [Parameter, EditorRequired]
-    public List<DagReadDto> InjectedDage { get; set; } = new List<DagReadDto>();
+    public List<Dag> InjectedDage { get; set; } = new List<Dag>();
 
     bool showAddTur = false;
     
-    private ObservableCollection<DagReadDto> SelectedDagVar = new ObservableCollection<DagReadDto>();
+    private ObservableCollection<Dag> SelectedDagVar = new ObservableCollection<Dag>();
 
     ITurRepository _turRepository;
-    public ObservableCollection<DagReadDto> ObservableDag
+    public ObservableCollection<Dag> ObservableDag
         {
     get
     {
@@ -84,12 +84,12 @@ using TANE.Domain.Entities;
     }
 }
 
-public RejsePlan Rejseplan { get; set; } = new RejsePlan();
+public Rejseplan Rejseplan { get; set; } = new Rejseplan();
 
 private List<Tur> TurVar = new List<Tur>();
 
-    private List<DagReadDto> DagVar = new List<DagReadDto>();
-    public List<DagReadDto> Dage
+    private List<Dag> DagVar = new List<Dag>();
+    public List<Dag> Dage
     {
     get
     {
@@ -107,7 +107,7 @@ protected override void OnInitialized()
     Dage = InjectedDage;
 }
 
-void OnSubmit(RejsePlan model)
+void OnSubmit(Rejseplan model)
 {
     Rejseplan.Tur = ObservableTur.ToList();
 
@@ -124,14 +124,14 @@ void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
 
 }
 
-private void OnTurRowSelect(DagReadDto dag)
+private void OnTurRowSelect(Dag dag)
 {
     ObservableDag.Add(dag);
 
     showAddTur = !showAddTur;
 }
 
-private void OnTurDelete(DagReadDto dag)
+private void OnTurDelete(Dag dag)
 {
     ObservableDag.Remove(dag);
 }
