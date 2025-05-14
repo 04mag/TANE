@@ -40,7 +40,7 @@ else
         NavManager.NavigateTo($"Kunde/rediger/{kunde.Id}");
     }
 
-    private  void OnRowDeletePressed(Kunde kunde)
+    private async void OnRowDeletePressed(Kunde kunde)
     {
         Console.WriteLine($"Delete pressed for: {kunde.Id}");
         // Implement delete logic here

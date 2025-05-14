@@ -18,9 +18,7 @@ using TANE.Application.Groups.Kunder.Commands.Interfaces;
 using TANE.Application.Groups.Kunder.Queries;
 using TANE.Application.Groups.Kunder.Queries.Interfaces;
 using TANE.Application.Groups.Users.Commands;
-using TANE.Application.Groups.Users.Queries.Interfaces;
 using TANE.Application.Groups.Users.Interfaces;
-using TANE.Application.Groups.Users.Queries;
 
 namespace TANE.Application.Configuration
 {
