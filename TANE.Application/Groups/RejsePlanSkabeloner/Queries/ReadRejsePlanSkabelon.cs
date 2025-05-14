@@ -20,12 +20,23 @@ namespace TANE.Application.Groups.RejsePlanSkabeloner.Queries
 
         public async Task<RejsePlanSkabelon> ReadRejsePlanSkabelonByIdAsync(int id, string jwtToken)
         {
-            throw new NotImplementedException();
+            var result = await _rejsePlanSkabelonRepository.ReadRejsePlanSkabelonByIdAsync(id, jwtToken);
+
+            result.TurSkabeloner = result.TurSkabeloner.OrderBy(t => t.Sekvens).ToList();
+
+            return result;
         }
 
         public async Task<List<RejsePlanSkabelon>> ReadRejsePlanSkabelonerAsync(string jwtToken)
         {
-            throw new NotImplementedException();
+            var result = await _rejsePlanSkabelonRepository.ReadAllRejsePlanSkabelonerAsync(jwtToken);
+
+            foreach (var rejsePlanSkabelon in result)
+            {
+                rejsePlanSkabelon.TurSkabeloner = rejsePlanSkabelon.TurSkabeloner.OrderBy(t => t.Sekvens).ToList();
+            }
+
+            return result.OrderBy(r => r.Titel).ToList();
         }
     }
 }
