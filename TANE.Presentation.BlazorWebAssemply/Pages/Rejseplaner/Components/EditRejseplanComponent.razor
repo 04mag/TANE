@@ -131,7 +131,7 @@
       </RadzenFormField> *@
 
       <h4>Vælg ture:</h4>
-            <TurReorderListComponent InjectedTure="RejseplanTure" OnDelete="OnTurDelete" OnReorder="HandleTurReorder" />
+            <TurReorderListComponent InjectedTure="RejseplanTure" OnDelete="OnTurDelete" OnReorder="HandleTurReorder" OnEdit="HandleEdit" />
       <div style="text-align: right; width: 100%;">
         <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium"
                       Style="width:150px" Text="Tilføj Tur"
@@ -139,7 +139,7 @@
       </div>
       @if (showAddTur)
       {
-                <TurSkabelonListComponent OnSelect="OnTurRowSelect"/>
+                <TurSkabelonListComponent OnSelect="OnTurRowSelect" />
       }
 
       <div class="flex gap-2 mt-4">
@@ -158,12 +158,13 @@
 </div>
 
 @code {
-    [Parameter, EditorRequired]
+
+    [Parameter]
     public Rejseplan Item { get; set; } = default!;
 
 
     [Parameter]
-    public int currentId { get; set; } 
+    public int currentId { get; set; }
 
     [Parameter]
     public EventCallback<Rejseplan> OnSaved { get; set; }
@@ -181,17 +182,17 @@
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
         _token = AuthStateProvider.CurrentUser.Token;
         Kunder = await ReadKunde.GetAllKunderAsync(_token);
-        // din repo returnerer en ObservableCollection<Tur>
+    // din repo returnerer en ObservableCollection<Tur>
         var obs = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
 
-        // konverter til List<Tur>
+    // konverter til List<Tur>
         TurVar = (await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token))
             .ToList();
 
 
         var ture = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
         RejseplanTure = new ObservableCollection<Tur>(ture.OrderBy(t => t.Sekvens));
-        
+
 
     }
 
@@ -200,12 +201,12 @@
     private Kunde? selectedCustomer;
     private List<Kunde> Kunder = new();
 
-    private IEnumerable<Kunde> filteredCustomers => 
+    private IEnumerable<Kunde> filteredCustomers =>
         string.IsNullOrWhiteSpace(customerSearchTerm)
-        ? Kunder
-        : Kunder.Where(c => c.Fornavn.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase)
-                          || c.Efternavn.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase)
-                          || c.Email.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase));
+            ? Kunder
+            : Kunder.Where(c => c.Fornavn.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase)
+                                || c.Efternavn.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase)
+                                || c.Email.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase));
 
     // Tur-selection
     private bool showAddTur;
@@ -223,40 +224,25 @@
 
     protected override void OnParametersSet()
     {
-        EditModel = new Rejseplan
-      {
-          Id               = Item.Id,
-          KundeId          = Item.KundeId,
-          Titel            = Item.Titel,
-          Beskrivelse      = Item.Beskrivelse,
-          AntalVoksne      = Item.AntalVoksne,
-          AntalBørn        = Item.AntalBørn,
-          Lufthavn         = Item.Lufthavn,
-          FlyPris          = Item.FlyPris,
-          AntalDage        = Item.AntalDage,
-          AfrejseTidspunkt = Item.AfrejseTidspunkt,
-          OpfølgningNote   = Item.OpfølgningNote,
-          RowVersion       = Item.RowVersion
-      };
+        EditModel = Item;
         selectedCustomer = Kunder.FirstOrDefault(k => k.Id == Item.KundeId);
         customerSearchTerm = selectedCustomer != null
-          ? $"{selectedCustomer.Fornavn} {selectedCustomer.Efternavn}"
-          : string.Empty;
+            ? $"{selectedCustomer.Fornavn} {selectedCustomer.Efternavn}"
+            : string.Empty;
     }
 
     private async Task HandleValidSubmit(Rejseplan model)
     {
-      
-        // skriv til datavbasen
+    // skriv til datavbasen
         await RejseplanRepository.UpdateRejseplan(model.Id, model, _token);
         await OnSaved.InvokeAsync(model);
     }
 
     private Task HandleInvalidSubmit(FormInvalidSubmitEventArgs args)
-      => Task.CompletedTask;
+        => Task.CompletedTask;
 
     private Task CancelEdit()
-      => OnCancelled.InvokeAsync();
+        => OnCancelled.InvokeAsync();
 
     private void SelectCustomer(Kunde c)
     {
@@ -311,35 +297,58 @@
 
 
     private async Task OpenNyKundeDialog()
-  {
-    var result = await DialogService.OpenAsync<CreateKundeComponent>("Opret Kunde", new Dictionary<string, object>());
-    if (result is Kunde nyKunde)
     {
-      Kunder.Add(nyKunde);
-      SelectCustomer(nyKunde);
+        var result = await DialogService.OpenAsync<CreateKundeComponent>("Opret Kunde", new Dictionary<string, object>());
+        if (result is Kunde nyKunde)
+        {
+            Kunder.Add(nyKunde);
+            SelectCustomer(nyKunde);
+        }
     }
-  } 
-    
-     private async Task HandleTurReorder(IEnumerable<Tur> newOrder){}
-  // {
-  //   // 1) Gem i DB
-  //     var dto = new Tur { TurIds = newOrder.Select(t => t.Id).ToList(), RowVersion = Item.RowVersion};
-  //     try
-  //     {
-  //         await RejseplanRepository.ReorderTureAsync(Item.Id, dto, _token);
-         
-  //         StateHasChanged();
 
-  //     }
-  //     catch (Exception ex)
-  //     {
-  //         await DialogService.Alert($"Fejl: {ex.Message}");
-  //         return;
-  //     }
+    private async Task HandleTurReorder(IEnumerable<Tur> newOrder)
+    {
+    }
 
-  //       var ture = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
-  //       RejseplanTure = new ObservableCollection<Tur>(ture.OrderBy(t => t.Sekvens));
-  // }
-   
+    // {
+    //   // 1) Gem i DB
+    //     var dto = new Tur { TurIds = newOrder.Select(t => t.Id).ToList(), RowVersion = Item.RowVersion};
+    //     try
+    //     {
+    //         await RejseplanRepository.ReorderTureAsync(Item.Id, dto, _token);
+
+    //         StateHasChanged();
+
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         await DialogService.Alert($"Fejl: {ex.Message}");
+    //         return;
+    //     }
+
+    //       var ture = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
+    //       RejseplanTure = new ObservableCollection<Tur>(ture.OrderBy(t => t.Sekvens));
+    // }
+
+    private void HandleEdit(Tur tur)
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "Tur", tur },
+            { "OnSaved", EventCallback.Factory.Create<Tur>(this, OnSave) }
+        };
+
+        DialogService.Open<EditTurComponent>("Rediger Tur", parameters);
+    }
+
+    private void OnSave(Tur tur)
+    {
+        var index = RejseplanTure.IndexOf(RejseplanTure.FirstOrDefault(t => t.Id == tur.Id));
+        if (index != -1)
+        {
+            RejseplanTure[index] = tur;
+        }
+
+    }
 
 }

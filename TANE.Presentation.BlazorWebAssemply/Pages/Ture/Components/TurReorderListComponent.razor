@@ -79,18 +79,9 @@
     }
 
     async Task EditRow(Tur tur)
-    {
-      
+    {      
         await OnEdit.InvokeAsync(tur);
-        var parameters = new Dictionary<string, object>
-        {
-            { "ExistingTur", tur },
-            { "OnEditTur", EventCallback.Factory.Create<Tur>(this, HandleEdit) },
-        };
-
-    // Åbner CreateDagComponent i en dialog
-        var result = await DialogService.OpenAsync<CreateTurComponent>("Rediger Tur", parameters);
-    
+      
     }
 
    async void HandleEdit(Tur tur)

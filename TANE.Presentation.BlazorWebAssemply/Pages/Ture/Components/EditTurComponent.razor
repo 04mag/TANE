@@ -96,16 +96,21 @@
     [Inject] 
     private ITurRepository _TurRepository { get; set; } = default!;
 
+    
+
     [Parameter]
     public EventCallback<Tur> OnAdd { get; set; }
     [Parameter]
     public EventCallback<Tur> OnEdit { get; set; }
 
     [Parameter]
+    public EventCallback<Tur> OnSaved { get; set; }
+
+    [Parameter]
     public EventCallback<Tur> OnEditTur { get; set; }
 
     [Parameter] 
-    public Tur? ExistingTur { get; set; }
+    public Tur? Tur { get; set; }
 
 
     [Parameter]
@@ -132,25 +137,13 @@
         }
     }
 
-    public Tur Tur { get; set; } = new Tur();
 
     public List<Dag> Dage { get; set; }
-    private string ButtonText => ExistingTur == null ? "Opret Tur" : "Opdater Tur";
+    private string ButtonText => Tur == null ? "Opret Tur" : "Opdater Tur";
 
     protected override async Task OnInitializedAsync()
     {
-        if (ExistingTur != null)
-        {
-            Tur.Id = ExistingTur.Id;
-            Tur.Titel = ExistingTur.Titel;
-            Tur.Beskrivelse = ExistingTur.Beskrivelse;
-            Tur.TurStartTidspunkt = ExistingTur.TurStartTidspunkt;
-            Tur.TurSlutTidspunkt = ExistingTur.TurSlutTidspunkt;
-            Tur.Sekvens = ExistingTur.Sekvens;
-            Tur.Pris = ExistingTur.Pris;
-           
-            StateHasChanged();
-        }
+     
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         _token = AuthStateProvider.CurrentUser.Token;
 

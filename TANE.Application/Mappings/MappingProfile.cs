@@ -10,7 +10,8 @@ namespace TANE.Application.Mappings
         public MappingProfile()
         {
             CreateMap<Tur, TurUpdateDto>()
-                .ForMember(d => d.Dage, opt => opt.UseDestinationValue());
+                .ForMember(d => d.Dage,
+                    opt => opt.MapFrom(src => src.Dage));
             //CreateMap<Models.Rejseplan, Rejseplan>()
             //    .ForMember(dto => dto.Ture, opt => opt.MapFrom(r => r.Ture));
             CreateMap<RejseplanReadDto, Rejseplan>()
@@ -21,7 +22,7 @@ namespace TANE.Application.Mappings
                             : (RejseplanStatusDto?)null
                     )
                 );
-            // 2) Tur → Tur
+            
             CreateMap<TurReadDto, Tur>()
                 .ForMember(dto => dto.Dage, opt => opt.MapFrom(t => t.Dage));
 

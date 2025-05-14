@@ -168,24 +168,7 @@
     {
         if (ExistingTur != null)
         {
-
-            Tur.Titel = ExistingTur.Titel;
-            Tur.Beskrivelse = ExistingTur.Beskrivelse;
-            Tur.TurStartTidspunkt = ExistingTur.TurStartTidspunkt;
-            Tur.TurSlutTidspunkt = ExistingTur.TurSlutTidspunkt;
-            Tur.Sekvens = ExistingTur.Sekvens;
-            Tur.Pris = ExistingTur.Pris;
-            Tur.Dage =  ExistingTur.Dage?.Select(d => new Dag
-            {
-                Titel = d.Titel,
-                Beskrivelse = d.Beskrivelse,
-                Aktiviteter = d.Aktiviteter,
-                Måltider = d.Måltider,
-                Overnatning = d.Overnatning,
-                Sekvens = d.Sekvens
-            }).ToList();
-
-   
+            Tur = ExistingTur;
             StateHasChanged();
         }
         else
@@ -222,6 +205,7 @@
 
     private async Task OnDagRowSelect(DagSkabelon dagSkabelon)
     {
+        // mapping fra DagSkabelon til Dag
         var dag = new Dag
         {
 
@@ -233,7 +217,11 @@
             Sekvens = Tur.Dage.Count,
 
         };
+
+        // tilføj dag til Tur
         Tur.Dage.Add(dag);
+
+        // tilføj dag til ObservableCollection (for UI opdatering))
         Observabledage.Add(new Dag
         {
             Titel = dagSkabelon.Titel,
