@@ -7,7 +7,7 @@ using TANE.Domain.Entities;
 
 namespace TANE.Application.Groups.Kunder.Commands.Interfaces
 {
-    internal interface IDeleteKunde
+    public interface IDeleteKunde
     {
         Task<bool> DeleteKundeAsync(int kundeId, string jwtToken);
     }

@@ -1,0 +1,106 @@
+﻿@page "/rejseplaner"
+@using TANE.Application.Dtos
+@using TANE.Application.Groups.RejsePlaner.Queries.Interfaces
+@using TANE.Application.RepositoryInterfaces
+@using TANE.Presentation.BlazorWebAssemply.Pages.Rejseplan.Components
+@inject IReadRejsePlan ReadRejseplan
+@inject CustomStateProvider AuthStateProvider
+@inject IRejsePlanRepository RejseplanRepository
+@inject Radzen.DialogService DialogService
+
+<h3>Rejseplaner</h3>
+
+<RadzenButton Icon="add_circle"
+              Style="margin-bottom:10px"
+              Text="Ny Rejseplan"
+              Click="CreateNew" />
+
+<RejseplanListComponent Data="AlleRejseplaner" OnEdit="BeginEdit" />
+
+@code {
+    private List<RejseplanReadDto> AlleRejseplaner = new();
+    private RejseplanReadDto SelectedRejseplan = default!;
+    private string _token = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        _token = AuthStateProvider.CurrentUser.Token;
+        AlleRejseplaner = (await ReadRejseplan.ReadRejsePlanerAsync(_token)).ToList();
+    }
+
+    async void CreateNew()
+    {
+
+        var parameters = new Dictionary<string, object>()
+        {
+            { "InjectedTure", AlleRejseplaner }
+        };
+
+        var result = await DialogService.OpenAsync<CreateRejseplanComponent>(
+            title: "Ny rejseplan",
+          
+            options: new DialogOptions {   
+                Width      = "80vw",       // 80% af viewport‐bredden
+                Height     = "90vh",       // 90% af viewport‐højden
+                Resizable  = true,         // kan trækkes i hjørner for at ændre størrelse
+                Draggable  = true,         // kan flyttes rundt
+            } 
+            );
+    }
+
+    void BeginEdit(RejseplanReadDto plan)
+    {
+        SelectedRejseplan = plan;
+        OpenEditDialog(plan);
+    }
+
+    async void OpenEditDialog(RejseplanReadDto plan)
+    {
+        var result = await DialogService.OpenAsync<EditRejseplanComponent>(
+            title: plan.Id == 0 ? "Ny rejseplan" : "Rediger rejseplan",
+            parameters: new Dictionary<string, object> {
+                ["Item"]      = plan,
+                ["currentId"] = plan.Id
+            },
+            options: new DialogOptions {   
+                Width      = "80vw",       // 80% af viewport‐bredden
+                Height     = "90vh",       // 90% af viewport‐højden
+                Resizable  = true,         // kan trækkes i hjørner for at ændre størrelse
+                Draggable  = true,         // kan flyttes rundt
+            } 
+        );
+
+        // Når dialogen lukkes, returnerer vi evt. den opdaterede DTO
+        if (result is RejseplanUpdateDto dto)
+        {
+            await SaveEdit(dto);
+            StateHasChanged();  // Genrend listen
+        }
+    }
+
+    async Task SaveEdit(RejseplanUpdateDto dto)
+    {
+        dto.RowVersion = SelectedRejseplan.RowVersion;
+        await RejseplanRepository.UpdateRejseplan(dto.Id, dto, _token);
+
+        var idx = AlleRejseplaner.FindIndex(r => r.Id == dto.Id);
+        if (idx >= 0)
+        {
+            AlleRejseplaner[idx] = new RejseplanReadDto
+            {
+                Id               = dto.Id,
+                KundeId          = dto.KundeId,
+                Titel            = dto.Titel,
+                Beskrivelse      = dto.Beskrivelse,
+                AntalVoksne      = dto.AntalVoksne,
+                AntalBørn        = dto.AntalBørn,
+                Lufthavn         = dto.Lufthavn,
+                FlyPris          = dto.FlyPris,
+                AntalDage        = dto.AntalDage,
+                AfrejseTidspunkt = dto.AfrejseTidspunkt,
+                RowVersion       = dto.RowVersion,
+            };
+        }
+    }
+}

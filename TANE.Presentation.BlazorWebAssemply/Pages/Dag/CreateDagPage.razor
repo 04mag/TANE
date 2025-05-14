@@ -1,0 +1,22 @@
+﻿@using TANE.Application.Dtos
+@using TANE.Application.Groups.Dage.Queries.Interfaces
+@using TANE.Presentation.BlazorWebAssemply.Pages.Dag.Components
+@inject CustomStateProvider AuthStateProvider
+
+@page "/dag/create"
+
+<CreateDagComponent/>
+
+@code {
+    private string? _token;
+
+    public List<DagReadDto> Dage { get; set; } = new List<DagReadDto>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+
+        _token = AuthStateProvider.CurrentUser.Token;
+    }
+}

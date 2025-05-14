@@ -1,0 +1,158 @@
+﻿@using TANE.Application.Groups.TurSkabeloner.Queries.Interfaces
+@using TANE.Application.RepositoryInterfaces
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
+@using TANE.Application.Dtos.Skabeloner
+@using TANE.Application.Dtos
+@using TANE.Presentation.BlazorWebAssemply.Pages.Dag.Components
+@inject ITurSkabelonRepository TurSkabelonRepository
+@inject CustomStateProvider AuthStateProvider
+@inject DialogService DialogService
+@page "/turskabeloner"
+
+
+
+
+    <RadzenTextBox @bind-Value="searchText" @oninput=@HandleInput Placeholder="Søg efter titel" Style="width: 100%" />
+    <RadzenDataGrid AllowFiltering="true" AllowColumnResize="false" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                    Data="@Skabeloner" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single" @bind-Value=@SelectedSkabeloner>
+        <Columns>
+            <RadzenDataGridColumn Property="@nameof(TurSkabelonReadDto.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left"/>
+            <RadzenDataGridColumn Property="@nameof(TurSkabelonReadDto.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px"/>
+            <RadzenDataGridColumn Property="@nameof(TurSkabelonReadDto.Beskrivelse)" Title="Beskrivelse" Width="auto" MinWidth="150px"/>
+            <RadzenDataGridColumn Context="TurSkabelon" Filterable="false" Sortable="false" Width="auto" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                <Template Context="TurSkabelonReadDto">
+                    @if (OnSelect.HasDelegate)
+                    {
+                        <RadzenButton Icon="file_open" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => SelectRow(TurSkabelonReadDto))" @onclick:stopPropagation="true"/>
+                    }
+                    @if (OnEdit.HasDelegate)
+                    {
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" Click="@(args => EditRow(TurSkabelonReadDto))" @onclick:stopPropagation="true"/>
+                    }
+                    @if (OnDelete.HasDelegate)
+                    {
+                        <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => DeleteRow(TurSkabelonReadDto))" @onclick:stopPropagation="true"/>
+                    }
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+
+
+@* @if (showNewTur)
+{
+    <RadzenButton Text="Opret Tur" ButtonType="ButtonType.Button" Click="OpenCreateTurDialog" />
+} *@
+
+@*Knap til tilføjelse af ny tur*@
+@* <div style="display:flex; justify-content:flex-end;">
+    <RadzenButton ButtonType="ButtonType.Button"
+                  Style="width:40px; background-color:green;"
+                  Size="ButtonSize.Small"
+                  Icon="add"
+                  Click="OpenCreateTurDialog" />
+</div> *@
+
+@code {
+    [Parameter] public EventCallback<TurCreateDto> OnCreateTur { get; set; }
+
+    private bool showNewTur = false;
+
+    private string _token;
+
+    [Parameter, EditorRequired]
+    public List<TurSkabelonReadDto> InjectedSkabeloner { get; set; }
+
+    [Parameter]
+    public EventCallback<TurSkabelonReadDto> OnSelect { get; set; }
+
+    [Parameter]
+    public EventCallback<TurSkabelonReadDto> OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<TurSkabelonReadDto> OnDelete { get; set; }
+
+    private bool allowVirtualization = false;
+
+    private string searchText = string.Empty;
+
+    private List<TurSkabelonReadDto> SkabelonerVar = new List<TurSkabelonReadDto>();
+
+    public List<TurSkabelonReadDto> Skabeloner
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(searchText))
+            {
+                return SkabelonerVar;
+            }
+            else
+            {
+                return SkabelonerVar.Where(x => x.Titel.ToLower().Contains(searchText.ToLower())).ToList();
+            }
+        }
+        set { SkabelonerVar = value; }
+    }
+
+    public IList<TurSkabelonReadDto> SelectedSkabeloner { get; set; } = new List<TurSkabelonReadDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        _token = AuthStateProvider.CurrentUser.Token;
+        await base.OnInitializedAsync();
+
+        Skabeloner = await TurSkabelonRepository.ReadAllTurSkabeloner(_token);
+
+        SelectedSkabeloner = new List<TurSkabelonReadDto>() { Skabeloner.FirstOrDefault()! };
+    }
+
+    private void HandleInput(ChangeEventArgs args)
+    {
+        if (args.Value == null)
+        {
+            searchText = string.Empty;
+            return;
+        }
+        searchText = args.Value.ToString()!;
+    }
+
+    async Task SelectRow(TurSkabelonReadDto turskabelon)
+    {
+        await OnSelect.InvokeAsync(turskabelon);
+
+        Skabeloner = InjectedSkabeloner;
+    }
+
+    async Task EditRow(TurSkabelonReadDto turskabelon)
+    {
+        await OnEdit.InvokeAsync(turskabelon);
+
+        Skabeloner = InjectedSkabeloner;
+    }
+
+    async Task DeleteRow(TurSkabelonReadDto turskabelon)
+    {
+        await OnDelete.InvokeAsync(turskabelon);
+
+        Skabeloner = InjectedSkabeloner;
+    }
+
+    async Task HandleSubmitNewTur(TurCreateDto tur)
+	{
+		showNewTur = false;
+        await OnCreateTur.InvokeAsync(tur);
+	}
+
+    private async Task OpenCreateTurDialog()
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "OnAdd", EventCallback.Factory.Create<TurCreateDto>(this, HandleSubmitNewTur) }
+        };
+
+    // Åbner CreateDagComponent i en dialog
+        var result = await DialogService.OpenAsync<CreateTurComponent>("Opret Ny Tur", parameters);
+    }
+}

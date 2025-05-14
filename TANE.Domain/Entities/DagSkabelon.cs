@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,5 @@ namespace TANE.Domain.Entities
         public string Aktiviteter { get; set; } = string.Empty;
         public string Måltider { get; set; } = string.Empty;
         public string Overnatning { get; set; } = string.Empty;
-        public double Pris { get; set; }
     }
 }

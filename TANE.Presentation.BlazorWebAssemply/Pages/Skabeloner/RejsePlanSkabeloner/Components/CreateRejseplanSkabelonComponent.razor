@@ -1,0 +1,127 @@
+﻿@using System.Collections.ObjectModel
+@using TANE.Application.Dtos.Skabeloner
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
+
+<div class="rz-p-0 rz-p-md-12">
+
+    @if (showAddTurSkabelon)
+    {
+        <TurSkabelonListComponent InjectedSkabeloner="TurSkabeloner" OnSelectSkabelon="OnTurSkabelonRowSelect"/>
+    }
+
+    @if (!showAddTurSkabelon)
+    {
+        <h4>Opret Ny Rejseplan Skabelon</h4>
+        <RadzenTemplateForm TItem="RejsePlanSkabelon" Data=@RejseplanSkabelon Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+            <RadzenStack Gap="1rem" class="rz-p-sm-12">
+
+                <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
+                    <ChildContent>
+                        <RadzenTextBox Name="Titel" @bind-Value=@RejseplanSkabelon.Titel />
+                    </ChildContent>
+                    <Helper>
+                        <RadzenRequiredValidator Component="Titel" Text="Titel skal udfyldes." />
+                    </Helper>
+                </RadzenFormField>
+
+
+                <RadzenFormField Text="Beskrivelse" Variant="@ThemeConfig.FormVariant">
+                    <ChildContent>
+                        <RadzenTextArea Name="Beskrivelse" @bind-Value="@RejseplanSkabelon.Beskrivelse" Rows="4" />
+                    </ChildContent>
+                    <Helper>
+                        <RadzenRequiredValidator Component="Beskrivelse" Text="Beskrivelse skal udfyldes." />
+                    </Helper>
+                </RadzenFormField>
+
+                <br />
+
+                <h4>Ture:</h4>
+                <TurSkabelonReorderListComponent InjectedSkabeloner="ObservableTurSkabeloner" OnDeleteSkabelon="OnTurSkabelonDelete" />
+                <div style="text-align: right; width: 100%;">
+                    <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium" Style="width: 150px" Text="Tilføj Tur" Click="@(() => showAddTurSkabelon = !showAddTurSkabelon)"></RadzenButton>
+                </div>
+
+                <br />
+
+                <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Text="Opret tur skabelon"></RadzenButton>
+            </RadzenStack>
+        </RadzenTemplateForm>
+    }
+
+</div>
+
+@code{
+
+    [Parameter, EditorRequired]
+    public List<TurSkabelonReadDto> InjectedTurSkabeloner { get; set; } = new List<TurSkabelonReadDto>();
+
+    bool showAddTurSkabelon = false;
+
+    private ObservableCollection<TurSkabelon> SelectedTurSkabelonerVar = new ObservableCollection<TurSkabelon>();
+
+    public ObservableCollection<TurSkabelon> ObservableTurSkabeloner
+    {
+        get
+        {
+            return SelectedTurSkabelonerVar;
+        }
+        set 
+        { 
+            SelectedTurSkabelonerVar = value;
+        }
+    }
+
+    public RejsePlanSkabelon RejseplanSkabelon { get; set; } = new RejsePlanSkabelon();
+
+    private List<TurSkabelonReadDto> TurSkabelonerVar = new List<TurSkabelonReadDto>();
+
+    public List<TurSkabelonReadDto> TurSkabeloner
+    {
+        get
+        {
+            // Return TurSkabelonerVar excluding entities already in ObservableTurSkabeloner
+            return TurSkabelonerVar.Where(d => !ObservableTurSkabeloner.Any(o => o.Id == d.Id)).ToList();
+        }
+        set
+        {
+            TurSkabelonerVar = value;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        TurSkabeloner = InjectedTurSkabeloner;
+    }
+
+    void OnSubmit(RejsePlanSkabelon model)
+    {
+        RejseplanSkabelon.TurSkabeloner = ObservableTurSkabeloner.ToList();
+
+        Console.WriteLine($"Titel: {RejseplanSkabelon.Titel}\nBeskrivelse: {RejseplanSkabelon.Beskrivelse}");
+
+        foreach (var dagSkabelon in RejseplanSkabelon.TurSkabeloner)
+        {
+            Console.WriteLine($"Tur: {dagSkabelon.Titel}");
+        }
+    }
+
+    void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    {
+
+    }
+
+    private void OnTurSkabelonRowSelect(TurSkabelon dagSkabelon)
+    {
+        ObservableTurSkabeloner.Add(dagSkabelon);
+
+        showAddTurSkabelon = !showAddTurSkabelon;
+    }
+
+    private void OnTurSkabelonDelete(TurSkabelon dagSkabelon)
+    {
+        ObservableTurSkabeloner.Remove(dagSkabelon);
+    }
+}

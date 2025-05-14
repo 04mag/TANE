@@ -1,18 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TANE.Domain.Entities;
+using TANE.Application.Dtos;
+using TANE.Application.Dtos.Skabeloner;
 
 namespace TANE.Application.RepositoryInterfaces
 {
     public interface ITurSkabelonRepository
     {
-        Task<TurSkabelon> CreateTurSkabelon(TurSkabelon tur, string jwtToken);
-        Task<TurSkabelon> UpdateTurSkabelon(TurSkabelon tur, string jwtToken);
-        Task<bool> DeleteTur(int id, string jwtToken);
-        Task<TurSkabelon> ReadTurSkabelonById(int id, string jwtToken);
-        Task<List<TurSkabelon>> ReadAllTurSkabeloner(string jwtToken);
+        Task<bool> CreateTurSkabelon(TurSkabelonCreateDto tur, string jwtToken);
+        Task<bool> UpdateTurSkabelon(int id, TurSkabelonUpdateDto dto, string jwtToken);
+        Task<bool> DeleteTurSkabelon(int turId, string jwtToken);
+        Task<TurSkabelonReadDto> ReadTurSkabelonById(int turId, string jwtToken);
+        Task<List<TurSkabelonReadDto>> ReadAllTurSkabeloner(string jwtToken);
+        Task AddDagToTurSkabelonAsync(int turId, int dagId, string jwtToken);
+        Task ReorderDageAsync(int turId, DagReorderDto dto, string jwtToken);
+        Task RemoveDagFromTurSkabelonAsync(int turId, int dagId, string jwtToken);
+
+        Task<ObservableCollection<TurSkabelonReadDto>> ReadAllTurSkabelonePåRejseplan(int rejseplanId, string jwtToken);
     }
 }

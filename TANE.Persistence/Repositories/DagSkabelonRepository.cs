@@ -1,133 +1,98 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
+
 using TANE.Application.RepositoryInterfaces;
-using TANE.Domain.Entities;
+using TANE.Application.Dtos.Skabeloner;
 
 namespace TANE.Persistence.Repositories
 {
-    internal class DagSkabelonRepository : IDagSkabelonRepository
+    public class DagSkabelonRepository : IDagSkabelonRepository
     {
-        public List<DagSkabelon> DagSkabeloner { get; set; } = new List<DagSkabelon>();
-        public DagSkabelonRepository()
+
+        private readonly IHttpClientFactory _factory;
+
+        public DagSkabelonRepository(IHttpClientFactory factory)
         {
-            DagSkabeloner.Add(
-            new DagSkabelon
-            {
-                Id = 1,
-                Titel = "Dag Skabelon 1",
-                Beskrivelse = "Beskrivelse 1",
-                Måltider = "Måltider 1",
-                Aktiviteter = "Aktiviteter 1",
-                Pris = 765
-            }
-        );
-
-            DagSkabeloner.Add(
-                new DagSkabelon
-                {
-                    Id = 2,
-                    Titel = "Dag Skabelon 2",
-                    Beskrivelse = "Beskrivelse 2",
-                    Måltider = "Måltider 2",
-                    Aktiviteter = "Aktiviteter 2",
-                    Pris = 299.95
-                }
-            );
-
-            DagSkabeloner.Add(
-                new DagSkabelon
-                {
-                    Id = 3,
-                    Titel = "Dag Skabelon 3",
-                    Beskrivelse = "Beskrivelse 3",
-                    Måltider = "Måltider 3",
-                    Aktiviteter = "Aktiviteter 3",
-                    Pris = 235
-                }
-            );
-
-            DagSkabeloner.Add(
-                new DagSkabelon
-                {
-                    Id = 4,
-                    Titel = "Dag Skabelon 4",
-                    Beskrivelse = "Beskrivelse 4",
-                    Måltider = "Måltider 4",
-                    Aktiviteter = "Aktiviteter 4",
-                    Pris = 123.45
-                }
-            );
-
-            DagSkabeloner.Add(
-                new DagSkabelon
-                {
-                    Id = 5,
-                    Titel = "Dag Skabelon 5",
-                    Beskrivelse = "Beskrivelse 5",
-                    Måltider = "Måltider 5",
-                    Aktiviteter = "Aktiviteter 5",
-                    Pris = 456.78
-                }
-            );
-
-            DagSkabeloner.Add(
-                new DagSkabelon
-                {
-                    Id = 6,
-                    Titel = "Dag Skabelon 6",
-                    Beskrivelse = "Beskrivelse 6",
-                    Måltider = "Måltider 6",
-                    Aktiviteter = "Aktiviteter 6",
-                    Pris = 987.65
-                }
-            );
-
-            DagSkabeloner.Add(
-                new DagSkabelon
-                {
-                    Id = 7,
-                    Titel = "Dag Skabelon 7",
-                    Beskrivelse = "Beskrivelse 7",
-                    Måltider = "Måltider 7",
-                    Aktiviteter = "Aktiviteter 7",
-                    Pris = 543.21
-                }
-            );
+            _factory = factory;
         }
 
-        public Task<DagSkabelon> CreateDagSkabelonAsync(DagSkabelon dagSkabelon, string jwtToken)
+        private void SetJwtToken(HttpClient client, string jwtToken)
         {
-            throw new NotImplementedException();
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
         }
 
-        public Task<bool> DeleteDagSkabelonAsync(int id, string jwtToken)
+
+        public async Task<bool> CreateDagSkabelonAsync(DagSkabelonCreateDto dag, string jwtToken)
         {
-            throw new NotImplementedException();
+        
+            var client = _factory.CreateClient("skabelon");
+
+            // sæt dit Bearer-token
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+        
+            var response = await client.PostAsJsonAsync("api/DagSkabelon", dag);
+            return response.IsSuccessStatusCode;
         }
 
-        public Task<List<DagSkabelon>> ReadAllDagSkabelonerAsync(string jwtToken)
+
+        public async Task<bool> DeleteDagSkabelonAsync(int dagId, string jwtToken)
         {
-            return Task.FromResult(DagSkabeloner);
+            // her henter du netop den HttpClient, du har konfigureret med AddHttpClient("skabelon", ...)
+            var client = _factory.CreateClient("skabelon");
+
+            // sæt dit Bearer-token
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+        
+            var response = await client.DeleteAsync($"api/DagSkabelon/{dagId}");
+            return response.IsSuccessStatusCode;
         }
 
-        public Task<DagSkabelon> ReadDagSkabelonByIdAsync(int id, string jwtToken)
+
+        public async Task<List<DagSkabelonReadDto>> ReadAllDagSkabeloneAsync(string jwtToken)
         {
-            var result = DagSkabeloner.FirstOrDefault(x => x.Id == id);
+            var client = _factory.CreateClient("skabelon");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
 
-            if (result == null)
-            {
-                throw new Exception("DagSkabelon not found");
-            }
+            // Hent og deserialiser direkte til List<DagSkabelonReadDto>
+            var dage = await client.GetFromJsonAsync<List<DagSkabelonReadDto>>("api/DagSkabelon");
 
-            return Task.FromResult(result);
+            // Hvis API’et returnerer 204 No Content, bliver tours null
+            return dage ?? new List<DagSkabelonReadDto>();
         }
 
-        public Task<DagSkabelon> UpdateDagSkabelonAsync(DagSkabelon dagSkabelon, string jwtToken)
+        public async Task<DagSkabelonReadDto> ReadDagSkabelonByIdAsync(int dagId, string jwtToken)
         {
-            throw new NotImplementedException();
+            var client = _factory.CreateClient("skabelon");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
+
+            // Hent og deserialiser direkte til List<DagSkabelonReadDto>
+            var dag = await client.GetFromJsonAsync<DagSkabelonReadDto>($"api/DagSkabelon/{dagId}");
+
+
+            // Hvis API’et returnerer 204 No Content, bliver tours null
+            return dag ?? new DagSkabelonReadDto();
+
         }
+
+        public async Task<bool> UpdateDagSkabelonAsync(int id, DagSkabelonUpdateDto dto, string jwtToken)
+        {
+            var client = _factory.CreateClient("skabelon");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
+            
+            var response = await client.PutAsJsonAsync($"api/DagSkabelon/{id}", dto);
+
+            // Redagner true hvis status er 2xx
+            return response.IsSuccessStatusCode;
+        }
+
+
     }
 }

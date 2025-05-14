@@ -1,38 +1,114 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TANE.Application.RepositoryInterfaces;
+﻿using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
+using System.Net.Http.Json;
+using TANE.Application.Common.Exceptions;
+using System.Text;
+using System.Net.Http.Headers;
 
 namespace TANE.Persistence.Repositories
 {
     internal class KundeRepository : IKundeRepository
     {
-        public Task<Kunde> CreateKundeAsync(Kunde kunde, string jwtToken)
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public KundeRepository(IHttpClientFactory httpClientFactory)
         {
-            throw new NotImplementedException();
+            _httpClientFactory = httpClientFactory;
         }
 
-        public Task<bool> DeleteKundeAsync(int id, string jwtToken)
+        private void SetJwtToken(HttpClient client, string jwtToken)
         {
-            throw new NotImplementedException();
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
+        }
+        public async Task<Kunde> CreateKundeAsync(Kunde kunde, string jwtToken)
+        {
+            var client = _httpClientFactory.CreateClient("kunde");
+            SetJwtToken(client, jwtToken);
+
+            var response = await client.PostAsJsonAsync("api/Kunde", kunde);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<Kunde>();
+            }
+            else
+            {
+                throw new Exception("Fejl ved oprettelse af kunde");
+            }
         }
 
-        public Task<List<Kunde>> ReadAllKunderAsync(string jwtToken)
+        public async Task<bool> DeleteKundeAsync(int id, string jwtToken)
         {
-            throw new NotImplementedException();
+            using (HttpClient httpClient = _httpClientFactory.CreateClient("kunde"))
+            {
+                httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
+
+                var response = await httpClient.DeleteAsync($"api/Kunde/{id}");
+                if(response.IsSuccessStatusCode) 
+                {
+                    return true;
+                }
+                else
+                {
+                    throw new ArgumentException("Fejl ved sletning af kunde");
+                }
+            }
         }
 
-        public Task<Kunde> ReadKundeByIdAsync(int id, string jwtToken)
+
+        public async Task<List<Kunde>> ReadAllKunderAsync(string jwtToken)
         {
-            throw new NotImplementedException();
+            var client = _httpClientFactory.CreateClient("kunde");
+            
+            SetJwtToken(client, jwtToken);
+            var response = await client.GetAsync("api/Kunde");
+            if (response.IsSuccessStatusCode) 
+            {
+                return await response.Content.ReadFromJsonAsync<List<Kunde>>();
+            }
+            else
+            {
+                throw new Exception("Failed to list all kunder");
+            } 
+        }
+        
+
+        public async Task<Kunde> ReadKundeByIdAsync(int id, string jwtToken)
+        {
+            using (HttpClient httpClient = _httpClientFactory.CreateClient("kunde"))
+            {
+                httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
+                
+                var response = await httpClient.GetAsync($"api/Kunde/{id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<Kunde>();
+                }
+                else
+                {
+                    throw new Exception("Fejl ved hentning af kunde");
+                }
+            }
+
         }
 
-        public Task<Kunde> UpdateKundeAsync(Kunde kunde, string jwtToken)
+        public async Task<Kunde> UpdateKundeAsync(Kunde kunde, string jwtToken)
         {
-            throw new NotImplementedException();
+            using(HttpClient httpClient = _httpClientFactory.CreateClient("kunde"))
+            {
+                httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
+                
+                var result = await httpClient.PutAsJsonAsync("api/Kunde", kunde);
+                if (result.IsSuccessStatusCode)
+                {
+                    return await result.Content.ReadFromJsonAsync<Kunde>();
+                }
+                else
+                {
+                    throw new Exception("Fejl ved opdatering af kunde");
+                }
+            }
         }
     }
 }

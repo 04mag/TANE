@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TANE.Application.Groups.Kunder.Commands.Interfaces;
+﻿using TANE.Application.Groups.Kunder.Commands.Interfaces;
 using TANE.Application.RepositoryInterfaces;
 
 namespace TANE.Application.Groups.Kunder.Commands
@@ -19,7 +14,16 @@ namespace TANE.Application.Groups.Kunder.Commands
 
         public async Task<bool> DeleteKundeAsync(int kundeId, string jwtToken)
         {
-            throw new NotImplementedException();
+            var resultat = await _kundeRepository.DeleteKundeAsync(kundeId, jwtToken);
+            if (resultat)
+            {
+                return true;
+            }
+            else
+            {
+                throw new Exception("der skete en fejl ved sletning af kunden");
+            }
+
         }
     }
 }

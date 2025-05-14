@@ -13,6 +13,14 @@ using TANE.Application.Groups.JwtTokens.Commands.Interfaces;
 using TANE.Application.Groups.Users.Commands;
 using TANE.Application.Groups.Users.Interfaces;
 
+using TANE.Application.Groups.Kunder.Commands;
+using TANE.Application.Groups.Kunder.Commands.Interfaces;
+using TANE.Application.Groups.Kunder.Queries;
+using TANE.Application.Groups.Kunder.Queries.Interfaces;
+using TANE.Application.Groups.Users.Commands;
+using TANE.Application.Groups.Users.Queries.Interfaces;
+using TANE.Application.Groups.Users.Interfaces;
+using TANE.Application.Groups.Users.Queries;
 
 namespace TANE.Application.Configuration
 {
@@ -26,6 +34,13 @@ namespace TANE.Application.Configuration
             services.AddScoped<IRevokeToken, RevokeToken>();
             services.AddScoped<ICreateUser, CreateUser>();
             services.AddScoped<IUpdateUser, UpdateUser>();
+
+
+
+            services.AddScoped<ICreateKunde, CreateKunde>();
+            services.AddScoped<IReadKunde, ReadKunde>();
+            services.AddScoped<IUpdateKunde, UpdateKunde>();
+            services.AddScoped<IDeleteKunde, DeleteKunde>();
 
             services.AddScoped<ICreateDagSkabelon, CreateDagSkabelon>();
             services.AddScoped<IUpdateDagSkabelon, UpdateDagSkabelon>();

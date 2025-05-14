@@ -1,0 +1,173 @@
+﻿@using System.Collections.ObjectModel
+@using Microsoft.JSInterop
+@using TANE.Application.Dtos
+@using TANE.Domain.Entities
+@inject IJSRuntime JSRuntime;
+@inject DialogService DialogService
+
+<style>
+    .my-class td {
+        border-top: 1px solid black;
+        border-bottom: 1px solid black;
+    }
+</style>
+
+<RadzenDataGrid @ref="grid" AllowFiltering="false" AllowColumnResize="false" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true"  PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                Data="@InjectedTure" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single"
+                @bind-Value=@selectedTure RowRender="@RowRender">
+    <Columns>
+        <RadzenDataGridColumn Property="@nameof(TurReadDto.Sekvens)" Filterable="false" Title="Nr" TextAlign="TextAlign.Center" Frozen="true" Width="40px" Sortable="true" SortOrder="SortOrder.Ascending" />
+        <RadzenDataGridColumn Property="@nameof(TurReadDto.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px" />
+        <RadzenDataGridColumn Property="@nameof(TurReadDto.Beskrivelse)" Title="Beskrivelse" Width="auto" MinWidth="150px" />
+            <RadzenDataGridColumn Property="@nameof(TurReadDto.Id)" Visible="false" />
+            <RadzenDataGridColumn Property="@nameof(TurReadDto.TurSlutTidspunkt)" Visible="false" />
+            <RadzenDataGridColumn Property="@nameof(TurReadDto.TurStartTidspunkt)" Visible="false" />
+            <RadzenDataGridColumn Property="@nameof(TurReadDto.Pris)" Visible="false" />
+        <RadzenDataGridColumn Context="Tur" Filterable="false" Sortable="false" Width="auto" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+            <Template Context="TurReadDto">
+                @if (OnSelect.HasDelegate)
+                {
+                    <RadzenButton Icon="file_open" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => SelectRow(TurReadDto))" @onclick:stopPropagation="true"/>
+                }
+                @if (OnEdit.HasDelegate)
+                {
+                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" Click="@(args => EditRow(TurReadDto))" @onclick:stopPropagation="true"/>
+                }
+                @if (OnDelete.HasDelegate)
+                {
+                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => DeleteRow(TurReadDto))" @onclick:stopPropagation="true"/>
+                }
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    RadzenDataGrid<TurReadDto> grid;
+    [Parameter, EditorRequired]
+    public IList<TurReadDto> InjectedTure { get; set; }
+
+    [Parameter]
+    public EventCallback<TurReadDto> OnSelect { get; set; }
+
+    [Parameter]
+    public EventCallback<TurReadDto> OnEdit { get; set; }
+
+
+    [Parameter]
+    public EventCallback<TurReadDto> OnDelete { get; set; }
+
+
+    [Parameter]
+    public EventCallback<IEnumerable<TurReadDto>> OnReorder { get; set; }
+
+
+    IList<TurReadDto>? selectedTure = new List<TurReadDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        selectedTure = new List<TurReadDto>() { InjectedTure.FirstOrDefault() };
+    }
+
+    TurReadDto draggedItem;
+
+    async Task SelectRow(TurReadDto tur)
+    {
+        await OnSelect.InvokeAsync(tur);
+    }
+
+    async Task EditRow(TurReadDto tur)
+    {
+      
+        await OnEdit.InvokeAsync(tur);
+        var parameters = new Dictionary<string, object>
+        {
+            { "ExistingTur", tur },
+            { "OnEditTur", EventCallback.Factory.Create<TurCreateDto>(this, HandleEdit) },
+        };
+
+    // Åbner CreateDagComponent i en dialog
+        var result = await DialogService.OpenAsync<CreateTurComponent>("Rediger Tur", parameters);
+    
+    }
+
+   async void HandleEdit(TurCreateDto tur)
+    {
+        var readDto = new TurReadDto
+        {
+            Titel = tur.Titel,
+            Beskrivelse = tur.Beskrivelse,
+            Sekvens = tur.Sekvens,
+            TurStartTidspunkt = tur.TurStartTidspunkt,
+            TurSlutTidspunkt = tur.TurSlutTidspunkt,
+            Pris = tur.Pris,
+            Dage = tur.Dage?.Select(d => new DagReadDto
+            {
+                Titel = d.Titel,
+                Beskrivelse = d.Beskrivelse,
+                Sekvens = d.Sekvens,
+                Måltider = d.Måltider,
+                Overnatning = d.Overnatning,
+                Aktiviteter = d.Aktiviteter,
+            }).ToList()
+        };
+       var turIndex = InjectedTure.IndexOf(InjectedTure.FirstOrDefault(t => t.Sekvens == tur.Sekvens));
+        if (turIndex != -1)
+        {
+            InjectedTure[turIndex] = readDto;
+        }
+        else
+        {
+            InjectedTure.Add(readDto);
+        }
+        StateHasChanged();
+    }
+
+    async Task DeleteRow(TurReadDto tur)
+    {
+        await OnDelete.InvokeAsync(tur);
+    }
+
+    async void RowRender(RowRenderEventArgs<TurReadDto> args)
+    {
+        args.Attributes.Add("title", "Drag row to reorder");
+        args.Attributes.Add("style", "cursor:grab");
+        args.Attributes.Add("draggable", "true");
+        args.Attributes.Add("ondragover", "event.preventDefault(); event.target.closest('.rz-data-row').classList.add('my-class')");
+        args.Attributes.Add("ondragleave", "event.target.closest('.rz-data-row').classList.remove('my-class')");
+        args.Attributes.Add(
+            "ondragstart",
+            EventCallback.Factory.Create<DragEventArgs>(this, (evt) => draggedItem = args.Data)
+            );
+        args.Attributes.Add("ondrop",
+            EventCallback.Factory.Create<DragEventArgs>(this, async _ =>
+            {
+                if (draggedItem == null) return;
+
+                var draggedIndex = InjectedTure.IndexOf(draggedItem);
+                var droppedIndex = InjectedTure.IndexOf(args.Data);
+
+                if (draggedIndex != droppedIndex)
+                {
+                    InjectedTure.Remove(draggedItem);
+                    InjectedTure.Insert(draggedIndex <= droppedIndex ? droppedIndex++ : droppedIndex, draggedItem);
+                }
+
+                await JSRuntime.InvokeVoidAsync(
+                    "eval",
+                    "document.querySelector('.my-class').classList.remove('my-class')"
+                    );
+                StateHasChanged();
+                if (OnReorder.HasDelegate)
+                {
+                    await OnReorder.InvokeAsync(InjectedTure);
+                }
+                for (int i = 0; i < InjectedTure.Count; i++)
+                    InjectedTure[i].Sekvens = i + 1;
+
+                InjectedTure = InjectedTure.OrderBy(t => t.Sekvens).ToList();
+            }));
+    }
+}

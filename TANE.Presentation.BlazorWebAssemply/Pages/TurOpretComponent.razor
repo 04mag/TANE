@@ -1,0 +1,139 @@
+﻿@* using Radzen.Blazor.Markdown;
+using Radzen.Blazor;
+using Radzen;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Drawing;
+using System.Xml.Linq;
+using TANE.Domain.Entities;
+
+@using System.Collections.ObjectModel
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Presentation.BlazorWebAssemply.Pages..Tur.Components
+
+<div class= "rz-p-0 rz-p-md-12" >
+
+    @if(showAddTur)
+    {
+        < TurListComponent Injected = "Tur" OnSelect = "OnTurRowSelect" />
+    }
+
+@if(!showAddTur)
+    {
+        < h4 > Opret Ny Rejseplan</ h4 >
+        < RadzenTemplateForm TItem = "RejsePlan" Data = @Rejseplan Submit = @OnSubmit InvalidSubmit = @OnInvalidSubmit >
+            < RadzenStack Gap = "1rem" class= "rz-p-sm-12" >
+
+                < RadzenFormField Text = "Titel" Variant = "@ThemeConfig.FormVariant" >
+                    < ChildContent >
+                        < RadzenTextBox Name = "Titel" @bind - Value = @Rejseplan.Titel />
+                    </ ChildContent >
+                    < Helper >
+                        < RadzenRequiredValidator Component = "Titel" Text = "Titel skal udfyldes." />
+                    </ Helper >
+                </ RadzenFormField >
+
+
+                < RadzenFormField Text = "Beskrivelse" Variant = "@ThemeConfig.FormVariant" >
+                    < ChildContent >
+                        < RadzenTextArea Name = "Beskrivelse" @bind - Value = "@Rejseplan.Beskrivelse" Rows = "4" />
+                    </ ChildContent >
+                    < Helper >
+                        < RadzenRequiredValidator Component = "Beskrivelse" Text = "Beskrivelse skal udfyldes." />
+                    </ Helper >
+                </ RadzenFormField >
+
+                < br />
+
+                < h4 > Ture:</ h4 >
+                < TurReorderListComponent Injected = "ObservableTur" OnDelete = "OnTurDelete" />
+                < div style = "text-align: right; width: 100%;" >
+                    < RadzenButton ButtonType = "ButtonType.Button" Size = "ButtonSize.Medium" Style = "width: 150px" Text = "Tilføj Tur" Click = "@(() => showAddTur = !showAddTur)" ></ RadzenButton >
+                </ div >
+
+                < br />
+
+                < RadzenButton ButtonType = "ButtonType.Submit" Size = "ButtonSize.Large" Text = "Opret tur " ></ RadzenButton >
+            </ RadzenStack >
+        </ RadzenTemplateForm >
+    }
+
+</ div >
+
+@code{
+
+    [Parameter, EditorRequired]
+    public List<DagReadDto> InjectedDage { get; set; } = new List<DagReadDto>();
+
+    bool showAddTur = false;
+    
+    private ObservableCollection<DagReadDto> SelectedDagVar = new ObservableCollection<DagReadDto>();
+
+    ITurRepository _turRepository;
+    public ObservableCollection<DagReadDto> ObservableDag
+        {
+    get
+    {
+        return SelectedDagVar;
+    }
+    set
+    {
+        SelectedDagVar = value;
+    }
+}
+
+public RejsePlan Rejseplan { get; set; } = new RejsePlan();
+
+private List<Tur> TurVar = new List<Tur>();
+
+    private List<DagReadDto> DagVar = new List<DagReadDto>();
+    public List<DagReadDto> Dage
+    {
+    get
+    {
+        // Return TurVar excluding entities already in ObservableTur
+            return  DagVar.Where(d => !ObservableDag(o => o.Id == d.Id)).ToList();
+    }
+    set
+    {
+            DagVar = value;
+    }
+}
+
+protected override void OnInitialized()
+{
+    Dage = InjectedDage;
+}
+
+void OnSubmit(RejsePlan model)
+{
+    Rejseplan.Tur = ObservableTur.ToList();
+
+    Console.WriteLine($"Titel: {Rejseplan.Titel}\nBeskrivelse: {Rejseplan.Beskrivelse}");
+
+    foreach (var dag in Rejseplan.Tur)
+    {
+        Console.WriteLine($"Tur: {dag.Titel}");
+    }
+}
+
+void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+{
+
+}
+
+private void OnTurRowSelect(DagReadDto dag)
+{
+    ObservableDag.Add(dag);
+
+    showAddTur = !showAddTur;
+}
+
+private void OnTurDelete(DagReadDto dag)
+{
+    ObservableDag.Remove(dag);
+}
+}
+ *@

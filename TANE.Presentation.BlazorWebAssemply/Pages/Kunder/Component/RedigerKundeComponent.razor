@@ -1,0 +1,125 @@
+﻿@using Radzen
+@using Radzen.Blazor
+@using TANE.Application.Common.Exceptions
+@using TANE.Domain.Entities
+@using TANE.Application.Groups.Kunder.Queries.Interfaces
+@using TANE.Application.Groups.Kunder.Commands.Interfaces
+
+@inject IReadKunde ReadKunde
+@inject IUpdateKunde UpdateKunde
+@inject IDeleteKunde DeleteKunde
+@inject NavigationManager NavManager
+@inject NotificationService NotificationService
+@inject CustomStateProvider Authprovider 
+@inject DialogService DialogService
+
+
+<h3>Rediger kunde</h3>
+
+@if (kunde == null)
+{
+	<p>Kunden du prøver at redigere, findes ikke!</p>
+}
+else
+{
+	<RadzenTemplateForm TItem="Kunde" Data="@kunde" Submit="@HandleSubmit">
+		<RadzenStack Gap="1rem">
+			<RadzenFormField Text="Fornavn">
+				<RadzenTextBox @bind-Value="kunde.Fornavn" Name="Fornavn" />
+				<RadzenRequiredValidator Component="Fornavn" Text="Fornavn er påkrævet." />
+			</RadzenFormField>
+
+			<RadzenFormField Text="Efternavn">
+				<RadzenTextBox @bind-Value="kunde.Efternavn" Name="Efternavn" />
+				<RadzenRequiredValidator Component="Efternavn" Text="Efternavn er påkrævet." />
+			</RadzenFormField>
+
+			<RadzenFormField Text="Email">
+				<RadzenTextBox @bind-Value="kunde.Email" Name="Email" />
+				<RadzenRequiredValidator Component="Email" Text="Email er påkrævet." />
+				<RadzenEmailValidator Component="Email" Text="Ugyldig email." />
+			</RadzenFormField>
+
+			<RadzenFormField Text="Telefonnummer">
+				<RadzenTextBox @bind-Value="kunde.TlfNummer" Name="TlfNummer" />
+				<RadzenRequiredValidator Component="TlfNummer" Text="Telefonnummer er påkrævet." />
+				<RadzenRegexValidator Component="TlfNummer" Pattern="^(\+\d{1,3})?(\ )?(\d{8,20})$" Text="Telefonnummer skal være mellem 8 og 20 cifre og kun indeholde tal" />
+			</RadzenFormField>
+
+			<RadzenButton Text="Gem" ButtonType="ButtonType.Submit" />
+			<RadzenButton Text="Slet" ButtonStyle="ButtonStyle.Danger" Click="@(() => OnDeleteKunde())" />
+		</RadzenStack>
+	</RadzenTemplateForm>
+}
+
+
+@code {
+	[Parameter]
+	public int Id { get; set; }
+	private Kunde? kunde = new Kunde();
+	protected override async Task OnInitializedAsync()
+	{
+		if (Authprovider.CurrentUser.Token == string.Empty)
+		{
+			return;
+		}
+		await Authprovider.RefreshTokenAsync(NavManager, NotificationService);
+		
+		try
+		{
+			kunde = await ReadKunde.GetKundeByIdAsync(Id, Authprovider.CurrentUser.Token);
+
+		}
+		catch (Exception)
+		{
+			kunde = null;
+		}
+	}
+
+	private async Task HandleSubmit(Kunde kunde)
+	{
+		try
+		{
+			if(Authprovider.CurrentUser.Token == string.Empty)
+			{
+				return;
+			}
+			await Authprovider.RefreshTokenAsync(NavManager, NotificationService);
+
+			await UpdateKunde.UpdateKundeAsync(kunde, Authprovider.CurrentUser.Token);
+			NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Kunde opdateret" });
+			NavManager.NavigateTo("/kunde/oversigt");
+		}
+		catch (Exception ex)
+		{
+			NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = "Error", Detail = ex.Message });
+		}
+	}
+
+	private async Task OnDeleteKunde()
+	{
+		var confirmationResult = await this.DialogService.Confirm("Er du sikker?", "Slet kunde", new ConfirmOptions { OkButtonText = "Ja", CancelButtonText = "Nej" });
+		if (confirmationResult == true)
+		{
+			try
+			{
+				if (Authprovider.CurrentUser.Token == string.Empty)
+				{
+					return;
+				}
+				await Authprovider.RefreshTokenAsync(NavManager, NotificationService);
+
+				await DeleteKunde.DeleteKundeAsync(kunde.Id, Authprovider.CurrentUser.Token);
+				NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Kunde slettet" });
+				NavManager.NavigateTo("/kunde/oversigt");
+			}
+			catch (Exception ex)
+			{
+				NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = "Error", Detail = ex.Message });
+			}
+		}
+		
+	}
+
+
+}

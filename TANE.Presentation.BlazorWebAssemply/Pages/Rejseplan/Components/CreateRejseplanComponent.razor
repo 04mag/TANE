@@ -1,0 +1,381 @@
+﻿@using TANE.Application.Dtos
+@using System.Collections.ObjectModel
+@using TANE.Application.Dtos.Skabeloner
+@using TANE.Application.Groups.Kunder.Queries.Interfaces
+@using TANE.Application.RepositoryInterfaces
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
+@using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
+@using TANE.Presentation.BlazorWebAssemply.Pages.Rejseplan.Components
+@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
+
+
+@inject CustomStateProvider AuthStateProvider
+@inject ITurRepository TurRepository
+@inject IReadKunde ReadKunde
+@inject DialogService DialogService
+@inject CustomerState CustomerState
+
+
+
+
+<div class="rz-p-0 rz-p-md-12">
+    <h4>Opret Ny Rejseplan</h4>
+    <RadzenTemplateForm TItem="RejseplanCreateDto" Data=@Rejseplan Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+        <RadzenStack Gap="1rem" class="rz-p-sm-12">
+
+            <!-- Kunde-søgning + knap til ny kunde -->
+            <div class="mb-4">
+                <label class="block mb-1 font-semibold">Kunde</label>
+                <div class="flex items-center">
+                    <InputText @bind-Value="customerSearchTerm"
+                               placeholder="Søg kunde..."
+                               class="border rounded p-2 flex-1" />
+                    <button @onclick="OpenNyKundeDialog"
+                            class="ml-2 bg-blue-500 text-white px-3 py-2 rounded">
+                        Ny Kunde
+                    </button>
+                </div>
+                @if (filteredCustomers.Any())
+                {
+                    <ul class="border rounded mt-2 max-h-40 overflow-y-auto">
+                        @foreach (var c in filteredCustomers)
+                        {
+                            <li @onclick="() => SelectCustomer(c)"
+                                class="px-2 py-1 hover:bg-gray-100 cursor-pointer">
+                                @c.Fornavn @c.Efternavn – @c.Email
+                            </li>
+                        }
+                    </ul>
+                }
+                @if (selectedCustomer != null)
+                {
+                    <p class="mt-2">Valgt: <strong>@selectedCustomer.Fornavn @selectedCustomer.Efternavn</strong></p>
+                }
+            </div>
+
+            <!-- Titel -->
+            <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenTextBox Name="Titel" @bind-Value=@Rejseplan.Titel Style="width:100%" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="Titel" Text="Titel skal udfyldes." />
+                </Helper>
+            </RadzenFormField>
+
+            <!-- Beskrivelse -->
+            <RadzenFormField Text="Beskrivelse" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenTextArea Name="Beskrivelse" @bind-Value=@Rejseplan.Beskrivelse Rows="4" Style="width:100%" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="Beskrivelse" Text="Beskrivelse skal udfyldes." />
+                </Helper>
+            </RadzenFormField>
+
+            <!-- Antal Voksne / Antal Børn -->
+            <RadzenStack Direction="Row" Gap="1rem">
+                <RadzenFormField Text="Antal Voksne" Variant="@ThemeConfig.FormVariant">
+                    <ChildContent>
+                        <RadzenNumeric Name="AntalVoksne" @bind-Value=@Rejseplan.AntalVoksne Style="width:100%" />
+                    </ChildContent>
+                </RadzenFormField>
+                <RadzenFormField Text="Antal Børn" Variant="@ThemeConfig.FormVariant">
+                    <ChildContent>
+                        <RadzenNumeric Name="AntalBørn" @bind-Value=@Rejseplan.AntalBørn Style="width:100%" />
+                    </ChildContent>
+                </RadzenFormField>
+            </RadzenStack>
+
+            <!-- Lufthavn -->
+            <RadzenFormField Text="Lufthavn" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenTextBox Name="Lufthavn" @bind-Value=@Rejseplan.Lufthavn Style="width:100%" />
+                </ChildContent>
+            </RadzenFormField>
+
+            <!-- FlyPris -->
+            <RadzenFormField Text="Fly Pris (DKK)" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenNumeric Name="FlyPris" @bind-Value=@Rejseplan.FlyPris Style="width:100%" Step="0.01" />
+                </ChildContent>
+            </RadzenFormField>
+
+            <!-- Antal Dage -->
+            <RadzenFormField Text="Antal Dage" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenNumeric Name="AntalDage" @bind-Value=@Rejseplan.AntalDage Style="width:100%" />
+                </ChildContent>
+            </RadzenFormField>
+
+            <!-- Afrejse Tidspunkt -->
+            <RadzenFormField Text="Afrejse Tidspunkt" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenDatePicker Name="AfrejseTidspunkt" @bind-Value=@Rejseplan.AfrejseTidspunkt Style="width:100%" ShowTime="true" />
+                </ChildContent>
+            </RadzenFormField>
+
+            <br />
+            
+            @if(Observableture.Count > 0)
+            {
+                <h4>Vælg ture:</h4>
+                <TurReorderListComponent InjectedTure="Observableture" OnDelete="OnTurDelete" OnEdit="HandleEditTur" />
+                <div style="text-align: right; width: 100%;">
+
+                </div>
+
+            }
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:1rem;">
+                <!-- Venstre knap -->
+                <RadzenButton 
+                    ButtonType="ButtonType.Button" 
+                    Size="ButtonSize.Medium"
+                    Style="width:150px" 
+                    Text="Vælg tur-skabelon"
+                    Click="@(() => showAddTur = !showAddTur)" />
+
+                <!-- Højre knap -->
+                <RadzenButton 
+                    ButtonType="ButtonType.Button"
+                    Size="ButtonSize.Medium"
+                    Text="Ny tur"
+                    Style="background-color:greenyellow;"
+                    Click="OpenCreateTurDialog" />
+            </div>
+
+          
+            @if (showAddTur)
+            {
+                <div style="border:1px solid #ccc;
+                            padding:1rem;
+                            border-radius:6px;
+                            box-shadow:0 2px 4px rgba(0,0,0,0.1);
+                            margin-bottom:1rem;">
+                    <TurSkabelonListComponent OnSelect="OnTurRowSelect" 
+                        OnCreateTur="HandleCreateTur"/>
+                </div>
+            }
+
+            <br />
+
+            <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Text="Opret Rejseplan" Style="width:200px" />
+        </RadzenStack>
+    </RadzenTemplateForm>
+</div>
+
+@code{
+    Kunde? NyKunde { get; set; }
+    [Inject] 
+    private IRejsePlanRepository _RejseplanRepository { get; set; } = default!;
+
+    [Inject] private IKundeRepository KundeRepository { get; set; } = default!;
+
+    private List<Kunde> Kunder = new List<Kunde>();
+
+    [Parameter, EditorRequired]
+    public List<TurReadDto> InjectedTure { get; set; } = new List<TurReadDto>();
+
+    string selectedCustomerEmail;  // Variable to hold selected customer email
+    private string? _token;
+    bool showAddTur = false;
+
+    private ObservableCollection<TurReadDto> SelectedtureVar = new ObservableCollection<TurReadDto>();
+
+    public ObservableCollection<TurReadDto> Observableture
+    {
+        get
+        {
+            return SelectedtureVar;
+        }
+        set 
+        { 
+            SelectedtureVar = value;
+        }
+    }
+
+    public RejseplanCreateDto Rejseplan { get; set; } = new RejseplanCreateDto();
+
+    
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _token = AuthStateProvider.CurrentUser.Token;
+
+        Kunder = await ReadKunde.GetAllKunderAsync(_token);
+
+        Rejseplan = new RejseplanCreateDto();
+        Rejseplan.Ture = new List<TurCreateDto>();
+        showAddTur = false;
+
+    }
+
+    async Task OnSubmit()
+    {
+
+        Console.WriteLine($"Titel: {Rejseplan.Titel}\nBeskrivelse: {Rejseplan.Beskrivelse}");
+        Rejseplan.RejseplanStatus = 0;
+
+        _RejseplanRepository.CreateRejseplan(Rejseplan, _token);
+        CustomerState.Kunde = null;
+    }
+
+    void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    {
+
+    }
+
+    private async Task OnTurRowSelect(TurSkabelonReadDto turSkabelon)
+    {
+        var tur = new TurCreateDto
+        {
+
+            Titel = turSkabelon.Titel,
+            Beskrivelse = turSkabelon.Beskrivelse,
+            Pris = 0,
+            TurStartTidspunkt = DateTime.Today,
+            TurSlutTidspunkt = DateTime.Today.AddDays(7),
+            Sekvens = Rejseplan.Ture.Count
+        };
+        Rejseplan.Ture.Add(tur);
+        Observableture.Add(new TurReadDto
+        {
+            Id = turSkabelon.Id,
+            Titel = turSkabelon.Titel,
+            Beskrivelse = turSkabelon.Beskrivelse,
+            TurStartTidspunkt = DateTime.Today,
+            TurSlutTidspunkt = DateTime.Today.AddDays(7),
+                Sekvens = Observableture.Count 
+        });
+        showAddTur = false;
+        StateHasChanged();
+    }
+
+
+    private void OnTurDelete(TurReadDto Tur)
+    {
+        Observableture.Remove(Tur);
+    }
+
+
+    async Task LoadCustomers(LoadDataArgs args)
+    {
+        string filterText = args.Filter?.ToString().ToLower() ?? string.Empty;
+        var filteredCustomers = Kunder.Where(k => k.Email.ToLower().Contains(filterText)).ToList();
+        await Task.CompletedTask;
+    }
+
+    async Task OpenNyKundeDialog()
+    {
+        var result = await DialogService.OpenAsync<CreateKundeComponent>("Opret Kunde", new Dictionary<string, object>());
+
+        if (result is Kunde nyKunde)
+        {
+            CustomerState.Kunde = nyKunde;
+            Kunder.Add(nyKunde);
+            selectedCustomerEmail = nyKunde.Email; 
+        }
+    }
+
+    private string customerSearchTerm;
+    private Kunde selectedCustomer;
+
+
+    private IEnumerable<Kunde> filteredCustomers =>
+        string.IsNullOrWhiteSpace(customerSearchTerm)
+            ? Kunder
+            : Kunder.Where(c => c.Fornavn.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase)
+                                || c.Efternavn.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase)
+                                || c.Email.Contains(customerSearchTerm, StringComparison.OrdinalIgnoreCase));
+
+    private void SelectCustomer(Kunde c)
+    {
+        selectedCustomer = c;
+        Rejseplan.KundeId = c.Id;
+        customerSearchTerm = $"{c.Fornavn} {c.Efternavn}";
+        // ryd dropdown
+    }
+
+    private void HandleCreateTur(TurCreateDto tur)
+    {
+        tur.Sekvens = Rejseplan.Ture.Count + 1;
+        Rejseplan.Ture.Add(tur);
+        Observableture.Add(new TurReadDto
+		{
+		    Titel = tur.Titel,
+			Beskrivelse = tur.Beskrivelse,
+			TurStartTidspunkt = DateTime.Today,
+			TurSlutTidspunkt = DateTime.Today.AddDays(7),
+			Sekvens = Observableture.Count +1
+		});
+        showAddTur = false;
+    }
+
+    private async Task OpenCreateTurDialog()
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "OnCreateTur", EventCallback.Factory.Create<TurCreateDto>(this, HandleCreateTur) }
+            
+        };
+        var options = new DialogOptions
+        {
+            Width = "90vw",    
+            Height = "90vw",   
+            Resizable = true    // gør den kan flyttes/størrelsesændres, hvis ønsket
+        };
+
+        // Åbner CreateDagComponent i en dialog
+        var result = await DialogService.OpenAsync<CreateTurComponent>("Opret Ny Tur", parameters, options);
+    }
+
+    private async Task HandleEditTur(TurReadDto tur)
+    {
+       var edit = Rejseplan.Ture.FirstOrDefault(t => t.Sekvens == tur.Sekvens);
+        edit.Titel = tur.Titel;
+        edit.Beskrivelse = tur.Beskrivelse;
+        edit.TurStartTidspunkt = tur.TurStartTidspunkt;
+        edit.TurSlutTidspunkt = tur.TurSlutTidspunkt;
+        edit.Sekvens = tur.Sekvens;
+        edit.Pris = tur.Pris;
+
+        // var parameters = new Dictionary<string, object>
+        // {
+        //     { "OnEditTur", EventCallback.Factory.Create<TurCreateDto>(this, HandleEdit) },
+        //     { "ExistingTur", tur }
+        // };
+
+        // // Åbner CreateDagComponent i en dialog
+        // var result = await DialogService.OpenAsync<CreateTurComponent>("Rediger Tur", parameters);
+    }
+
+    private void HandleEdit (TurCreateDto tur)
+    {
+        var turToEdit = Observableture.FirstOrDefault(t => t.Sekvens == tur.Sekvens);
+        if (turToEdit != null)
+        {
+            turToEdit.Titel = tur.Titel;
+            turToEdit.Beskrivelse = tur.Beskrivelse;
+            turToEdit.TurStartTidspunkt = tur.TurStartTidspunkt;
+            turToEdit.TurSlutTidspunkt = tur.TurSlutTidspunkt;
+            turToEdit.Sekvens = tur.Sekvens;
+
+            // opdater på Rejseplan.Ture
+            var turToUpdate = Rejseplan.Ture.FirstOrDefault(t => t.Sekvens == tur.Sekvens);
+            if (turToUpdate != null)
+            {
+                turToUpdate.Titel = tur.Titel;
+                turToUpdate.Beskrivelse = tur.Beskrivelse;
+                turToUpdate.TurStartTidspunkt = tur.TurStartTidspunkt;
+                turToUpdate.TurSlutTidspunkt = tur.TurSlutTidspunkt;
+                turToUpdate.Sekvens = tur.Sekvens;
+            }
+            StateHasChanged();
+        }
+    }
+
+}
+

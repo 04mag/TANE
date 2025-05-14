@@ -1,0 +1,98 @@
+﻿@using TANE.Application.Groups.Dage.Queries.Interfaces
+@using TANE.Domain.Entities
+@using TANE.Persistence.Repositories
+@using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Application.Dtos
+@using TANE.Application.RepositoryInterfaces
+@using TANE.Application.Dtos
+@inject CustomStateProvider AuthStateProvider
+@inject IDagRepository DagRepository
+@inject DialogService DialogService
+
+<div class="rz-p-0 rz-p-md-12">
+    <h4>Opret Ny Dag </h4>
+    <RadzenTemplateForm TItem="DagCreateDto" Data=@Dag Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+        <RadzenStack Gap="1rem" class="rz-p-sm-12" Style="max-width: 900px; margin: auto;">
+
+            <!-- Titel -->
+            <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenTextBox Name="Titel" @bind-Value=@Dag.Titel Style="width: 100%;" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="Titel" Text="Titel skal udfyldes." />
+                </Helper>
+            </RadzenFormField>
+
+            <!-- Beskrivelse -->
+            <RadzenFormField Text="Beskrivelse" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenTextArea Name="Beskrivelse" @bind-Value="@Dag.Beskrivelse" Rows="4" Style="width: 100%;" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="Beskrivelse" Text="Beskrivelse skal udfyldes." />
+                </Helper>
+            </RadzenFormField>
+
+            <!-- Aktiviteter -->
+            <RadzenFormField Text="Aktiviteter" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenTextArea Name="Aktiviteter" @bind-Value="@Dag.Aktiviteter" Rows="4" Style="width: 100%;" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="Aktiviteter" Text="Aktiviteter skal udfyldes." />
+                </Helper>
+            </RadzenFormField>
+
+            <!-- Måltider -->
+            <RadzenFormField Text="Måltider" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenTextArea Name="Måltider" @bind-Value="@Dag.Måltider" Rows="4" Style="width: 100%;" />
+                </ChildContent>
+            </RadzenFormField>
+
+            <!-- Overnatning -->
+            <RadzenFormField Text="Overnatning" Variant="@ThemeConfig.FormVariant">
+                <ChildContent>
+                    <RadzenTextBox Name="Overnatning" @bind-Value=@Dag.Overnatning Style="width: 100%;" />
+                </ChildContent>
+            </RadzenFormField>
+
+            <!-- Submit Button -->
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Opret" Style="width: auto; margin-top: 20px;" />
+        </RadzenStack>
+    </RadzenTemplateForm>
+
+</div>
+
+@code {
+    public DagCreateDto Dag { get; set; } = new DagCreateDto();
+
+    [Parameter]
+    public EventCallback<DagCreateDto> OnAdd { get; set; }
+
+    private string _token;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        _token = AuthStateProvider.CurrentUser.Token;
+
+    }
+
+    void OnInvalidSubmit()
+    {
+
+    }
+
+    async void OnSubmit()
+    {
+        await OnAdd.InvokeAsync(Dag);
+        Dag = new DagCreateDto();
+
+        // succes besked
+
+        DialogService.Close(Dag);
+    }
+}
+

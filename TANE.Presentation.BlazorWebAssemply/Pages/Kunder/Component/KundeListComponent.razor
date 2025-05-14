@@ -1,0 +1,128 @@
+﻿@using TANE.Application.Groups.Kunder.Queries.Interfaces
+@using TANE.Domain.Entities
+@inject NavigationManager NavManager
+
+@* create-knap *@
+<div class="d-flex justify-content-end mb-3">
+    <RadzenButton Text="Opret kunde" Icon="add_circle" ButtonStyle="ButtonStyle.Primary" Click="@OnCreateKunde" Style="margin-bottom: 10px;" />
+</div>
+
+<RadzenTextBox @bind-Value="searchText" @oninput=@HandleInput Placeholder="Søg efter fornavn eller efternavn" Style="width: 100%" />
+
+<RadzenDataGrid AllColumnsText="true" AllowColumnResize="false" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+Data="@Kunder" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single" @bind-Value=@SelectedKunder>
+	<Columns>
+		<RadzenDataGridColumn Property="@nameof(Kunde.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" />
+		<RadzenDataGridColumn Property="@nameof(Kunde.Fornavn)" Title="Fornavn" Width="auto" MinWidth="200px" />
+		<RadzenDataGridColumn Property="@nameof(Kunde.Efternavn)" Title="Efternavn" Width="auto" MinWidth="150px" />
+		<RadzenDataGridColumn Property="@nameof(Kunde.Email)" Title="Email" Width="auto" MinWidth="150px" />
+		<RadzenDataGridColumn Property="@nameof(Kunde.TlfNummer)" Title="Telefonnummer" Width="auto" MinWidth="150px" />
+		<RadzenDataGridColumn Context="kunde" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+			<Template Context="kunde">
+				@if (OnSelectKunde.HasDelegate)
+				{
+					<RadzenButton Icon="file_open" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+					Shade="Shade.Lighter" class="rz-my-1 rz-ms-1"
+					Click="@(args => OnRowSelect(kunde))" OnClick:stopPropagation />
+				}
+				@if (OnEditKunde.HasDelegate)
+				{
+					<RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+					class="rz-my-1 rz-ms-1"
+					Click="@(args => OnRowEdit(kunde))" OnClick:stopPropagation />
+				}
+				@if (OnDeleteKunde.HasDelegate)
+				{
+					<RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium"
+					Shade="Shade.Lighter" class="rz-my-1 rz-ms-1"
+					Click="@(args => OnRowDelete(kunde))" OnClick:stopPropagation />
+				}
+			</Template>
+		</RadzenDataGridColumn>
+	</Columns>
+</RadzenDataGrid>
+
+
+@code {
+	[Parameter, EditorRequired] 
+	public List<Kunde> InjectedKunder { get; set; } = new List<Kunde>();
+
+	[Parameter]
+	public EventCallback<Kunde> OnSelectKunde { get; set; }
+
+	[Parameter]
+	public EventCallback<Kunde> OnEditKunde { get; set; }
+
+	[Parameter]
+	public EventCallback<Kunde> OnDeleteKunde { get; set; }
+
+	bool allowVirtualization = false;
+    string searchText = "JAN";
+	private IQueryable<Kunde> KunderVar = new List<Kunde>().AsQueryable();
+
+	public IQueryable<Kunde> Kunder
+	{
+		get 
+		{
+			if (string.IsNullOrEmpty(searchText))
+			{
+				return KunderVar;
+			}
+			else
+			{
+				return KunderVar.Where(x => x.Fornavn.ToLower().Contains(searchText.ToLower()) || x.Efternavn.ToLower().Contains(searchText.ToLower()));
+			}
+		}
+		set
+		{
+			KunderVar = value;
+		}
+	}
+
+	public IList<Kunde> SelectedKunder { get; set; } = new List<Kunde>();
+
+
+	protected override void OnInitialized()
+	{
+		Kunder = InjectedKunder.AsQueryable();
+
+		SelectedKunder = new List<Kunde>() { Kunder.FirstOrDefault()! };
+	}
+
+	private void HandleInput(ChangeEventArgs args)
+	{
+		if (args.Value == null)
+		{
+			searchText = string.Empty;
+			return;
+		}
+		searchText = args.Value.ToString()!;
+		StateHasChanged();
+	}
+
+	private async Task OnRowSelect(Kunde kunde)
+	{
+		await OnSelectKunde.InvokeAsync(kunde);
+		Kunder = InjectedKunder.AsQueryable();
+	}
+
+	private async Task OnRowEdit(Kunde kunde)
+	{
+		await OnEditKunde.InvokeAsync(kunde);
+		Kunder = InjectedKunder.AsQueryable();
+	}
+
+	private async Task OnRowDelete(Kunde kunde)
+	{
+		
+		await OnDeleteKunde.InvokeAsync(kunde);
+		Kunder = InjectedKunder.AsQueryable();
+	}
+	
+	private void OnCreateKunde()
+	{
+		NavManager.NavigateTo("/kunde/opret");
+	}
+
+
+}

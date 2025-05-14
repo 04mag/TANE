@@ -2,8 +2,10 @@
 @using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.DagSkabeloner.Components
+@using TANE.Application.Dtos.Skabeloner
 
 @inject IReadDagSkabelon ReadDagSkabelon
+@inject CustomStateProvider AuthStateProvider
 
 @page "/skabeloner/dag-skabeloner/oversigt"
 
@@ -12,22 +14,26 @@
 <DagSkabelonListComponent InjectedSkabeloner="DagSkabeloner" OnEditSkabelon="OnRowEditPressed" OnDeleteSkabelon="OnRowDeletePressed"/>
 
 @code {
-    public List<DagSkabelon> DagSkabeloner { get; set; } = new List<DagSkabelon>();
+    string _token;
+    public List<DagSkabelonReadDto> DagSkabeloner { get; set; } = new List<DagSkabelonReadDto>();
 
-    private async Task OnRowEditPressed(DagSkabelon dagSkabelon)
+    private async Task OnRowEditPressed(DagSkabelonReadDto dagSkabelon)
     {
         Console.WriteLine($"Edit pressed for: {dagSkabelon.Id}");
     }
 
-    private async Task OnRowDeletePressed(DagSkabelon dagSkabelon)
+    private async Task OnRowDeletePressed(DagSkabelonReadDto dagSkabelon)
     {
         Console.WriteLine($"Delete pressed for: {dagSkabelon.Id}");
     }
 
     protected override async Task OnInitializedAsync()
     {
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _token = AuthStateProvider.CurrentUser.Token;
         await base.OnInitializedAsync();
 
-        DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync("test");
+        DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync(_token);
     }
 }

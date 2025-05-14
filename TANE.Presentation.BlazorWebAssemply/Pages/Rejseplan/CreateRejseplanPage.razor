@@ -1,0 +1,23 @@
+﻿@using TANE.Application.Dtos
+@using TANE.Application.Groups.Ture.Queries.Interfaces
+@using TANE.Presentation.BlazorWebAssemply.Pages.Rejseplan.Components
+@inject IReadTur ReadTure
+@inject CustomStateProvider AuthStateProvider
+
+@page "/rejseplan/create"
+
+<CreateRejseplanComponent/>
+
+@code {
+    private string? _token;
+
+    public List<TurReadDto> Ture { get; set; } = new List<TurReadDto>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _token = AuthStateProvider.CurrentUser.Token;
+
+    }
+}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TANE.Application.Dtos;
 using TANE.Application.Groups.Ture.Queries.Interfaces;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
@@ -18,14 +19,14 @@ namespace TANE.Application.Groups.Ture.Queries
             _turRepository = turRepository;
         }
 
-        public async Task<Tur> ReadTurByIdAsync(int id, string jwtToken)
+        public async Task<TurReadDto> ReadTurByIdAsync(int id, string jwtToken)
         {
-            throw new NotImplementedException();
+           return await _turRepository.ReadTurById(id, jwtToken);
         }
 
-        public async Task<List<Tur>> ReadAllTureAsync(string jwtToken)
+        public async Task<List<TurReadDto>> ReadAllTureAsync(string jwtToken)
         {
-            throw new NotImplementedException();
+            return await _turRepository.ReadAllTure(jwtToken);
         }
     }
 }

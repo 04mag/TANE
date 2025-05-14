@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TANE.Application.Groups.Kunder.Commands.Interfaces;
+﻿using TANE.Application.Groups.Kunder.Commands.Interfaces;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
 
@@ -20,7 +15,7 @@ namespace TANE.Application.Groups.Kunder.Commands
 
         public async Task<Kunde> UpdateKundeAsync(Kunde kunde, string jwtToken)
         {
-            throw new NotImplementedException();
+            return await _kundeRepository.UpdateKundeAsync(kunde, jwtToken);
         }
     }
 }

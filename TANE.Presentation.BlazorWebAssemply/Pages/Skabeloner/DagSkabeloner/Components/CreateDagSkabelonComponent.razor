@@ -1,10 +1,15 @@
 ﻿@using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces
 @using TANE.Domain.Entities
+@using TANE.Persistence.Repositories
 @using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Application.Dtos.Skabeloner
+@using TANE.Application.RepositoryInterfaces
+@inject CustomStateProvider AuthStateProvider
+@inject IDagSkabelonRepository DagSkabelonRepository
 
 <div class="rz-p-0 rz-p-md-12">
     <h4>Opret Ny Dag Skabelon</h4>
-    <RadzenTemplateForm TItem="DagSkabelon" Data=@Skabelon Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+    <RadzenTemplateForm TItem="DagSkabelonCreateDto" Data=@Skabelon Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
         <RadzenStack Gap="1rem" class="rz-p-sm-12">
 
             <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
@@ -47,16 +52,6 @@
                 </ChildContent>
             </RadzenFormField>
 
-            <RadzenFormField Text="Pris (Dkk)" Variant="@ThemeConfig.FormVariant">
-                <ChildContent>
-                    <RadzenNumeric Name="Pris" @bind-Value="@Skabelon.Pris" />
-                </ChildContent>
-                <Helper>
-                    <RadzenRequiredValidator Component="Pris" Text="Pris skal udfyldes." />
-                    <RadzenNumericRangeValidator Component="Pris" Min="0" Text="Pris må ikke være mindre end 0." />
-                </Helper>
-            </RadzenFormField>
-
 
             <RadzenButton ButtonType="ButtonType.Submit" Text="Opret" ></RadzenButton>
         </RadzenStack>
@@ -64,17 +59,31 @@
 </div>
 
 @code {
-    public DagSkabelon Skabelon { get; set; } = new DagSkabelon();
 
-    Variant variant = Variant.Flat;
+    
+    public DagSkabelonCreateDto Skabelon { get; set; } = new DagSkabelonCreateDto();
 
-    void OnSubmit(DagSkabelon model)
+    [Parameter]
+    public EventCallback<DagSkabelonCreateDto> OnAdd { get; set; }
+
+    string _token;
+
+    protected override async Task OnInitializedAsync()
     {
-        Console.WriteLine($"Titel: {Skabelon.Titel}\nBeskrivelse: {Skabelon.Beskrivelse}\nAktiviteter: {Skabelon.Aktiviteter}\nMåltider: {Skabelon.Måltider}\nOvernatning: {Skabelon.Overnatning}\nPris: {Skabelon.Pris}");
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        _token = AuthStateProvider.CurrentUser.Token;
+
     }
 
-    void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    void OnInvalidSubmit( )
     {
-        
+
+    }
+
+    void OnSubmit()
+    {
+     
+        InvokeAsync(() => OnAdd.InvokeAsync(Skabelon));
     }
 }
+

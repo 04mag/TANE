@@ -1,0 +1,13 @@
+﻿@using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
+@page "/kunde/rediger/{id:int}"
+
+<PageTitle>Rediger Kunde</PageTitle>
+<RedigerKundeComponent Id="@Id" />
+
+@code {
+	[Parameter]
+	public int Id { get; set; }
+}
+
+
+

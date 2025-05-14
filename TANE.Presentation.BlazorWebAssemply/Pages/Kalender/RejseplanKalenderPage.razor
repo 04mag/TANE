@@ -1,0 +1,36 @@
+﻿<h3>RejseplanKalender</h3>
+@page "/rejseplan"
+@using System.Collections.ObjectModel
+@using TANE.Application.Dtos
+
+<RejseplanKalenderCOmponent Ture="@Ture" TureAndret="@OnTripsReordered" />
+
+@code {
+    private ObservableCollection<TurReadDto> Ture = new ObservableCollection<TurReadDto>
+    {
+        new TurReadDto {
+            Titel = "København → Aarhus",
+            Dage = new List<DagReadDto> {
+                new DagReadDto { Titel = "Jan", Beskrivelse = "Museumsbesøg" },
+                new DagReadDto { Titel = "Jan2", Beskrivelse = "Vandre-tur" },
+            }
+        },
+        new TurReadDto {
+ 
+            Titel = "København → Aarhus",
+            Dage = new List<DagReadDto> {
+                new DagReadDto { Titel = "Jan3", Beskrivelse = "Museumsbesøg" },
+                new DagReadDto { Titel = "Jan4", Beskrivelse = "Vandre-tur" },
+            }
+        }
+    // … flere ture …
+    };
+
+    void OnTripsReordered(ObservableCollection<TurReadDto> updated)
+    {
+    // Her kan du gemme den nye rækkefølge i database eller lokalt storage
+        Console.WriteLine("Ny trip-rækkefølge:");
+        foreach (var t in updated)
+            Console.WriteLine(t.Titel);
+    }
+}
