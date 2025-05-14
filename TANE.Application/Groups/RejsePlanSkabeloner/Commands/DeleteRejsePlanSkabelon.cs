@@ -19,7 +19,7 @@ namespace TANE.Application.Groups.RejsePlanSkabeloner.Commands
 
         public async Task<bool> DeleteRejsePlanSkabelonAsync(int id, string jwtToken)
         {
-            throw new NotImplementedException();
+            return await _rejsePlanSkabelonRepository.DeleteRejsePlanSkabelonAsync(id, jwtToken);
         }
     }
 }
