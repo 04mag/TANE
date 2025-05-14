@@ -9,16 +9,12 @@
 @using TANE.Presentation.BlazorWebAssemply.Pages.Ture.Components
 @using TANE.Presentation.BlazorWebAssemply.Pages.Rejseplaner.Components
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
-
-
 @inject CustomStateProvider AuthStateProvider
 @inject ITurRepository TurRepository
 @inject IReadKunde ReadKunde
 @inject DialogService DialogService
 @inject CustomerState CustomerState
-
-
-
+@inject NotificationService NotificationService
 
 <div class="rz-p-0 rz-p-md-12">
     <h4>Opret Ny Rejseplan</h4>
@@ -175,6 +171,8 @@
 
     private List<Kunde> Kunder = new List<Kunde>();
 
+    private EventCallback<Rejseplan> OnCreate { get; set; } = default!;
+
     [Parameter, EditorRequired]
     public List<Tur> InjectedTure { get; set; } = new List<Tur>();
 
@@ -215,12 +213,24 @@
 
     async Task OnSubmit()
     {
-
-        Console.WriteLine($"Titel: {Rejseplan.Titel}\nBeskrivelse: {Rejseplan.Beskrivelse}");
+        Rejseplan.Ture = Observableture.ToList();
         Rejseplan.RejseplanStatus = 0;
 
-        _RejseplanRepository.CreateRejseplan(Rejseplan, _token);
-        CustomerState.Kunde = null;
+        if (Rejseplan.Ture.Count < 1)
+        {
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Fejl",
+                Detail = "Kan ikke oprette rejseplan uden tur(e).",
+                Duration = 4000
+            });
+        }
+        else
+        {
+            await OnCreate.InvokeAsync(Rejseplan);
+            DialogService.Close(Rejseplan);
+        }
     }
 
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args)

@@ -4,6 +4,8 @@
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
 
+@inject DialogService DialogService
+
 <div class="rz-p-0 rz-p-md-12">
 
     @if (showAddTurSkabelon)
@@ -98,14 +100,16 @@
 
     void OnSubmit(RejseplanSkabelon model)
     {
-        RejseplanSkabelon.TurSkabeloner = ObservableTurSkabeloner.ToList();
+        RejseplanSkabelon.Ture = ObservableTurSkabeloner.ToList();
 
         Console.WriteLine($"Titel: {RejseplanSkabelon.Titel}\nBeskrivelse: {RejseplanSkabelon.Beskrivelse}");
 
-        foreach (var dagSkabelon in RejseplanSkabelon.TurSkabeloner)
+        foreach (var dagSkabelon in RejseplanSkabelon.Ture)
         {
             Console.WriteLine($"Tur: {dagSkabelon.Titel}");
         }
+
+        DialogService.Close(model);
     }
 
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args)

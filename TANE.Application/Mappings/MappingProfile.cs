@@ -28,8 +28,8 @@ namespace TANE.Application.Mappings
 
             // 3) Dag → Dag  <-- denne manglede du
             CreateMap<DagReadDto, Dag>();
-            CreateMap<RejseplanUpdateDto, Rejseplan>()
-                .ForMember(d => d.Ture, opt => opt.UseDestinationValue());
+            CreateMap<Rejseplan, RejseplanUpdateDto>()
+                .ForMember(d => d.Ture, opt => opt.MapFrom(t => t.Ture));
             CreateMap<RejseplanCreateDto, Rejseplan>().ReverseMap();
             CreateMap<DagReorderDto, Dag>().ReverseMap();
             CreateMap<TurReorderDto, Tur>().ReverseMap();
@@ -46,11 +46,11 @@ namespace TANE.Application.Mappings
             CreateMap<TurSkabelonCreateDto, TurSkabelon>().ReverseMap();
             CreateMap<TurSkabelon, TurSkabelonUpdateDto>()
                 //  .EqualityComparison((src, dest) => src.RowVersion == dest.RowVersion)
-                .ForMember(d => d.Dage, opt => opt.UseDestinationValue());
+                .ForMember(d => d.Dage, opt => opt.MapFrom(src => src.Dage));
             CreateMap<RejseplanSkabelonReadDto, RejseplanSkabelon>().ReverseMap();
             CreateMap<RejseplanSkabelonCreateDto, RejseplanSkabelon>().ReverseMap();
-            CreateMap<RejseplanSkabelonUpdateDto, RejseplanSkabelon>()
-                .ForMember(d => d.TurSkabeloner, opt => opt.UseDestinationValue());
+            CreateMap<RejseplanSkabelon, RejseplanSkabelonUpdateDto >()
+                .ForMember(d => d.Ture, opt => opt.MapFrom(src => src.Ture));
         }
     }
 }

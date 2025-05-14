@@ -35,7 +35,8 @@
 
         var parameters = new Dictionary<string, object>()
         {
-            { "InjectedTure", AlleRejseplaner }
+            { "InjectedTure", AlleRejseplaner },
+            {"OnCreate", HandleCreate}
         };
 
         var result = await DialogService.OpenAsync<CreateRejseplanComponent>(
@@ -48,6 +49,19 @@
                 Draggable  = true,         // kan flyttes rundt
             } 
             );
+        if (result is Rejseplan nyPlan)
+        {
+           await RejseplanRepository.CreateRejseplan(nyPlan, _token);
+            AlleRejseplaner.Add(nyPlan);
+            StateHasChanged();
+        
+        }
+
+    }
+
+    async Task HandleCreate(Rejseplan rejseplan)
+    {
+        DialogService.Close();
     }
 
     void BeginEdit(Rejseplan plan)
