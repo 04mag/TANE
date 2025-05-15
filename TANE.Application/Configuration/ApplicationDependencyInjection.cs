@@ -33,8 +33,6 @@ namespace TANE.Application.Configuration
             services.AddScoped<ICreateUser, CreateUser>();
             services.AddScoped<IUpdateUser, UpdateUser>();
 
-
-
             services.AddScoped<ICreateKunde, CreateKunde>();
             services.AddScoped<IReadKunde, ReadKunde>();
             services.AddScoped<IUpdateKunde, UpdateKunde>();

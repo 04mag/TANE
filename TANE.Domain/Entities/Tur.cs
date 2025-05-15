@@ -24,3 +24,4 @@ namespace TANE.Domain.Entities
         public byte[] RowVersion { get; set; }
     }
 }
+

@@ -179,22 +179,35 @@
     private List<int> _originalTurIds = new();
     protected override async Task OnInitializedAsync()
     {
+    // 1) Auth + token
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
         _token = AuthStateProvider.CurrentUser.Token;
+
+    // 2) Hent kunder
         Kunder = await ReadKunde.GetAllKunderAsync(_token);
-    // din repo returnerer en ObservableCollection<Tur>
-        var obs = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
 
-    // konverter til List<Tur>
-        TurVar = (await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token))
-            .ToList();
+    // 3) Hent alle ture *én* gang og konverter til List<Tur>
+        var alleTure = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
+        var tureListe = alleTure.ToList();
 
+    // 4) Gem til generel brug
+        TurVar = tureListe;
 
-        var ture = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
-        RejseplanTure = new ObservableCollection<Tur>(ture.OrderBy(t => t.Sekvens));
-        _originalTurIds = ture.Select(t => t.Id).ToList();
+    // 5) Byg en ObservableCollection, ordnet efter (evt. gammel) Sekvens
+        RejseplanTure = new ObservableCollection<Tur>(
+            tureListe.OrderBy(t => t.Sekvens)
+            );
 
+    // 6) Renummerér Sekvens til 1,2,3… i stedet for 0,1,2…
+        for (int i = 0; i < RejseplanTure.Count; i++)
+        {
+            RejseplanTure[i].Sekvens = i + 1;
+        }
+
+    // 7) Husk de originale Id’er, hvis du skal sammenligne senere
+        _originalTurIds = tureListe.Select(t => t.Id).ToList();
     }
+
 
     // Kunde-søgning
     private string customerSearchTerm = string.Empty;
@@ -278,7 +291,7 @@
         customerSearchTerm = $"{c.Fornavn} {c.Efternavn}";
     }
 
-    private async Task OnTurRowSelect(TurSkabelon turSkabelon)
+    private void OnTurRowSelect(TurSkabelon turSkabelon)
     {
         var tur = new Tur
         {
