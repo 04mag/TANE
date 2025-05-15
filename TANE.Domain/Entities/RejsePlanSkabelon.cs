@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,8 @@ namespace TANE.Domain.Entities
 
         public string Titel { get; set; } = string.Empty;
         public string Beskrivelse { get; set; } = string.Empty;
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
 
         public double GetPris()
         {

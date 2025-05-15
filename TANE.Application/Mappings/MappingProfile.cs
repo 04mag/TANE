@@ -43,7 +43,7 @@ namespace TANE.Application.Mappings
 
             CreateMap<DagSkabelonReadDto, DagSkabelon>().ReverseMap();
             CreateMap<DagSkabelonCreateDto, DagSkabelon>().ReverseMap();
-            CreateMap<DagSkabelonUpdateDto, DagSkabelon>().ReverseMap();
+            CreateMap<DagSkabelon,DagSkabelonUpdateDto>().ReverseMap();
             CreateMap<TurSkabelonReadDto, TurSkabelon>().ReverseMap();
             CreateMap<TurSkabelonCreateDto, TurSkabelon>().ReverseMap();
             CreateMap<TurSkabelon, TurSkabelonUpdateDto>()

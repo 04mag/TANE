@@ -1,4 +1,6 @@
 ﻿@using System.Collections.ObjectModel
+@using TANE.Application.Groups.DagSkabeloner.Commands
+@using TANE.Application.Groups.DagSkabeloner.Commands.Interfaces
 @using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces
 @using TANE.Application.Groups.TurSkabeloner.Commands
 @using TANE.Application.Groups.TurSkabeloner.Commands.Interfaces
@@ -15,6 +17,7 @@
 @inject IReadDagSkabelon ReadDagSkabelon
 @inject ICreateTurSkabelon CreateTurSkabelon
 @inject IUpdateTurSkabelon UpdateTurSkabelon
+@inject ICreateDagSkabelon CreateDagSkabelon
 
 @if (TurSkabelon != null)
 {
@@ -158,6 +161,13 @@ else
 
     async Task OnSubmit()
     {
+        var eksisterendeDage = ObservableDage
+            .Where(d => d.Id != 0)
+            .ToList();
+        foreach (var dag in eksisterendeDage)
+        {
+           await CreateDagSkabelon.CreateDagSkabelonAsync(dag, AuthStateProvider.CurrentUser.Token);
+        }
         TurSkabelon!.Dage = ObservableDage.ToList();
 
         if (TurSkabelon.Id == 0)
@@ -229,7 +239,7 @@ else
 
         showAddDagSkabelon = !showAddDagSkabelon;
 
-        DialogService.Close();
+        DialogService.Close(dagSkabelon);
     }
 
     private async Task OpenCreateDagSkabelonDialog()
@@ -241,5 +251,6 @@ else
 
         // Åbner CreateDagSkabelonComponent i en dialog
         var result = await DialogService.OpenAsync<CreateDagSkabelonComponent>("Opret Ny DagSkabelon", parameters);
+
     }
 }

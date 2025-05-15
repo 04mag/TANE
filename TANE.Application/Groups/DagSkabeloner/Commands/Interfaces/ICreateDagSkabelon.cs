@@ -7,8 +7,8 @@ using TANE.Domain.Entities;
 
 namespace TANE.Application.Groups.DagSkabeloner.Commands.Interfaces
 {
-    internal interface ICreateDagSkabelon
+    public interface ICreateDagSkabelon
     {
-        Task<DagSkabelon> CreateDagSkabelonAsync(DagSkabelon dagSkabelon, string jwtToken);
+        Task<bool> CreateDagSkabelonAsync(DagSkabelon dagSkabelon, string jwtToken);
     }
 }

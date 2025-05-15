@@ -18,9 +18,20 @@ namespace TANE.Application.Groups.DagSkabeloner.Commands
             _dagSkabelonRepository = dagSkabelonRepository;
         }
 
-        public async Task<DagSkabelon> CreateDagSkabelonAsync(DagSkabelon dagSkabelon, string jwtToken)
+        public async Task<bool> CreateDagSkabelonAsync(DagSkabelon dagSkabelon, string jwtToken)
         {
-            throw new NotImplementedException();
+            if (dagSkabelon == null)
+            {
+                throw new ArgumentNullException(nameof(dagSkabelon), "DagSkabelon cannot be null");
+            }
+
+            if (string.IsNullOrEmpty(jwtToken))
+            {
+                throw new ArgumentException("JWT token cannot be null or empty", nameof(jwtToken));
+            }
+            
+            await _dagSkabelonRepository.CreateDagSkabelonAsync(dagSkabelon, jwtToken);
+            return true;
         }
     }
 }

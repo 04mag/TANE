@@ -10,6 +10,5 @@
         public string Aktiviteter { get; set; }
         public string Måltider { get; set; }
         public string Overnatning { get; set; }
-        public double Pris { get; set; }
     }
 }
