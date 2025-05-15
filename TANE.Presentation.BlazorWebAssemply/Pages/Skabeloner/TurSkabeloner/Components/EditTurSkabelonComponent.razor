@@ -1,5 +1,7 @@
 ﻿@using System.Collections.ObjectModel
 @using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces
+@using TANE.Application.Groups.TurSkabeloner.Commands
+@using TANE.Application.Groups.TurSkabeloner.Commands.Interfaces
 @using TANE.Application.Groups.TurSkabeloner.Queries.Interfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
@@ -8,9 +10,11 @@
 @inject CustomStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 @inject NotificationService NotificationService
+@inject DialogService DialogService
 @inject IReadTurSkabelon ReadTurSkabelon
 @inject IReadDagSkabelon ReadDagSkabelon
-@inject DialogService DialogService
+@inject ICreateTurSkabelon CreateTurSkabelon
+@inject IUpdateTurSkabelon UpdateTurSkabelon
 
 @if (TurSkabelon != null)
 {
@@ -156,22 +160,56 @@ else
     {
         TurSkabelon!.Dage = ObservableDage.ToList();
 
-        Console.WriteLine("OnSubmit called");
-
-        Console.WriteLine(TurSkabelon.Titel);
-        Console.WriteLine(TurSkabelon.Beskrivelse);
-        Console.WriteLine(TurSkabelon.Pris);
-        Console.WriteLine(TurSkabelon.Dage.Count);
-
-        foreach (var dag in TurSkabelon.Dage)
+        if (TurSkabelon.Id == 0)
         {
-            Console.WriteLine();
-            Console.WriteLine(dag.Titel);
-            Console.WriteLine(dag.Beskrivelse);
-            Console.WriteLine(dag.Aktiviteter);
-            Console.WriteLine(dag.Måltider);
-            Console.WriteLine(dag.Overnatning);
-        };
+            try
+            {
+                await CreateTurSkabelon.CreateTurSkabelonAsync(TurSkabelon, AuthStateProvider.CurrentUser.Token);
+                NotificationService.Notify(new NotificationMessage()
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = "Oprettet",
+                        Detail = "Tur skabelon oprettet",
+                        Duration = 5000
+                    });
+                NavigationManager.NavigateTo("/skabeloner/tur");
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage()
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Fejl",
+                        Detail = ex.Message,
+                        Duration = 5000
+                    });
+            }
+        }
+        else
+        {
+            try
+            {
+                await UpdateTurSkabelon.UpdateTurSkabelonAsync(TurSkabelon, AuthStateProvider.CurrentUser.Token);
+                NotificationService.Notify(new NotificationMessage()
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = "Opdateret",
+                        Detail = "Tur skabelon opdateret",
+                        Duration = 5000
+                    });
+                NavigationManager.NavigateTo("/skabeloner/tur");
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage()
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Fejl",
+                        Detail = ex.Message,
+                        Duration = 5000
+                    });
+            }
+        }
 
     }
 

@@ -7,8 +7,8 @@ using TANE.Domain.Entities;
 
 namespace TANE.Application.Groups.TurSkabeloner.Commands.Interfaces
 {
-    internal interface ICreateTurSkabelon
+    public interface ICreateTurSkabelon
     {
-        Task<TurSkabelon> CreateTurSkabelonAsync(TurSkabelon turSkabelon, string jwtToken);
+        Task<bool> CreateTurSkabelonAsync(TurSkabelon turSkabelon, string jwtToken);
     }
 }
