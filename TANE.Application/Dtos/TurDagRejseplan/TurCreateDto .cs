@@ -2,7 +2,7 @@
 {
     public class TurCreateDto
     {
-        //public List<int> RejsePlanIds { get; set; } = new();
+        //public List<int> RejseplanIds { get; set; } = new();
 
         public string? Titel { get; set; }
         public string? Beskrivelse { get; set; }

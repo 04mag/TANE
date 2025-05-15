@@ -3,22 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TANE.Application.Groups.RejsePlaner.Commands.Interfaces;
+using TANE.Application.Groups.Rejseplaner.Commands.Interfaces;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
 
-namespace TANE.Application.Groups.RejsePlaner.Commands
+namespace TANE.Application.Groups.Rejseplaner.Commands
 {
-    public class CreateRejsePlan : ICreateRejsePlan
+    public class CreateRejseplan : ICreateRejseplan
     {
-        private readonly IRejsePlanRepository _rejsePlanRepository;
+        private readonly IRejseplanRepository _rejseplanRepository;
 
-        public CreateRejsePlan(IRejsePlanRepository rejsePlanRepository)
+        public CreateRejseplan(IRejseplanRepository rejseplanRepository)
         {
-            _rejsePlanRepository = rejsePlanRepository;
+            _rejseplanRepository = rejseplanRepository;
         }
 
-        public async Task<RejsePlan> CreateRejsePlanAsync(RejsePlan rejsePlan, string jwtToken)
+        public async Task<Rejseplan> CreateRejseplanAsync(Rejseplan rejseplan, string jwtToken)
         {
             throw new NotImplementedException();
         }

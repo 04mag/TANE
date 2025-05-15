@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using TANE.Domain.Entities;
 
-namespace TANE.Application.Groups.RejsePlaner.Commands.Interfaces
+namespace TANE.Application.Groups.Rejseplaner.Commands.Interfaces
 {
-    internal interface ICreateRejsePlan
+    internal interface ICreateRejseplan
     {
-        Task<RejsePlan> CreateRejsePlanAsync(RejsePlan rejsePlan, string jwtToken);
+        Task<Rejseplan> CreateRejseplanAsync(Rejseplan rejseplan, string jwtToken);
     }
 }

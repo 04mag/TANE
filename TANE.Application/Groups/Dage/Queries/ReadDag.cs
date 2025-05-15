@@ -19,13 +19,13 @@ namespace TANE.Application.Groups.Dage.Queries
             _dagRepository = dagRepository;
         }
 
-        public async Task<DagReadDto> ReadDagAsync(int id, string jwtToken)
+        public async Task<Dag> ReadDagAsync(int id, string jwtToken)
         {
             
             return await _dagRepository.ReadDagByIdAsync(id, jwtToken);
         }
 
-        public async Task<List<DagReadDto>> ReadDageAsync(string jwtToken)
+        public async Task<List<Dag>> ReadDageAsync(string jwtToken)
         {
             return await _dagRepository.ReadAllDageAsync(jwtToken);
         }

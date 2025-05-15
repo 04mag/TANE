@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using TANE.Domain.Entities;
 
-namespace TANE.Application.Groups.RejsePlanSkabeloner.Commands.Interfaces
+namespace TANE.Application.Groups.RejseplanSkabeloner.Commands.Interfaces
 {
-    internal interface IUpdateRejsePlanSkabelon
+    internal interface IUpdateRejseplanSkabelon
     {
-        Task<bool> UpdateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon, string jwtToken);
+        Task<bool> UpdateRejseplanSkabelonAsync(RejseplanSkabelon rejseplanSkabelon, string jwtToken);
     }
 }

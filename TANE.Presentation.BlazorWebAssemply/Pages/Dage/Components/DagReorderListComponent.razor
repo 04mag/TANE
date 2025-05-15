@@ -15,9 +15,9 @@
                 Data="@InjectedDage" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single"
                 @bind-Value=@selectedDage RowRender="@RowRender">
     <Columns>
-        <RadzenDataGridColumn Property="@nameof(DagReadDto.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" Visible="false" />
-        <RadzenDataGridColumn Property="@nameof(DagReadDto.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px" />
-        <RadzenDataGridColumn Property="@nameof(DagReadDto.Beskrivelse)" Title="Beskrivelse" Width="auto" MinWidth="150px" />
+        <RadzenDataGridColumn Property="@nameof(Dag.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" Visible="false" />
+        <RadzenDataGridColumn Property="@nameof(Dag.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px" />
+        <RadzenDataGridColumn Property="@nameof(Dag.Beskrivelse)" Title="Beskrivelse" Width="auto" MinWidth="150px" />
         <RadzenDataGridColumn Context="Dag" Filterable="false" Sortable="false" Width="auto" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
             <Template Context="Dag">
                 @if (OnSelect.HasDelegate)
@@ -39,44 +39,44 @@
 
 @code {
     [Parameter, EditorRequired]
-    public ObservableCollection<DagReadDto> InjectedDage { get; set; }
+    public ObservableCollection<Dag> InjectedDage { get; set; }
 
     [Parameter]
-    public EventCallback<DagReadDto> OnSelect { get; set; }
+    public EventCallback<Dag> OnSelect { get; set; }
 
     [Parameter]
-    public EventCallback<DagReadDto> OnEdit { get; set; }
+    public EventCallback<Dag> OnEdit { get; set; }
 
     [Parameter]
-    public EventCallback<DagReadDto> OnDelete { get; set; }
+    public EventCallback<Dag> OnDelete { get; set; }
 
-    IList<DagReadDto> selectedDage;
+    IList<Dag> selectedDage;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        selectedDage = new List<DagReadDto>() { InjectedDage.FirstOrDefault() };
+        selectedDage = new List<Dag>() { InjectedDage.FirstOrDefault() };
     }
 
-    DagReadDto draggedItem;
+    Dag draggedItem;
 
-    async Task SelectRow(DagReadDto dag)
+    async Task SelectRow(Dag dag)
     {
         await OnSelect.InvokeAsync(dag);
     }
 
-    async Task EditRow(DagReadDto dag)
+    async Task EditRow(Dag dag)
     {
         await OnEdit.InvokeAsync(dag);
     }
 
-    async Task DeleteRow(DagReadDto dag)
+    async Task DeleteRow(Dag dag)
     {
         await OnDelete.InvokeAsync(dag);
     }
 
-    void RowRender(RowRenderEventArgs<DagReadDto> args)
+    void RowRender(RowRenderEventArgs<Dag> args)
     {
         args.Attributes.Add("title", "Drag row to reorder");
         args.Attributes.Add("style", "cursor:grab");

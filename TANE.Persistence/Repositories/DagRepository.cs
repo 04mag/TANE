@@ -4,7 +4,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-
+using AutoMapper;
+using Microsoft.Extensions.Logging;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
 using TANE.Application.Dtos;
@@ -13,12 +14,18 @@ namespace TANE.Persistence.Repositories
 {
     public class DagRepository : IDagRepository
     {
-
         private readonly IHttpClientFactory _factory;
+        private readonly IMapper _mapper;
+        private readonly ILogger<DagRepository> _logger;
 
-        public DagRepository(IHttpClientFactory factory)
+        public DagRepository(
+            IHttpClientFactory factory,
+            IMapper mapper,
+            ILogger<DagRepository> logger)
         {
             _factory = factory;
+            _mapper = mapper;
+            _logger = logger;
         }
 
         private void SetJwtToken(HttpClient client, string jwtToken)
@@ -27,74 +34,117 @@ namespace TANE.Persistence.Repositories
                 new AuthenticationHeaderValue("Bearer", jwtToken);
         }
 
-
-        public async Task<bool> CreateDagAsync(DagCreateDto dag, string jwtToken)
+        public async Task<bool> CreateDagAsync(Dag dag, string jwtToken)
         {
-            // her henter du netop den HttpClient, du har konfigureret med AddHttpClient("rejseplan", ...)
-            var client = _factory.CreateClient("rejseplan");
+            try
+            {
+                var dto = _mapper.Map<DagCreateDto>(dag);
+                var client = _factory.CreateClient("rejseplan");
+                SetJwtToken(client, jwtToken);
 
-            // sæt dit Bearer-token
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
-            // POST til baseAddress/“rejseplan”/dag
-            var response = await client.PostAsJsonAsync("dag", dag);
-            return response.IsSuccessStatusCode;
+                var response = await client.PostAsJsonAsync("dag", dto);
+                return response.IsSuccessStatusCode;
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "Fejl ved HTTP-opkald under oprettelse af dag.");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Uventet fejl ved oprettelse af dag.");
+                throw new Exception("Der opstod en uventet fejl under oprettelsen af dagen.", ex);
+            }
         }
-
 
         public async Task<bool> DeleteDagAsync(int dagId, string jwtToken)
         {
-            // her henter du netop den HttpClient, du har konfigureret med AddHttpClient("rejseplan", ...)
-            var client = _factory.CreateClient("rejseplan");
+            try
+            {
+                var client = _factory.CreateClient("rejseplan");
+                SetJwtToken(client, jwtToken);
 
-            // sæt dit Bearer-token
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
-            // DELETE til baseAddress/“rejseplan”/dag
-            var response = await client.DeleteAsync($"dag/{dagId}");
-            return response.IsSuccessStatusCode;
+                var response = await client.DeleteAsync($"dag/{dagId}");
+                return response.IsSuccessStatusCode;
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "Fejl ved HTTP-opkald under sletning af dag med ID {Id}.", dagId);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Uventet fejl ved sletning af dag.");
+                throw new Exception("Der opstod en uventet fejl under sletningen af dagen.", ex);
+            }
         }
 
-
-        public async Task<List<DagReadDto>> ReadAllDageAsync(string jwtToken)
+        public async Task<List<Dag>> ReadAllDageAsync(string jwtToken)
         {
-            var client = _factory.CreateClient("rejseplan");
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", jwtToken);
+            try
+            {
+                var client = _factory.CreateClient("rejseplan");
+                SetJwtToken(client, jwtToken);
 
-            // Hent og deserialiser direkte til List<DagReadDto>
-            var dage = await client.GetFromJsonAsync<List<DagReadDto>>("dag");
-
-            // Hvis API’et returnerer 204 No Content, bliver tours null
-            return dage ?? new List<DagReadDto>();
+                var dtos = await client.GetFromJsonAsync<List<DagReadDto>>("dag");
+                var items = _mapper.Map<List<Dag>>(dtos);
+                return items ?? new List<Dag>();
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "Fejl ved HTTP-opkald under hentning af alle dage.");
+                return new List<Dag>();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Uventet fejl ved hentning af dage.");
+                throw new Exception("Der opstod en uventet fejl under hentning af dagene.", ex);
+            }
         }
 
-        public async Task<DagReadDto> ReadDagByIdAsync(int dagId, string jwtToken)
+        public async Task<Dag> ReadDagByIdAsync(int dagId, string jwtToken)
         {
-            var client = _factory.CreateClient("rejseplan");
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", jwtToken);
+            try
+            {
+                var client = _factory.CreateClient("rejseplan");
+                SetJwtToken(client, jwtToken);
 
-            // Hent og deserialiser direkte til List<DagReadDto>
-            var dag = await client.GetFromJsonAsync<DagReadDto>($"dag/{dagId}");
-
-
-            // Hvis API’et returnerer 204 No Content, bliver tours null
-            return dag ?? new DagReadDto();
-
+                var dto = await client.GetFromJsonAsync<DagReadDto>($"dag/{dagId}");
+                return _mapper.Map<Dag>(dto) ?? new Dag();
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "Fejl ved HTTP-opkald under hentning af dag med ID {Id}.", dagId);
+                return new Dag();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Uventet fejl ved hentning af dag.");
+                throw new Exception("Der opstod en uventet fejl under hentning af dagen.", ex);
+            }
         }
 
-        public async Task<bool> UpdateDagAsync(int id, DagUpdateDto dto, string jwtToken)
+        public async Task<bool> UpdateDagAsync(int id, Dag dag, string jwtToken)
         {
-            var client = _factory.CreateClient("rejseplan");
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", jwtToken);
+            try
+            {
+                var dto = _mapper.Map<DagUpdateDto>(dag);
+                var client = _factory.CreateClient("rejseplan");
+                SetJwtToken(client, jwtToken);
 
-            // PUT til https://.../rejseplan/dag/{id} med dto som JSON-body
-            var response = await client.PutAsJsonAsync($"dag/{id}", dto);
-
-            // Redagner true hvis status er 2xx
-            return response.IsSuccessStatusCode;
+                var response = await client.PutAsJsonAsync($"dag/{id}", dto);
+                return response.IsSuccessStatusCode;
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "Fejl ved HTTP-opkald under opdatering af dag med ID {Id}.", id);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Uventet fejl ved opdatering af dag.");
+                throw new Exception("Der opstod en uventet fejl under opdatering af dagen.", ex);
+            }
         }
-
-      
     }
 }

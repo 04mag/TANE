@@ -14,17 +14,9 @@
 @inject CustomerState CustomerState
 @inject NavigationManager NavigationManager
 
-
-
 <div class="rz-p-0 rz-p-md-12">
     <!-- Flex-container med 100% bredde -->
-    
-
-
-
-   
-
-    <RadzenTemplateForm TItem="TurSkabelonCreateDto" Data=@TurSkabelon Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+    <RadzenTemplateForm TItem="TurSkabelon" Data=@TurSkabelon Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
         <RadzenStack Gap="1rem" class="rz-p-sm-12">
             
 
@@ -111,30 +103,30 @@
     private ITurSkabelonRepository _TurSkabelonRepository { get; set; } = default!;
 
     [Parameter]
-    public EventCallback<TurSkabelonCreateDto> OnAdd { get; set; }
+    public EventCallback<TurSkabelon> OnAdd { get; set; }
     [Parameter]
-    public EventCallback<TurSkabelonReadDto> OnEdit { get; set; }
+    public EventCallback<TurSkabelon> OnEdit { get; set; }
 
     [Parameter]
-    public EventCallback<TurSkabelonCreateDto> OnEditTurSkabelon { get; set; }
+    public EventCallback<TurSkabelon> OnEditTurSkabelon { get; set; }
 
     [Parameter] 
-    public TurSkabelonReadDto? ExistingTurSkabelon { get; set; }
+    public TurSkabelon? ExistingTurSkabelon { get; set; }
 
 
     [Parameter]
-    public EventCallback<TurSkabelonCreateDto> OnCreateTurSkabelon { get; set; }
+    public EventCallback<TurSkabelon> OnCreateTurSkabelon { get; set; }
 
     [Parameter]
-    public List<DagSkabelonReadDto> InjectedDagSkabeloner { get; set; } = new List<DagSkabelonReadDto>();
+    public List<DagSkabelon> InjectedDagSkabeloner { get; set; } = new List<DagSkabelon>();
     
     string selectedCustomerEmail;  // Variable to hold selected customer email
     private string? _token;
     bool showAddDagSkabelon = false;
 
-    private ObservableCollection<DagSkabelonReadDto> SelectedDagSkabelonerVar = new ObservableCollection<DagSkabelonReadDto>();
+    private ObservableCollection<DagSkabelon> SelectedDagSkabelonerVar = new ObservableCollection<DagSkabelon>();
 
-    public ObservableCollection<DagSkabelonReadDto> ObservableDagSkabeloner
+    public ObservableCollection<DagSkabelon> ObservableDagSkabeloner
     {
         get
         {
@@ -146,9 +138,9 @@
         }
     }
 
-    public TurSkabelonCreateDto TurSkabelon { get; set; } = new TurSkabelonCreateDto();
+    public TurSkabelon TurSkabelon { get; set; } = new TurSkabelon();
 
-    public List<DagSkabelonReadDto> DagSkabeloner { get; set; }
+    public List<DagSkabelon> DagSkabeloner { get; set; }
     private string ButtonText => ExistingTurSkabelon == null ? "Opret TurSkabelon" : "Opdater TurSkabelon";
 
     protected override async Task OnInitializedAsync()
@@ -160,7 +152,7 @@
             TurSkabelon.Beskrivelse = ExistingTurSkabelon.Beskrivelse;
           //  TurSkabelon.Sekvens = ExistingTurSkabelon.Sekvens;
             TurSkabelon.Pris = ExistingTurSkabelon.Pris;
-            TurSkabelon.Dage =  ExistingTurSkabelon.Dage?.Select(d => new DagSkabelonCreateDto
+            TurSkabelon.Dage =  ExistingTurSkabelon.Dage?.Select(d => new DagSkabelon
             {
                 Titel = d.Titel,
                 Beskrivelse = d.Beskrivelse,
@@ -175,8 +167,8 @@
         }
         else
         {
-            TurSkabelon = new TurSkabelonCreateDto();
-            TurSkabelon.Dage = new List<DagSkabelonCreateDto>();
+            TurSkabelon = new TurSkabelon();
+            TurSkabelon.Dage = new List<DagSkabelon>();
         }
     
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
@@ -210,9 +202,9 @@
 
     }
 
-    private async Task OnDagSkabelonRowSelect(DagSkabelonReadDto DagSkabelonSkabelon)
+    private async Task OnDagSkabelonRowSelect(DagSkabelon DagSkabelonSkabelon)
     {
-        var DagSkabelon = new DagSkabelonCreateDto
+        var DagSkabelon = new DagSkabelon
         {
 
             Titel = DagSkabelonSkabelon.Titel,
@@ -224,7 +216,7 @@
 
         };
         TurSkabelon.Dage.Add(DagSkabelon);
-        ObservableDagSkabeloner.Add(new DagSkabelonReadDto
+        ObservableDagSkabeloner.Add(new DagSkabelon
         {
             Titel = DagSkabelonSkabelon.Titel,
             Beskrivelse = DagSkabelonSkabelon.Beskrivelse,
@@ -237,15 +229,15 @@
     }
 
 
-    private void OnDagSkabelonDelete(DagSkabelonReadDto DagSkabelon)
+    private void OnDagSkabelonDelete(DagSkabelon DagSkabelon)
     {
         ObservableDagSkabeloner.Remove(DagSkabelon);
     }
 
-    private async Task HandleAddDagSkabelon(DagSkabelonCreateDto DagSkabelon)
+    private async Task HandleAddDagSkabelon(DagSkabelon DagSkabelon)
     {
         TurSkabelon.Dage.Add(DagSkabelon);
-        ObservableDagSkabeloner.Add(new DagSkabelonReadDto
+        ObservableDagSkabeloner.Add(new DagSkabelon
         {
             Titel = DagSkabelon.Titel,
             Beskrivelse = DagSkabelon.Beskrivelse,
@@ -260,7 +252,7 @@
     {
         var parameters = new Dictionary<string, object>
         {
-            { "OnAdd", EventCallback.Factory.Create<DagSkabelonCreateDto>(this, HandleAddDagSkabelon) }
+            { "OnAdd", EventCallback.Factory.Create<DagSkabelon>(this, HandleAddDagSkabelon) }
         };
 
     // Åbner CreateDagSkabelonComponent i en dialog

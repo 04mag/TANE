@@ -9,15 +9,15 @@ using TANE.Application.Dtos.TurDagRejseplan;
 
 namespace TANE.Application.RepositoryInterfaces
 {
-    public interface IRejsePlanRepository
+    public interface IRejseplanRepository
     {
-        Task<bool> CreateRejseplan(RejseplanCreateDto rejseplan, string jwtToken);
-        Task<bool> UpdateRejseplan(int id, RejseplanUpdateDto dto, string jwtToken);
+        Task<bool> CreateRejseplan(Rejseplan rejseplan, string jwtToken);
+        Task<bool> UpdateRejseplan(int id, Rejseplan tur, string jwtToken);
         Task<bool> DeleteRejseplan(int rejseplanId, string jwtToken);
-        Task<RejseplanReadDto> ReadRejseplanById(int rejseplanId, string jwtToken);
-        Task<List<RejseplanReadDto>> ReadAllRejseplaner(string jwtToken);
-        Task AddTurToRejseplanAsync(TurAssignDto dto, string jwtToken);
-        Task ReorderTureAsync(int rejseplanId, TurReorderDto dto, string jwtToken);
+        Task<Rejseplan> ReadRejseplanById(int rejseplanId, string jwtToken);
+        Task<List<Rejseplan>> ReadAllRejseplaner(string jwtToken);
+        Task AddTurToRejseplanAsync(Tur tur, string jwtToken);
+        Task ReorderTureAsync(int rejseplanId, Tur tur, string jwtToken);
         Task RemoveTurFromRejseplanAsync(int rejseplanId, int turId, string jwtToken);
     }
 }

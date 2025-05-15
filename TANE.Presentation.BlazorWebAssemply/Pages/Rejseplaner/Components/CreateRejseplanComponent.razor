@@ -6,8 +6,8 @@
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
-@using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
-@using TANE.Presentation.BlazorWebAssemply.Pages.Rejseplan.Components
+@using TANE.Presentation.BlazorWebAssemply.Pages.Ture.Components
+@using TANE.Presentation.BlazorWebAssemply.Pages.Rejseplaner.Components
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
 
 
@@ -22,7 +22,7 @@
 
 <div class="rz-p-0 rz-p-md-12">
     <h4>Opret Ny Rejseplan</h4>
-    <RadzenTemplateForm TItem="RejseplanCreateDto" Data=@Rejseplan Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+    <RadzenTemplateForm TItem="Rejseplan" Data=@Rejseplan Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
         <RadzenStack Gap="1rem" class="rz-p-sm-12">
 
             <!-- Kunde-søgning + knap til ny kunde -->
@@ -169,22 +169,22 @@
 @code{
     Kunde? NyKunde { get; set; }
     [Inject] 
-    private IRejsePlanRepository _RejseplanRepository { get; set; } = default!;
+    private IRejseplanRepository _RejseplanRepository { get; set; } = default!;
 
     [Inject] private IKundeRepository KundeRepository { get; set; } = default!;
 
     private List<Kunde> Kunder = new List<Kunde>();
 
     [Parameter, EditorRequired]
-    public List<TurReadDto> InjectedTure { get; set; } = new List<TurReadDto>();
+    public List<Tur> InjectedTure { get; set; } = new List<Tur>();
 
     string selectedCustomerEmail;  // Variable to hold selected customer email
     private string? _token;
     bool showAddTur = false;
 
-    private ObservableCollection<TurReadDto> SelectedtureVar = new ObservableCollection<TurReadDto>();
+    private ObservableCollection<Tur> SelectedtureVar = new ObservableCollection<Tur>();
 
-    public ObservableCollection<TurReadDto> Observableture
+    public ObservableCollection<Tur> Observableture
     {
         get
         {
@@ -196,7 +196,7 @@
         }
     }
 
-    public RejseplanCreateDto Rejseplan { get; set; } = new RejseplanCreateDto();
+    public Rejseplan Rejseplan { get; set; } = new Rejseplan();
 
     
 
@@ -207,8 +207,8 @@
 
         Kunder = await ReadKunde.GetAllKunderAsync(_token);
 
-        Rejseplan = new RejseplanCreateDto();
-        Rejseplan.Ture = new List<TurCreateDto>();
+        Rejseplan = new Rejseplan();
+        Rejseplan.Ture = new List<Tur>();
         showAddTur = false;
 
     }
@@ -228,9 +228,9 @@
 
     }
 
-    private async Task OnTurRowSelect(TurSkabelonReadDto turSkabelon)
+    private async Task OnTurRowSelect(TurSkabelon turSkabelon)
     {
-        var tur = new TurCreateDto
+        var tur = new Tur
         {
 
             Titel = turSkabelon.Titel,
@@ -241,7 +241,7 @@
             Sekvens = Rejseplan.Ture.Count
         };
         Rejseplan.Ture.Add(tur);
-        Observableture.Add(new TurReadDto
+        Observableture.Add(new Tur
         {
             Id = turSkabelon.Id,
             Titel = turSkabelon.Titel,
@@ -255,7 +255,7 @@
     }
 
 
-    private void OnTurDelete(TurReadDto Tur)
+    private void OnTurDelete(Tur Tur)
     {
         Observableture.Remove(Tur);
     }
@@ -299,11 +299,11 @@
         // ryd dropdown
     }
 
-    private void HandleCreateTur(TurCreateDto tur)
+    private void HandleCreateTur(Tur tur)
     {
         tur.Sekvens = Rejseplan.Ture.Count + 1;
         Rejseplan.Ture.Add(tur);
-        Observableture.Add(new TurReadDto
+        Observableture.Add(new Tur
 		{
 		    Titel = tur.Titel,
 			Beskrivelse = tur.Beskrivelse,
@@ -318,7 +318,7 @@
     {
         var parameters = new Dictionary<string, object>
         {
-            { "OnCreateTur", EventCallback.Factory.Create<TurCreateDto>(this, HandleCreateTur) }
+            { "OnCreateTur", EventCallback.Factory.Create<Tur>(this, HandleCreateTur) }
             
         };
         var options = new DialogOptions
@@ -332,7 +332,7 @@
         var result = await DialogService.OpenAsync<CreateTurComponent>("Opret Ny Tur", parameters, options);
     }
 
-    private async Task HandleEditTur(TurReadDto tur)
+    private async Task HandleEditTur(Tur tur)
     {
        var edit = Rejseplan.Ture.FirstOrDefault(t => t.Sekvens == tur.Sekvens);
         edit.Titel = tur.Titel;
@@ -344,7 +344,7 @@
 
         // var parameters = new Dictionary<string, object>
         // {
-        //     { "OnEditTur", EventCallback.Factory.Create<TurCreateDto>(this, HandleEdit) },
+        //     { "OnEditTur", EventCallback.Factory.Create<Tur>(this, HandleEdit) },
         //     { "ExistingTur", tur }
         // };
 
@@ -352,7 +352,7 @@
         // var result = await DialogService.OpenAsync<CreateTurComponent>("Rediger Tur", parameters);
     }
 
-    private void HandleEdit (TurCreateDto tur)
+    private void HandleEdit (Tur tur)
     {
         var turToEdit = Observableture.FirstOrDefault(t => t.Sekvens == tur.Sekvens);
         if (turToEdit != null)

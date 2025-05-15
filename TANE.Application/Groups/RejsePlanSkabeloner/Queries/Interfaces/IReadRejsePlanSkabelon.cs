@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using TANE.Domain.Entities;
 
-namespace TANE.Application.Groups.RejsePlanSkabeloner.Queries.Interfaces
+namespace TANE.Application.Groups.RejseplanSkabeloner.Queries.Interfaces
 {
-    internal interface IReadRejsePlanSkabelon
+    internal interface IReadRejseplanSkabelon
     {
-        Task<RejsePlanSkabelon> ReadRejsePlanSkabelonByIdAsync(int id, string jwtToken);
-        Task<List<RejsePlanSkabelon>> ReadRejsePlanSkabelonerAsync(string jwtToken);
+        Task<RejseplanSkabelon> ReadRejseplanSkabelonByIdAsync(int id, string jwtToken);
+        Task<List<RejseplanSkabelon>> ReadRejseplanSkabelonerAsync(string jwtToken);
     }
 }

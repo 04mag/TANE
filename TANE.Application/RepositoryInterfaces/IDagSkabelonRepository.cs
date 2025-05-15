@@ -1,14 +1,15 @@
 ﻿
 using TANE.Application.Dtos.Skabeloner;
+using TANE.Domain.Entities;
 
 namespace TANE.Application.RepositoryInterfaces
 {
     public interface IDagSkabelonRepository
     {
-        Task<bool> CreateDagSkabelonAsync(DagSkabelonCreateDto dag, string jwtToken);
-        Task<bool> UpdateDagSkabelonAsync(int id, DagSkabelonUpdateDto dag, string jwtToken);
+        Task<bool> CreateDagSkabelonAsync(DagSkabelon dag, string jwtToken);
+        Task<bool> UpdateDagSkabelonAsync(int id, DagSkabelon dag, string jwtToken);
         Task<bool> DeleteDagSkabelonAsync(int id, string jwtToken);
-        Task<DagSkabelonReadDto> ReadDagSkabelonByIdAsync(int id, string jwtToken);
-        Task<List<DagSkabelonReadDto>> ReadAllDagSkabeloneAsync(string jwtToken);
+        Task<DagSkabelon> ReadDagSkabelonByIdAsync(int id, string jwtToken);
+        Task<List<DagSkabelon>> ReadAllDagSkabeloneAsync(string jwtToken);
     }
 }

@@ -4,29 +4,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TANE.Application.Dtos;
-using TANE.Application.Groups.RejsePlaner.Queries.Interfaces;
+using TANE.Application.Groups.Rejseplaner.Queries.Interfaces;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
 
-namespace TANE.Application.Groups.RejsePlaner.Queries
+namespace TANE.Application.Groups.Rejseplaner.Queries
 {
-    public class ReadRejsePlan : IReadRejsePlan
+    public class ReadRejseplan : IReadRejseplan
     {
-        private readonly IRejsePlanRepository _rejsePlanRepository;
+        private readonly IRejseplanRepository _rejseplanRepository;
 
-        public ReadRejsePlan(IRejsePlanRepository rejsePlanRepository)
+        public ReadRejseplan(IRejseplanRepository rejseplanRepository)
         {
-            _rejsePlanRepository = rejsePlanRepository;
+            _rejseplanRepository = rejseplanRepository;
         }
 
-        public async Task<RejseplanReadDto> ReadRejsePlanByIdAsync(int id, string jwtToken)
+        public async Task<Rejseplan> ReadRejseplanByIdAsync(int id, string jwtToken)
         {
-            return await _rejsePlanRepository.ReadRejseplanById(id, jwtToken);
+            return await _rejseplanRepository.ReadRejseplanById(id, jwtToken);
         }
 
-        public async Task<List<RejseplanReadDto>> ReadRejsePlanerAsync(string jwtToken)
+        public async Task<List<Rejseplan>> ReadRejseplanerAsync(string jwtToken)
         {
-            return await _rejsePlanRepository.ReadAllRejseplaner(jwtToken);
+            return await _rejseplanRepository.ReadAllRejseplaner(jwtToken);
         }
     }
 }

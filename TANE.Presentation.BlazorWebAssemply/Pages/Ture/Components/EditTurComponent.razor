@@ -6,8 +6,8 @@
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
-@using TANE.Presentation.BlazorWebAssemply.Pages.Dag.Components
-@using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
+@using TANE.Presentation.BlazorWebAssemply.Pages.Dage.Components
+@using TANE.Presentation.BlazorWebAssemply.Pages.Ture.Components
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.DagSkabeloner.Components
 @inject CustomStateProvider AuthStateProvider
 @inject IDagRepository DagRepository
@@ -18,7 +18,7 @@
 
 <div class="rz-p-0 rz-p-md-12">
     <h4>Rediger tur</h4>
-    <RadzenTemplateForm TItem="TurUpdateDto" Data=@Tur Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+    <RadzenTemplateForm TItem="Tur" Data=@Tur Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
         <RadzenStack Gap="1rem" class="rz-p-sm-12">
             <!-- Titel -->
             <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
@@ -96,31 +96,36 @@
     [Inject] 
     private ITurRepository _TurRepository { get; set; } = default!;
 
-    [Parameter]
-    public EventCallback<TurCreateDto> OnAdd { get; set; }
-    [Parameter]
-    public EventCallback<TurReadDto> OnEdit { get; set; }
+    
 
     [Parameter]
-    public EventCallback<TurCreateDto> OnEditTur { get; set; }
+    public EventCallback<Tur> OnAdd { get; set; }
+    [Parameter]
+    public EventCallback<Tur> OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<Tur> OnSaved { get; set; }
+
+    [Parameter]
+    public EventCallback<Tur> OnEditTur { get; set; }
 
     [Parameter] 
-    public TurReadDto? ExistingTur { get; set; }
+    public Tur? Tur { get; set; }
 
 
     [Parameter]
-    public EventCallback<TurCreateDto> OnCreateTur { get; set; }
+    public EventCallback<Tur> OnCreateTur { get; set; }
 
     [Parameter]
-    public List<DagReadDto> InjectedDage { get; set; } = new List<DagReadDto>();
+    public List<Dag> InjectedDage { get; set; } = new List<Dag>();
     
     string selectedCustomerEmail;  // Variable to hold selected customer email
     private string? _token;
     bool showAddDag = false;
 
-    private ObservableCollection<DagReadDto> SelecteddageVar = new ObservableCollection<DagReadDto>();
+    private ObservableCollection<Dag> SelecteddageVar = new ObservableCollection<Dag>();
 
-    public ObservableCollection<DagReadDto> Observabledage
+    public ObservableCollection<Dag> Observabledage
     {
         get
         {
@@ -132,25 +137,13 @@
         }
     }
 
-    public TurUpdateDto Tur { get; set; } = new TurUpdateDto();
 
-    public List<DagReadDto> Dage { get; set; }
-    private string ButtonText => ExistingTur == null ? "Opret Tur" : "Opdater Tur";
+    public List<Dag> Dage { get; set; }
+    private string ButtonText => Tur == null ? "Opret Tur" : "Opdater Tur";
 
     protected override async Task OnInitializedAsync()
     {
-        if (ExistingTur != null)
-        {
-            Tur.Id = ExistingTur.Id;
-            Tur.Titel = ExistingTur.Titel;
-            Tur.Beskrivelse = ExistingTur.Beskrivelse;
-            Tur.TurStartTidspunkt = ExistingTur.TurStartTidspunkt;
-            Tur.TurSlutTidspunkt = ExistingTur.TurSlutTidspunkt;
-            Tur.Sekvens = ExistingTur.Sekvens;
-            Tur.Pris = ExistingTur.Pris;
-           
-            StateHasChanged();
-        }
+     
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         _token = AuthStateProvider.CurrentUser.Token;
 
@@ -168,20 +161,20 @@
 
     }
 
-    private async Task OnDagRowSelect(DagSkabelonCreateDto dagSkabelon)
+    private async Task OnDagRowSelect(DagSkabelon dagSkabelon)
     {
       
     }
 
 
-    private void OnDagDelete(DagReadDto Dag)
+    private void OnDagDelete(Dag Dag)
     {
         Observabledage.Remove(Dag);
     }
 
-    private async Task HandleAddDag(DagCreateDto dag)
+    private async Task HandleAddDag(Dag dag)
     {
-        Observabledage.Add(new DagReadDto
+        Observabledage.Add(new Dag
         {
             Titel = dag.Titel,
             Beskrivelse = dag.Beskrivelse,
@@ -196,7 +189,7 @@
     {
         var parameters = new Dictionary<string, object>
         {
-            { "OnAdd", EventCallback.Factory.Create<DagCreateDto>(this, HandleAddDag) }
+            { "OnAdd", EventCallback.Factory.Create<Dag>(this, HandleAddDag) }
         };
 
     // Åbner CreateDagComponent i en dialog

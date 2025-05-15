@@ -14,7 +14,7 @@
     @if (!showAddTurSkabelon)
     {
         <h4>Opret Ny Rejseplan Skabelon</h4>
-        <RadzenTemplateForm TItem="RejsePlanSkabelon" Data=@RejseplanSkabelon Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+        <RadzenTemplateForm TItem="RejseplanSkabelon" Data=@RejseplanSkabelon Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
             <RadzenStack Gap="1rem" class="rz-p-sm-12">
 
                 <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
@@ -56,7 +56,7 @@
 @code{
 
     [Parameter, EditorRequired]
-    public List<TurSkabelonReadDto> InjectedTurSkabeloner { get; set; } = new List<TurSkabelonReadDto>();
+    public List<TurSkabelon> InjectedTurSkabeloner { get; set; } = new List<TurSkabelon>();
 
     bool showAddTurSkabelon = false;
 
@@ -74,11 +74,11 @@
         }
     }
 
-    public RejsePlanSkabelon RejseplanSkabelon { get; set; } = new RejsePlanSkabelon();
+    public RejseplanSkabelon RejseplanSkabelon { get; set; } = new RejseplanSkabelon();
 
-    private List<TurSkabelonReadDto> TurSkabelonerVar = new List<TurSkabelonReadDto>();
+    private List<TurSkabelon> TurSkabelonerVar = new List<TurSkabelon>();
 
-    public List<TurSkabelonReadDto> TurSkabeloner
+    public List<TurSkabelon> TurSkabeloner
     {
         get
         {
@@ -96,7 +96,7 @@
         TurSkabeloner = InjectedTurSkabeloner;
     }
 
-    void OnSubmit(RejsePlanSkabelon model)
+    void OnSubmit(RejseplanSkabelon model)
     {
         RejseplanSkabelon.TurSkabeloner = ObservableTurSkabeloner.ToList();
 

@@ -1,11 +1,12 @@
 ﻿@page "/rejseplaner"
 @using TANE.Application.Dtos
-@using TANE.Application.Groups.RejsePlaner.Queries.Interfaces
+@using TANE.Application.Groups.Rejseplaner.Queries.Interfaces
 @using TANE.Application.RepositoryInterfaces
-@using TANE.Presentation.BlazorWebAssemply.Pages.Rejseplan.Components
-@inject IReadRejsePlan ReadRejseplan
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Pages.Rejseplaner.Components
+@inject IReadRejseplan ReadRejseplan
 @inject CustomStateProvider AuthStateProvider
-@inject IRejsePlanRepository RejseplanRepository
+@inject IRejseplanRepository RejseplanRepository
 @inject Radzen.DialogService DialogService
 
 <h3>Rejseplaner</h3>
@@ -18,15 +19,15 @@
 <RejseplanListComponent Data="AlleRejseplaner" OnEdit="BeginEdit" />
 
 @code {
-    private List<RejseplanReadDto> AlleRejseplaner = new();
-    private RejseplanReadDto SelectedRejseplan = default!;
+    private List<Rejseplan> AlleRejseplaner = new();
+    private Rejseplan SelectedRejseplan = default!;
     private string _token = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
         _token = AuthStateProvider.CurrentUser.Token;
-        AlleRejseplaner = (await ReadRejseplan.ReadRejsePlanerAsync(_token)).ToList();
+        AlleRejseplaner = (await ReadRejseplan.ReadRejseplanerAsync(_token)).ToList();
     }
 
     async void CreateNew()
@@ -49,13 +50,13 @@
             );
     }
 
-    void BeginEdit(RejseplanReadDto plan)
+    void BeginEdit(Rejseplan plan)
     {
         SelectedRejseplan = plan;
         OpenEditDialog(plan);
     }
 
-    async void OpenEditDialog(RejseplanReadDto plan)
+    async void OpenEditDialog(Rejseplan plan)
     {
         var result = await DialogService.OpenAsync<EditRejseplanComponent>(
             title: plan.Id == 0 ? "Ny rejseplan" : "Rediger rejseplan",
@@ -72,14 +73,14 @@
         );
 
         // Når dialogen lukkes, returnerer vi evt. den opdaterede DTO
-        if (result is RejseplanUpdateDto dto)
+        if (result is Rejseplan dto)
         {
             await SaveEdit(dto);
             StateHasChanged();  // Genrend listen
         }
     }
 
-    async Task SaveEdit(RejseplanUpdateDto dto)
+    async Task SaveEdit(Rejseplan dto)
     {
         dto.RowVersion = SelectedRejseplan.RowVersion;
         await RejseplanRepository.UpdateRejseplan(dto.Id, dto, _token);
@@ -87,7 +88,7 @@
         var idx = AlleRejseplaner.FindIndex(r => r.Id == dto.Id);
         if (idx >= 0)
         {
-            AlleRejseplaner[idx] = new RejseplanReadDto
+            AlleRejseplaner[idx] = new Rejseplan
             {
                 Id               = dto.Id,
                 KundeId          = dto.KundeId,

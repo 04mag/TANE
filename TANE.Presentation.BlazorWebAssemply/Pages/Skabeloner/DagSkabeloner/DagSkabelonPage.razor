@@ -15,14 +15,14 @@
 
 @code {
     string _token;
-    public List<DagSkabelonReadDto> DagSkabeloner { get; set; } = new List<DagSkabelonReadDto>();
+    public List<DagSkabelon> DagSkabeloner { get; set; } = new List<DagSkabelon>();
 
-    private async Task OnRowEditPressed(DagSkabelonReadDto dagSkabelon)
+    private async Task OnRowEditPressed(DagSkabelon dagSkabelon)
     {
         Console.WriteLine($"Edit pressed for: {dagSkabelon.Id}");
     }
 
-    private async Task OnRowDeletePressed(DagSkabelonReadDto dagSkabelon)
+    private async Task OnRowDeletePressed(DagSkabelon dagSkabelon)
     {
         Console.WriteLine($"Delete pressed for: {dagSkabelon.Id}");
     }

@@ -3,24 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TANE.Application.Groups.RejsePlanSkabeloner.Commands.Interfaces;
+using TANE.Application.Groups.RejseplanSkabeloner.Commands.Interfaces;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
 
-namespace TANE.Application.Groups.RejsePlanSkabeloner.Commands
+namespace TANE.Application.Groups.RejseplanSkabeloner.Commands
 {
-    public class CreateRejsePlanSkabelon : ICreateRejsePlanSkabelon
+    public class CreateRejseplanSkabelon : ICreateRejseplanSkabelon
     {
-        private readonly IRejsePlanSkabelonRepository _rejsePlanSkabelonRepository;
+        private readonly IRejseplanSkabelonRepository _rejseplanSkabelonRepository;
 
-        public CreateRejsePlanSkabelon(IRejsePlanSkabelonRepository rejsePlanSkabelonRepository)
+        public CreateRejseplanSkabelon(IRejseplanSkabelonRepository rejseplanSkabelonRepository)
         {
-            _rejsePlanSkabelonRepository = rejsePlanSkabelonRepository;
+            _rejseplanSkabelonRepository = rejseplanSkabelonRepository;
         }
 
-        public async Task<bool> CreateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon, string jwtToken)
+        public async Task<bool> CreateRejseplanSkabelonAsync(RejseplanSkabelon rejseplanSkabelon, string jwtToken)
         {
-            return await _rejsePlanSkabelonRepository.CreateRejsePlanSkabelonAsync(rejsePlanSkabelon, jwtToken);
+            return await _rejseplanSkabelonRepository.CreateRejseplanSkabelonAsync(rejseplanSkabelon, jwtToken);
         }
     }
 }

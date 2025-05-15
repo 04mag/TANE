@@ -10,7 +10,7 @@ namespace TANE.Application.Groups.Ture.Queries.Interfaces
 {
     public interface IReadTur
     {
-        Task<TurReadDto> ReadTurByIdAsync(int id, string jwtToken);
-        Task<List<TurReadDto>> ReadAllTureAsync(string jwtToken);
+        Task<Tur> ReadTurByIdAsync(int id, string jwtToken);
+        Task<List<Tur>> ReadAllTureAsync(string jwtToken);
     }
 }
