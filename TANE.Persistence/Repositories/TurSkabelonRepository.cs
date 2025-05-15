@@ -54,7 +54,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved oprettelse af turskabelon.");
-                throw new Exception("Der opstod en uventet fejl under oprettelsen af turskabelonen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under oprettelsen af turskabelonen.", ex);
             }
         }
 
@@ -76,7 +76,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved sletning af turskabelon.");
-                throw new Exception("Der opstod en uventet fejl under sletningen af turskabelonen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under sletningen af turskabelonen.", ex);
             }
         }
 
@@ -99,7 +99,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved hentning af turskabeloner.");
-                throw new Exception("Der opstod en uventet fejl under hentning af turskabelonerne.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under hentning af turskabelonerne.", ex);
             }
         }
 
@@ -121,7 +121,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved hentning af turskabelon.");
-                throw new Exception("Der opstod en uventet fejl under hentning af turskabelonen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under hentning af turskabelonen.", ex);
             }
         }
 
@@ -144,7 +144,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved opdatering af turskabelon.");
-                throw new Exception("Der opstod en uventet fejl under opdatering af turskabelonen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under opdatering af turskabelonen.", ex);
             }
         }
 
@@ -157,12 +157,12 @@ namespace TANE.Persistence.Repositories
 
                 var response = await client.PostAsync($"api/TurSkabelon/{turId}/dag/{dagId}", null);
                 if (!response.IsSuccessStatusCode)
-                    throw new Exception($"Kunne ikke tilføje dag til turskabelon: {response.StatusCode}.");
+                    throw new ArgumentException($"Kunne ikke tilføje dag til turskabelon: {response.StatusCode}.");
             }
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "Fejl ved HTTP-opkald under tilføjelse af dag til turskabelon {TurId}.", turId);
-                throw new Exception("Der opstod en HTTP-fejl under tilføjelse af dag til turskabelonen.", ex);
+                throw new ArgumentException("Der opstod en HTTP-fejl under tilføjelse af dag til turskabelonen.", ex);
             }
             catch (Exception ex)
             {
@@ -180,12 +180,12 @@ namespace TANE.Persistence.Repositories
 
                 var response = await client.PostAsJsonAsync($"api/TurSkabelon/{turId}/dage/reorder", dto);
                 if (!response.IsSuccessStatusCode)
-                    throw new Exception($"Kunne ikke omrokere dage for turskabelon: {response.StatusCode}.");
+                    throw new ArgumentException($"Kunne ikke omrokere dage for turskabelon: {response.StatusCode}.");
             }
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "Fejl ved HTTP-opkald under omrokering af dage for turskabelon {TurId}.", turId);
-                throw new Exception("Der opstod en HTTP-fejl under omrokering af dage.", ex);
+                throw new ArgumentException("Der opstod en HTTP-fejl under omrokering af dage.", ex);
             }
             catch (Exception ex)
             {
@@ -203,12 +203,12 @@ namespace TANE.Persistence.Repositories
 
                 var response = await client.DeleteAsync($"api/TurSkabelon/{turId}/dag/{dagId}");
                 if (!response.IsSuccessStatusCode)
-                    throw new Exception($"Kunne ikke fjerne dag fra turskabelon: {response.StatusCode}.");
+                    throw new ArgumentException($"Kunne ikke fjerne dag fra turskabelon: {response.StatusCode}.");
             }
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "Fejl ved HTTP-opkald under fjernelse af dag {DagId} fra turskabelon {TurId}.", dagId, turId);
-                throw new Exception("Der opstod en HTTP-fejl under fjernelse af dag fra turskabelonen.", ex);
+                throw new ArgumentException("Der opstod en HTTP-fejl under fjernelse af dag fra turskabelonen.", ex);
             }
             catch (Exception ex)
             {
@@ -226,7 +226,7 @@ namespace TANE.Persistence.Repositories
 
                 var response = await client.GetAsync($"api/TurSkabelon/rejseplan/{rejseplanId}");
                 if (!response.IsSuccessStatusCode)
-                    throw new Exception($"Kunne ikke hente turskabeloner på rejseplan: {response.StatusCode}.");
+                    throw new ArgumentException($"Kunne ikke hente turskabeloner på rejseplan: {response.StatusCode}.");
 
                 var dtos = await response.Content.ReadFromJsonAsync<ObservableCollection<TurSkabelonReadDto>>();
                 return _mapper.Map<ObservableCollection<TurSkabelon>>(dtos) ?? new ObservableCollection<TurSkabelon>();
@@ -239,7 +239,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved hentning af turskabeloner på rejseplan.");
-                throw new Exception("Der opstod en uventet fejl under hentning af turskabeloner på rejseplanen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under hentning af turskabeloner på rejseplanen.", ex);
             }
         }
     }

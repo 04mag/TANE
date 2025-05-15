@@ -54,7 +54,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved oprettelse af tur.");
-                throw new Exception("Der opstod en uventet fejl under oprettelsen af turen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under oprettelsen af turen.", ex);
             }
         }
 
@@ -76,7 +76,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved sletning af tur.");
-                throw new Exception("Der opstod en uventet fejl under sletningen af turen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under sletningen af turen.", ex);
             }
         }
 
@@ -99,7 +99,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved hentning af ture.");
-                throw new Exception("Der opstod en uventet fejl under hentning af turene.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under hentning af turene.", ex);
             }
         }
 
@@ -121,7 +121,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved hentning af tur.");
-                throw new Exception("Der opstod en uventet fejl under hentning af turen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under hentning af turen.", ex);
             }
         }
 
@@ -144,7 +144,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved opdatering af tur.");
-                throw new Exception("Der opstod en uventet fejl under opdatering af turen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under opdatering af turen.", ex);
             }
         }
 
@@ -157,12 +157,12 @@ namespace TANE.Persistence.Repositories
 
                 var response = await client.PostAsync($"tur/{turId}/dag/{dagId}", null);
                 if (!response.IsSuccessStatusCode)
-                    throw new Exception($"Kunne ikke tilføje dag til tur: {response.StatusCode}.");
+                    throw new ArgumentException($"Kunne ikke tilføje dag til tur: {response.StatusCode}.");
             }
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "Fejl ved HTTP-opkald under tilføjelse af dag til tur {TurId}.", turId);
-                throw new Exception("Der opstod en HTTP-fejl under tilføjelse af dag til turen.", ex);
+                throw new ArgumentException("Der opstod en HTTP-fejl under tilføjelse af dag til turen.", ex);
             }
             catch (Exception ex)
             {
@@ -181,12 +181,12 @@ namespace TANE.Persistence.Repositories
 
                 var response = await client.PostAsJsonAsync($"tur/{turId}/dage/reorder", dto);
                 if (!response.IsSuccessStatusCode)
-                    throw new Exception($"Kunne ikke omrokere dage: {response.StatusCode}.");
+                    throw new ArgumentException($"Kunne ikke omrokere dage: {response.StatusCode}.");
             }
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "Fejl ved HTTP-opkald under omrokering af dage for tur {TurId}.", turId);
-                throw new Exception("Der opstod en HTTP-fejl under omrokering af dage.", ex);
+                throw new ArgumentException("Der opstod en HTTP-fejl under omrokering af dage.", ex);
             }
             catch (Exception ex)
             {
@@ -204,12 +204,12 @@ namespace TANE.Persistence.Repositories
 
                 var response = await client.DeleteAsync($"tur/{turId}/dag/{dagId}");
                 if (!response.IsSuccessStatusCode)
-                    throw new Exception($"Kunne ikke fjerne dag fra tur: {response.StatusCode}.");
+                    throw new ArgumentException($"Kunne ikke fjerne dag fra tur: {response.StatusCode}.");
             }
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "Fejl ved HTTP-opkald under fjernelse af dag {DagId} fra tur {TurId}.", dagId, turId);
-                throw new Exception("Der opstod en HTTP-fejl under fjernelse af dag fra turen.", ex);
+                throw new ArgumentException("Der opstod en HTTP-fejl under fjernelse af dag fra turen.", ex);
             }
             catch (Exception ex)
             {
@@ -227,7 +227,7 @@ namespace TANE.Persistence.Repositories
 
                 var response = await client.GetAsync($"tur/rejseplan/{rejseplanId}");
                 if (!response.IsSuccessStatusCode)
-                    throw new Exception($"Kunne ikke hente ture på rejseplan: {response.StatusCode}.");
+                    throw new ArgumentException($"Kunne ikke hente ture på rejseplan: {response.StatusCode}.");
 
                 var dtos = await response.Content.ReadFromJsonAsync<ObservableCollection<TurReadDto>>();
                 return _mapper.Map<ObservableCollection<Tur>>(dtos) ?? new ObservableCollection<Tur>();
@@ -240,7 +240,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved hentning af ture på rejseplan.");
-                throw new Exception("Der opstod en uventet fejl under hentning af ture på rejseplanen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under hentning af ture på rejseplanen.", ex);
             }
         }
     }

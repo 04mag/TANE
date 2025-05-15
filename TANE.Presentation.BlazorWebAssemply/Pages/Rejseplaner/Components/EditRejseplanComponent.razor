@@ -239,7 +239,7 @@
             .Where(t => t.Id == 0 || !_originalTurIds.Contains(t.Id))
             .ToList();
 
-    // 3) Tilføj dem enkeltvist
+ 
         foreach (var tur in nyeTure)
         {
             var dto = new TurAssignDto
@@ -250,7 +250,7 @@
             await RejseplanRepository.AddTurToRejseplanAsync(dto, _token);
         }
 
-    // 4) Hvis du har ændret rækkefølge, så reorder:
+        //Reorder
         var reorderDto = new TurReorderDto
         {
             TurIds     = RejseplanTure.Select(t => t.Id).ToList(),
@@ -258,7 +258,7 @@
         };
         await RejseplanRepository.ReorderTureAsync(model.Id, reorderDto, _token);
 
-    // 5) Opdater resten af rejseplanen uden at sende Ture-listen (så du undgår at lave double inserts)
+    // Opdater resten af rejseplanen uden at sende Ture-listen (så du undgår at lave double inserts)
         model.Ture = null;  
         await RejseplanRepository.UpdateRejseplan(model.Id, model, _token);
 

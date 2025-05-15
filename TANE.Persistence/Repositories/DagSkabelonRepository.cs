@@ -53,7 +53,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved oprettelse af dagsskabelon.");
-                throw new Exception("Der opstod en uventet fejl under oprettelsen af dagsskabelonen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under oprettelsen af dagsskabelonen.", ex);
             }
         }
 
@@ -75,7 +75,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved sletning af dagsskabelon.");
-                throw new Exception("Der opstod en uventet fejl under sletningen af dagsskabelonen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under sletningen af dagsskabelonen.", ex);
             }
         }
 
@@ -98,7 +98,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved hentning af dagsskabeloner.");
-                throw new Exception("Der opstod en uventet fejl under hentning af dagsskabeloner.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under hentning af dagsskabeloner.", ex);
             }
         }
 
@@ -120,7 +120,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved hentning af dagsskabelon.");
-                throw new Exception("Der opstod en uventet fejl under hentning af dagsskabelonen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under hentning af dagsskabelonen.", ex);
             }
         }
 
@@ -143,7 +143,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved opdatering af dagsskabelon.");
-                throw new Exception("Der opstod en uventet fejl under opdatering af dagsskabelonen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under opdatering af dagsskabelonen.", ex);
             }
         }
     }
