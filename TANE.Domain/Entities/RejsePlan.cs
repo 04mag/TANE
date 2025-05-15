@@ -15,7 +15,7 @@ namespace TANE.Domain.Entities
         public string? Beskrivelse { get; set; }
         public int? AntalVoksne { get; set; }
         public int? AntalBørn { get; set; }
-        public string? Lufthavn { get; set; }
+        public string Lufthavn { get; set; } 
         public double? FlyPris { get; set; }
         public int? AntalDage { get; set; }
         public double? TotalPris { get; set; }
@@ -25,8 +25,7 @@ namespace TANE.Domain.Entities
 
         public List<Tur>? Ture { get; set; } = new();
         // Status‐flags
-        public string? OpfølgningNote { get; set; }
-
+        public string OpfølgningNote { get; set; } 
         public Status? RejseplanStatus { get; set; }
         public enum Status
         {

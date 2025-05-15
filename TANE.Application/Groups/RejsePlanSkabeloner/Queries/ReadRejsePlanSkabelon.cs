@@ -9,7 +9,7 @@ using TANE.Domain.Entities;
 
 namespace TANE.Application.Groups.RejseplanSkabeloner.Queries
 {
-    public class ReadRejseplanSkabelon : IReadRejseplanSkabelon
+    public class ReadRejseplanSkabelon : IReadRejsePlanSkabelon
     {
         private readonly IRejseplanSkabelonRepository _rejseplanSkabelonRepository;
 
@@ -22,7 +22,7 @@ namespace TANE.Application.Groups.RejseplanSkabeloner.Queries
         {
             var result = await _rejseplanSkabelonRepository.ReadRejseplanSkabelonByIdAsync(id, jwtToken);
 
-            result.TurSkabeloner = result.TurSkabeloner.OrderBy(t => t.Sekvens).ToList();
+            result.Ture = result.Ture.OrderBy(t => t.Sekvens).ToList();
 
             return result;
         }
@@ -33,7 +33,7 @@ namespace TANE.Application.Groups.RejseplanSkabeloner.Queries
 
             foreach (var rejseplanSkabelon in result)
             {
-                rejseplanSkabelon.TurSkabeloner = rejseplanSkabelon.TurSkabeloner.OrderBy(t => t.Sekvens).ToList();
+                rejseplanSkabelon.Ture = rejseplanSkabelon.Ture.OrderBy(t => t.Sekvens).ToList();
             }
 
             return result.OrderBy(r => r.Titel).ToList();

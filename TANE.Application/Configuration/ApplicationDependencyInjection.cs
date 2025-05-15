@@ -17,8 +17,10 @@ using TANE.Application.Groups.Kunder.Commands;
 using TANE.Application.Groups.Kunder.Commands.Interfaces;
 using TANE.Application.Groups.Kunder.Queries;
 using TANE.Application.Groups.Kunder.Queries.Interfaces;
-using TANE.Application.Groups.Users.Commands;
-using TANE.Application.Groups.Users.Interfaces;
+using TANE.Application.Groups.RejseplanSkabeloner.Queries.Interfaces;
+using TANE.Application.Groups.RejseplanSkabeloner.Queries;
+using TANE.Application.Groups.RejseplanSkabeloner.Commands.Interfaces;
+using TANE.Application.Groups.RejseplanSkabeloner.Commands;
 
 namespace TANE.Application.Configuration
 {
@@ -45,6 +47,9 @@ namespace TANE.Application.Configuration
             services.AddScoped<IDeleteDagSkabelon, DeleteDagSkabelon>();
             services.AddScoped<IReadDagSkabelon, ReadDagSkabelon>();
            
+
+            services.AddScoped<IReadRejsePlanSkabelon, ReadRejseplanSkabelon>();
+            services.AddScoped<ICreateRejseplanSkabelon, CreateRejseplanSkabelon>();
 
             return services;
         }

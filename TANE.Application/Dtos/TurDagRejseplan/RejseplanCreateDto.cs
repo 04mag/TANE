@@ -12,13 +12,12 @@ namespace TANE.Application.Dtos
         public string? Beskrivelse { get; set; } = string.Empty;
 		public int? AntalVoksne { get; set; } = 0;
         public int? AntalBørn { get; set; } = 0;
-		public string? Lufthavn { get; set; } = string.Empty;
+		public string? Lufthavn { get; set; } 
 		public double? FlyPris { get; set; } = 0;
         public int? AntalDage { get; set; } = 0;
         public double? TotalPris { get; set; }
         public List<TurCreateDto>? Ture { get; set; } 
 		public DateTime? AfrejseTidspunkt { get; set; } = DateTime.Now;
-        public string? OpfølgningNote { get; set; } = string.Empty;
         public RejseplanStatusDto? RejseplanStatus { get; set; }
 
     }

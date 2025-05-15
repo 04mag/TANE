@@ -149,15 +149,14 @@ namespace TANE.Persistence.Repositories
             }
         }
 
-        public async Task ReorderTureAsync(int rejseplanId, Tur tur, string jwtToken)
+        public async Task ReorderTureAsync(int rejseplanId, TurReorderDto newOrder, string jwtToken)
         {
             try
             {
-                var dto = _mapper.Map<TurReorderDto>(tur);
                 var client = _factory.CreateClient("rejseplan");
                 SetJwtToken(client, jwtToken);
 
-                var response = await client.PostAsJsonAsync($"rejseplan/{rejseplanId}/ture/reorder", dto);
+                var response = await client.PostAsJsonAsync($"rejseplan/{rejseplanId}/ture/reorder", newOrder);
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new Exception($"Kunne ikke ændre rækkefølgen af ture: {response.StatusCode}.");
@@ -175,15 +174,15 @@ namespace TANE.Persistence.Repositories
             }
         }
 
-        public async Task AddTurToRejseplanAsync(Tur tur, string jwtToken)
+        public async Task AddTurToRejseplanAsync(TurAssignDto assignDto, string jwtToken)
         {
             try
             {
-                var dto = _mapper.Map<TurAssignDto>(tur);
+                
                 var client = _factory.CreateClient("rejseplan");
                 SetJwtToken(client, jwtToken);
 
-                var response = await client.PostAsJsonAsync($"rejseplan/{dto.RejseplanId}/tur/{dto.TurId}", dto);
+                var response = await client.PostAsJsonAsync($"rejseplan/{assignDto.RejseplanId}/tur/{assignDto.TurId}", assignDto);
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new Exception($"Kunne ikke tilføje tur til rejseplan: {response.StatusCode}.");
@@ -191,7 +190,7 @@ namespace TANE.Persistence.Repositories
             }
             catch (HttpRequestException ex)
             {
-                _logger.LogError(ex, "Fejl ved HTTP-opkald under tilføjelse af tur til rejseplan ID {Id}.", tur.RejseplanId);
+                _logger.LogError(ex, "Fejl ved HTTP-opkald under tilføjelse af tur til rejseplan ID {Id}.", assignDto.RejseplanId);
                 throw new Exception("Der opstod en HTTP-fejl under tilføjelse af tur.", ex);
             }
             catch (Exception ex)

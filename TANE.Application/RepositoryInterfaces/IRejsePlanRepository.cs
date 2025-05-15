@@ -16,8 +16,8 @@ namespace TANE.Application.RepositoryInterfaces
         Task<bool> DeleteRejseplan(int rejseplanId, string jwtToken);
         Task<Rejseplan> ReadRejseplanById(int rejseplanId, string jwtToken);
         Task<List<Rejseplan>> ReadAllRejseplaner(string jwtToken);
-        Task AddTurToRejseplanAsync(Tur tur, string jwtToken);
-        Task ReorderTureAsync(int rejseplanId, Tur tur, string jwtToken);
+        Task AddTurToRejseplanAsync(TurAssignDto assignDto, string jwtToken);
+        Task ReorderTureAsync(int rejseplanId, TurReorderDto newOrder, string jwtToken);
         Task RemoveTurFromRejseplanAsync(int rejseplanId, int turId, string jwtToken);
     }
 }
