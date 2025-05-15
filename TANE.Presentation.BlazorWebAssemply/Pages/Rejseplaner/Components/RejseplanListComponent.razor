@@ -1,16 +1,17 @@
 ﻿@using TANE.Application.Dtos
+@using TANE.Domain.Entities
 
-<RadzenDataGrid TItem="RejseplanReadDto"
+<RadzenDataGrid TItem="Rejseplan"
                 Data="@Data"
                 AllowFiltering="true"
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                 AllowPaging="true" PageSize="10"
                 AllowSorting="true">
     <Columns>
-        <RadzenDataGridColumn TItem="RejseplanReadDto" Property="Id" Title="ID" Width="60px" />
-        <RadzenDataGridColumn TItem="RejseplanReadDto" Property="Titel" Title="Titel" />
-        <RadzenDataGridColumn TItem="RejseplanReadDto" Property="Beskrivelse" Title="Beskrivelse" />
-        <RadzenDataGridColumn TItem="RejseplanReadDto" Title="Handlinger" Filterable="false" Sortable="false" Width="120px">
+        <RadzenDataGridColumn TItem="Rejseplan" Property="Id" Title="ID" Width="60px" />
+        <RadzenDataGridColumn TItem="Rejseplan" Property="Titel" Title="Titel" />
+        <RadzenDataGridColumn TItem="Rejseplan" Property="Beskrivelse" Title="Beskrivelse" />
+        <RadzenDataGridColumn TItem="Rejseplan" Title="Handlinger" Filterable="false" Sortable="false" Width="120px">
             <Template Context="plan">
                 <RadzenButton Icon="edit"
                               Size="ButtonSize.Small"
@@ -23,8 +24,8 @@
 
 @code {
     [Parameter, EditorRequired]
-    public IEnumerable<RejseplanReadDto> Data { get; set; } = Array.Empty<RejseplanReadDto>();
+    public IEnumerable<Rejseplan> Data { get; set; } = Array.Empty<Rejseplan>();
 
     [Parameter]
-    public EventCallback<RejseplanReadDto> OnEdit { get; set; }
+    public EventCallback<Rejseplan> OnEdit { get; set; }
 }

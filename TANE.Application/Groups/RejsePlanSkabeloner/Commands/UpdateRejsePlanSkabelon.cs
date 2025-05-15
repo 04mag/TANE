@@ -3,29 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TANE.Application.Groups.RejsePlanSkabeloner.Commands.Interfaces;
+using TANE.Application.Groups.RejseplanSkabeloner.Commands.Interfaces;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
 
-namespace TANE.Application.Groups.RejsePlanSkabeloner.Commands
+namespace TANE.Application.Groups.RejseplanSkabeloner.Commands
 {
-    public class UpdateRejsePlanSkabelon : IUpdateRejsePlanSkabelon
+    public class UpdateRejseplanSkabelon : IUpdateRejseplanSkabelon
     {
-        private readonly IRejsePlanSkabelonRepository _rejsePlanSkabelonRepository;
+        private readonly IRejseplanSkabelonRepository _rejseplanSkabelonRepository;
 
-        public UpdateRejsePlanSkabelon(IRejsePlanSkabelonRepository rejsePlanSkabelonRepository)
+        public UpdateRejseplanSkabelon(IRejseplanSkabelonRepository rejseplanSkabelonRepository)
         {
-            _rejsePlanSkabelonRepository = rejsePlanSkabelonRepository;
+            _rejseplanSkabelonRepository = rejseplanSkabelonRepository;
         }
 
-        public async Task<bool> UpdateRejsePlanSkabelonAsync(RejsePlanSkabelon rejsePlanSkabelon, string jwtToken)
+        public async Task<bool> UpdateRejseplanSkabelonAsync(RejseplanSkabelon rejseplanSkabelon, string jwtToken)
         {
-            foreach (var turSkabelon in rejsePlanSkabelon.TurSkabeloner)
+            foreach (var turSkabelon in rejseplanSkabelon.TurSkabeloner)
             {
-                turSkabelon.Sekvens = rejsePlanSkabelon.TurSkabeloner.IndexOf(turSkabelon) + 1;
+                turSkabelon.Sekvens = rejseplanSkabelon.TurSkabeloner.IndexOf(turSkabelon) + 1;
             }
 
-            var result = await _rejsePlanSkabelonRepository.UpdateRejsePlanSkabelonAsync(rejsePlanSkabelon, jwtToken);
+            var result = await _rejseplanSkabelonRepository.UpdateRejseplanSkabelonAsync(rejseplanSkabelon, jwtToken);
 
             return result;
         }

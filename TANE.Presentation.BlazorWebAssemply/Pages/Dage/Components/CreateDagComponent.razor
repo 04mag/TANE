@@ -11,7 +11,7 @@
 
 <div class="rz-p-0 rz-p-md-12">
     <h4>Opret Ny Dag </h4>
-    <RadzenTemplateForm TItem="DagCreateDto" Data=@Dag Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+    <RadzenTemplateForm TItem="Dag" Data=@Dag Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
         <RadzenStack Gap="1rem" class="rz-p-sm-12" Style="max-width: 900px; margin: auto;">
 
             <!-- Titel -->
@@ -66,10 +66,10 @@
 </div>
 
 @code {
-    public DagCreateDto Dag { get; set; } = new DagCreateDto();
+    public Dag Dag { get; set; } = new Dag();
 
     [Parameter]
-    public EventCallback<DagCreateDto> OnAdd { get; set; }
+    public EventCallback<Dag> OnAdd { get; set; }
 
     private string _token;
 
@@ -88,7 +88,7 @@
     async void OnSubmit()
     {
         await OnAdd.InvokeAsync(Dag);
-        Dag = new DagCreateDto();
+        Dag = new Dag();
 
         // succes besked
 

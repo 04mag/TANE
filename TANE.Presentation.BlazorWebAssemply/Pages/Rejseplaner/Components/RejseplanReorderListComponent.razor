@@ -13,24 +13,24 @@
 
 <RadzenDataGrid AllowFiltering="false" AllowColumnResize="false" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="false" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
                 Data="@Injected" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single"
-                @bind-Value=@selectedRejseplanReadDto RowRender="@RowRender">
+                @bind-Value=@selectedRejseplan RowRender="@RowRender">
     <Columns>
-        <RadzenDataGridColumn Property="@nameof(RejseplanReadDto.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" />
-        <RadzenDataGridColumn Property="@nameof(RejseplanReadDto.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px" />
-        <RadzenDataGridColumn Property="@nameof(RejseplanReadDto.Beskrivelse)" Title="Beskrivelse" Width="auto" MinWidth="150px" />
-        <RadzenDataGridColumn Context="RejseplanReadDto" Filterable="false" Sortable="false" Width="auto" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
-            <Template Context="RejseplanReadDto">
+        <RadzenDataGridColumn Property="@nameof(Rejseplan.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" />
+        <RadzenDataGridColumn Property="@nameof(Rejseplan.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px" />
+        <RadzenDataGridColumn Property="@nameof(Rejseplan.Beskrivelse)" Title="Beskrivelse" Width="auto" MinWidth="150px" />
+        <RadzenDataGridColumn Context="Rejseplan" Filterable="false" Sortable="false" Width="auto" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+            <Template Context="Rejseplan">
                 @if (OnSelect.HasDelegate)
                 {
-                    <RadzenButton Icon="file_open" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => SelectRow(RejseplanReadDto))" @onclick:stopPropagation="true" />
+                    <RadzenButton Icon="file_open" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => SelectRow(Rejseplan))" @onclick:stopPropagation="true" />
                 }
                 @if (OnEdit.HasDelegate)
                 {
-                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" Click="@(args => EditRow(RejseplanReadDto))" @onclick:stopPropagation="true" />
+                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" Click="@(args => EditRow(Rejseplan))" @onclick:stopPropagation="true" />
                 }
                 @if (OnDelete.HasDelegate)
                 {
-                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => DeleteRow(RejseplanReadDto))" @onclick:stopPropagation="true" />
+                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" Shade="Shade.Lighter" class="rz-my-1 rz-ms-1" Click="@(args => DeleteRow(Rejseplan))" @onclick:stopPropagation="true" />
                 }
             </Template>
         </RadzenDataGridColumn>
@@ -39,44 +39,44 @@
 
 @code {
     [Parameter, EditorRequired]
-    public ObservableCollection<RejseplanReadDto> Injected { get; set; }
+    public ObservableCollection<Rejseplan> Injected { get; set; }
 
     [Parameter]
-    public EventCallback<RejseplanReadDto> OnSelect { get; set; }
+    public EventCallback<Rejseplan> OnSelect { get; set; }
 
     [Parameter]
-    public EventCallback<RejseplanReadDto> OnEdit { get; set; }
+    public EventCallback<Rejseplan> OnEdit { get; set; }
 
     [Parameter]
-    public EventCallback<RejseplanReadDto> OnDelete { get; set; }
+    public EventCallback<Rejseplan> OnDelete { get; set; }
 
-    IList<RejseplanReadDto> selectedRejseplanReadDto;
+    IList<Rejseplan> selectedRejseplan;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        selectedRejseplanReadDto = new List<RejseplanReadDto>() { Injected.FirstOrDefault() };
+        selectedRejseplan = new List<Rejseplan>() { Injected.FirstOrDefault() };
     }
 
-    RejseplanReadDto draggedItem;
+    Rejseplan draggedItem;
 
-    async Task SelectRow(RejseplanReadDto RejseplanReadDto)
+    async Task SelectRow(Rejseplan Rejseplan)
     {
-        await OnSelect.InvokeAsync(RejseplanReadDto);
+        await OnSelect.InvokeAsync(Rejseplan);
     }
 
-    async Task EditRow(RejseplanReadDto RejseplanReadDto)
+    async Task EditRow(Rejseplan Rejseplan)
     {
-        await OnEdit.InvokeAsync(RejseplanReadDto);
+        await OnEdit.InvokeAsync(Rejseplan);
     }
 
-    async Task DeleteRow(RejseplanReadDto RejseplanReadDto)
+    async Task DeleteRow(Rejseplan Rejseplan)
     {
-        await OnDelete.InvokeAsync(RejseplanReadDto);
+        await OnDelete.InvokeAsync(Rejseplan);
     }
 
-    void RowRender(RowRenderEventArgs<RejseplanReadDto> args)
+    void RowRender(RowRenderEventArgs<Rejseplan> args)
     {
         args.Attributes.Add("title", "Drag row to reorder");
         args.Attributes.Add("style", "cursor:grab");

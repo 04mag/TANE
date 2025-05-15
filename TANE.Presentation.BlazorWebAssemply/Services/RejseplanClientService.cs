@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using TANE.Application.Dtos;
+using TANE.Domain.Entities;
 
 namespace TANE.Presentation.BlazorWebAssemply.Services
 {
@@ -18,20 +19,20 @@ namespace TANE.Presentation.BlazorWebAssemply.Services
             _http = http;
         }
 
-        public async Task<IEnumerable<RejseplanReadDto>> GetAllAsync()
-            => await _http.GetFromJsonAsync<IEnumerable<RejseplanReadDto>>("rejseplan");
+        public async Task<IEnumerable<Rejseplan>> GetAllAsync()
+            => await _http.GetFromJsonAsync<IEnumerable<Rejseplan>>("rejseplan");
 
-        public async Task<RejseplanReadDto> GetByIdAsync(int id)
-            => await _http.GetFromJsonAsync<RejseplanReadDto>($"rejseplan/{id}");
+        public async Task<Rejseplan> GetByIdAsync(int id)
+            => await _http.GetFromJsonAsync<Rejseplan>($"rejseplan/{id}");
 
-        public async Task<RejseplanReadDto> CreateAsync(RejseplanCreateDto dto)
+        public async Task<Rejseplan> CreateAsync(Rejseplan dto)
             => await _http.PostAsJsonAsync("rejseplan", dto)
-                .ContinueWith(t => t.Result.Content.ReadFromJsonAsync<RejseplanReadDto>())
+                .ContinueWith(t => t.Result.Content.ReadFromJsonAsync<Rejseplan>())
                 .Unwrap();
 
-        public async Task<RejseplanReadDto> UpdateAsync(int id, RejseplanUpdateDto dto)
+        public async Task<Rejseplan> UpdateAsync(int id, Rejseplan dto)
             => await _http.PutAsJsonAsync($"rejseplan/{id}", dto)
-                .ContinueWith(t => t.Result.Content.ReadFromJsonAsync<RejseplanReadDto>())
+                .ContinueWith(t => t.Result.Content.ReadFromJsonAsync<Rejseplan>())
                 .Unwrap();
 
         public async Task DeleteAsync(int id, byte[] rowVersion)

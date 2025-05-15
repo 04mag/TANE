@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using TANE.Application.Dtos;
 using TANE.Domain.Entities;
 
-namespace TANE.Application.Groups.RejsePlaner.Queries.Interfaces
+namespace TANE.Application.Groups.Rejseplaner.Queries.Interfaces
 {
-    public interface IReadRejsePlan
+    public interface IReadRejseplan
     {
-        Task<RejseplanReadDto> ReadRejsePlanByIdAsync(int id, string jwtToken);
-        Task<List<RejseplanReadDto>> ReadRejsePlanerAsync(string jwtToken);
+        Task<Rejseplan> ReadRejseplanByIdAsync(int id, string jwtToken);
+        Task<List<Rejseplan>> ReadRejseplanerAsync(string jwtToken);
     }
 }

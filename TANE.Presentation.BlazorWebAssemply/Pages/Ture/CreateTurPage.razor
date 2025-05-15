@@ -3,7 +3,7 @@
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
 @using TANE.Application.Dtos
 @using TANE.Application.Groups.Dage.Queries.Interfaces
-@using TANE.Presentation.BlazorWebAssemply.Pages.Tur.Components
+@using TANE.Presentation.BlazorWebAssemply.Pages.Ture.Components
 @inject IReadDag ReadDage
 @inject CustomStateProvider AuthStateProvider
 
@@ -14,7 +14,7 @@
 @code {
     private string? _token;
 
-    public List<DagReadDto> Dage { get; set; } = new List<DagReadDto>();
+    public List<Dag> Dage { get; set; } = new List<Dag>();
 
 
     protected override async Task OnInitializedAsync()

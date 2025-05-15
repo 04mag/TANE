@@ -1,6 +1,6 @@
 ﻿@using TANE.Application.Dtos
 @using TANE.Application.Groups.Ture.Queries.Interfaces
-@using TANE.Presentation.BlazorWebAssemply.Pages.Rejseplan.Components
+@using TANE.Domain.Entities
 @inject IReadTur ReadTure
 @inject CustomStateProvider AuthStateProvider
 
@@ -11,7 +11,7 @@
 @code {
     private string? _token;
 
-    public List<TurReadDto> Ture { get; set; } = new List<TurReadDto>();
+    public List<Tur> Ture { get; set; } = new List<Tur>();
 
 
     protected override async Task OnInitializedAsync()
