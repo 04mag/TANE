@@ -1,7 +1,5 @@
-﻿@using TANE.Application.Groups.RejsePlanSkabeloner.Queries.Interfaces
-@using TANE.Domain.Entities
+﻿@using TANE.Domain.Entities
 
-@inject IReadRejsePlanSkabelon ReadRejsePlanSkabelon
 @inject CustomStateProvider AuthStateProvider
 @inject NotificationService NotificationService
 @inject NavigationManager NavigationManager
@@ -10,9 +8,9 @@
 <RadzenDataGrid AllowFiltering="true" AllowColumnResize="false" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
 Data="@Skabeloner" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single" @bind-Value=@SelectedSkabeloner>
     <Columns>
-        <RadzenDataGridColumn Property="@nameof(RejsePlanSkabelon.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" />
-        <RadzenDataGridColumn Property="@nameof(RejsePlanSkabelon.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px" />
-        <RadzenDataGridColumn Property="@nameof(RejsePlanSkabelon.Beskrivelse)" Title="Beskrivelse" Width="auto" MinWidth="150px" />
+        <RadzenDataGridColumn Property="@nameof(RejseplanSkabelon.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left" />
+        <RadzenDataGridColumn Property="@nameof(RejseplanSkabelon.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px" />
+        <RadzenDataGridColumn Property="@nameof(RejseplanSkabelon.Beskrivelse)" Title="Beskrivelse" Width="auto" MinWidth="150px" />
         <RadzenDataGridColumn Context="TurSkabelon" Filterable="false" Sortable="false" Width="auto" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
             <Template Context="RejsePlanSkabelon">
                 @if (OnSelect.HasDelegate)
@@ -34,24 +32,24 @@ Data="@Skabeloner" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOpera
 
 @code {
     [Parameter, EditorRequired]
-    public List<RejsePlanSkabelon> InjectedSkabeloner { get; set; }
+    public List<RejseplanSkabelon> InjectedSkabeloner { get; set; }
 
     [Parameter]
-    public EventCallback<RejsePlanSkabelon> OnSelect { get; set; }
+    public EventCallback<RejseplanSkabelon> OnSelect { get; set; }
 
     [Parameter]
-    public EventCallback<RejsePlanSkabelon> OnEdit { get; set; }
+    public EventCallback<RejseplanSkabelon> OnEdit { get; set; }
 
     [Parameter]
-    public EventCallback<RejsePlanSkabelon> OnDelete { get; set; }
+    public EventCallback<RejseplanSkabelon> OnDelete { get; set; }
 
     private bool allowVirtualization = false;
 
     private string searchText = string.Empty;
 
-    private List<RejsePlanSkabelon> SkabelonerVar = new List<RejsePlanSkabelon>();
+    private List<RejseplanSkabelon> SkabelonerVar = new List<RejseplanSkabelon>();
 
-    public List<RejsePlanSkabelon> Skabeloner
+    public List<RejseplanSkabelon> Skabeloner
     {
         get
         {
@@ -67,15 +65,20 @@ Data="@Skabeloner" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOpera
         set { SkabelonerVar = value; }
     }
 
-    public IList<RejsePlanSkabelon> SelectedSkabeloner { get; set; } = new List<RejsePlanSkabelon>();
+    public IList<RejseplanSkabelon> SelectedSkabeloner { get; set; } = new List<RejseplanSkabelon>();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+        Skabeloner = InjectedSkabeloner;
 
-        Skabeloner = await ReadRejsePlanSkabelon.ReadRejsePlanSkabelonerAsync(AuthStateProvider.CurrentUser.Token);
+        SelectedSkabeloner = new List<RejseplanSkabelon>() { Skabeloner.FirstOrDefault()! };
+    }
 
-        SelectedSkabeloner = new List<RejsePlanSkabelon>() { Skabeloner.FirstOrDefault()! };
+    protected override async Task OnParametersSetAsync()
+    {
+        Skabeloner = InjectedSkabeloner;
+
+        await base.OnParametersSetAsync();
     }
 
     private void HandleInput(ChangeEventArgs args)
@@ -88,21 +91,21 @@ Data="@Skabeloner" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOpera
         searchText = args.Value.ToString()!;
     }
 
-    async Task SelectRow(RejsePlanSkabelon turskabelon)
+    async Task SelectRow(RejseplanSkabelon turskabelon)
     {
         await OnSelect.InvokeAsync(turskabelon);
 
         Skabeloner = InjectedSkabeloner;
     }
 
-    async Task EditRow(RejsePlanSkabelon turskabelon)
+    async Task EditRow(RejseplanSkabelon turskabelon)
     {
         await OnEdit.InvokeAsync(turskabelon);
 
         Skabeloner = InjectedSkabeloner;
     }
 
-    async Task DeleteRow(RejsePlanSkabelon turskabelon)
+    async Task DeleteRow(RejseplanSkabelon turskabelon)
     {
         await OnDelete.InvokeAsync(turskabelon);
 
