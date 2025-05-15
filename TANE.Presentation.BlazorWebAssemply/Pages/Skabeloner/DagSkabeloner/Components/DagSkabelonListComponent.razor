@@ -7,7 +7,7 @@
     <RadzenTextBox @bind-Value="searchText" @oninput=@HandleInput Placeholder="Søg efter titel" Style="width: 100%"/>
 
     <RadzenDataGrid AllowFiltering="true" AllowColumnResize="false" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
-                    Data="@Skabeloner" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single" @bind-Value=@SelectedSkabeloner>
+    Data="@Skabeloner" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single" @bind-Value=@SelectedSkabeloner>
         <Columns>
             <RadzenDataGridColumn Property="@nameof(DagSkabelon.Id)" Filterable="false" Title="ID" Frozen="true" Width="60px" TextAlign="TextAlign.Left"/>
             <RadzenDataGridColumn Property="@nameof(DagSkabelon.Titel)" Title="Titel" Frozen="false" Width="auto" MinWidth="200px"/>
@@ -76,6 +76,15 @@ else
         Skabeloner = InjectedSkabeloner.AsQueryable();
 
         SelectedSkabeloner = new List<DagSkabelon>() { Skabeloner.FirstOrDefault()! };
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Skabeloner = InjectedSkabeloner.AsQueryable();
+
+        SelectedSkabeloner = new List<DagSkabelon>() { Skabeloner.FirstOrDefault()! };
+
+        await base.OnParametersSetAsync();
     }
 
     private void HandleInput(ChangeEventArgs args)

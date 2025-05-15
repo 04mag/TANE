@@ -6,15 +6,16 @@
 
 @inject IReadDagSkabelon ReadDagSkabelon
 @inject CustomStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
 
 @page "/skabeloner/dag-skabeloner/oversigt"
 
 <PageTitle>Dag Skabeloner</PageTitle>
 
-<DagSkabelonListComponent InjectedSkabeloner="DagSkabeloner" OnEditSkabelon="OnRowEditPressed" OnDeleteSkabelon="OnRowDeletePressed"/>
+<DagSkabelonListComponent InjectedSkabeloner="DagSkabeloner" OnEdit="OnRowEditPressed" OnDelete="OnRowDeletePressed"/>
 
 @code {
-    string _token;
     public List<DagSkabelon> DagSkabeloner { get; set; } = new List<DagSkabelon>();
 
     private async Task OnRowEditPressed(DagSkabelon dagSkabelon)
@@ -30,10 +31,9 @@
     protected override async Task OnInitializedAsync()
     {
 
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        _token = AuthStateProvider.CurrentUser.Token;
-        await base.OnInitializedAsync();
+        await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
 
-        DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync(_token);
+        DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync(AuthStateProvider.CurrentUser.Token);
+        await base.OnInitializedAsync();
     }
 }
