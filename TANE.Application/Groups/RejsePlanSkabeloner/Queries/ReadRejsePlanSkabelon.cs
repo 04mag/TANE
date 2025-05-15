@@ -9,7 +9,7 @@ using TANE.Domain.Entities;
 
 namespace TANE.Application.Groups.RejseplanSkabeloner.Queries
 {
-    public class ReadRejseplanSkabelon : IReadRejseplanSkabelon
+    public class ReadRejseplanSkabelon : IReadRejsePlanSkabelon
     {
         private readonly IRejseplanSkabelonRepository _rejseplanSkabelonRepository;
 

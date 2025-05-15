@@ -11,9 +11,8 @@
         public string Titel { get; set; }
         public string Beskrivelse { get; set; }
         public double Pris { get; set; }
-        public List<DagSkabelonCreateDto> Dage { get; set; }
-
-        [Required(ErrorMessage = "RowVersion is required")]
+        public List<DagSkabelonUpdateDto> Dage { get; set; }
         public byte[] RowVersion { get; set; }  // **Til optimistic concurrency**
+        public int Sekvens { get; set; } 
     }
 }

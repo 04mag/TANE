@@ -60,11 +60,6 @@ namespace TANE.Persistence.Configuration
             services.AddScoped<ITurRepository, TurRepository>();
             services.AddScoped<ITurSkabelonRepository, TurSkabelonRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IReadTurSkabelon, ReadTurSkabelon>();
-            services.AddScoped<IReadDag, ReadDag>();
-            services.AddScoped<IReadTur, ReadTur>();
-            services.AddScoped<IReadRejseplan, ReadRejseplan>();
-            services.AddScoped<IReadKunde, ReadKunde>();
 
             services
                 .AddAutoMapper(typeof(MappingProfile).Assembly);

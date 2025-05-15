@@ -17,8 +17,20 @@ using TANE.Application.Groups.Kunder.Commands;
 using TANE.Application.Groups.Kunder.Commands.Interfaces;
 using TANE.Application.Groups.Kunder.Queries;
 using TANE.Application.Groups.Kunder.Queries.Interfaces;
-using TANE.Application.Groups.Users.Commands;
-using TANE.Application.Groups.Users.Interfaces;
+using TANE.Application.Groups.RejseplanSkabeloner.Queries.Interfaces;
+using TANE.Application.Groups.RejseplanSkabeloner.Queries;
+using TANE.Application.Groups.RejseplanSkabeloner.Commands.Interfaces;
+using TANE.Application.Groups.RejseplanSkabeloner.Commands;
+using TANE.Application.Groups.Dage.Queries.Interfaces;
+using TANE.Application.Groups.Dage.Queries;
+using TANE.Application.Groups.Rejseplaner.Queries.Interfaces;
+using TANE.Application.Groups.Rejseplaner.Queries;
+using TANE.Application.Groups.Ture.Queries.Interfaces;
+using TANE.Application.Groups.Ture.Queries;
+using TANE.Application.Groups.TurSkabeloner.Queries.Interfaces;
+using TANE.Application.Groups.TurSkabeloner.Queries;
+using TANE.Application.Groups.TurSkabeloner.Commands.Interfaces;
+using TANE.Application.Groups.TurSkabeloner.Commands;
 
 namespace TANE.Application.Configuration
 {
@@ -38,11 +50,23 @@ namespace TANE.Application.Configuration
             services.AddScoped<IUpdateKunde, UpdateKunde>();
             services.AddScoped<IDeleteKunde, DeleteKunde>();
 
+
+
             services.AddScoped<ICreateDagSkabelon, CreateDagSkabelon>();
             services.AddScoped<IUpdateDagSkabelon, UpdateDagSkabelon>();
             services.AddScoped<IDeleteDagSkabelon, DeleteDagSkabelon>();
             services.AddScoped<IReadDagSkabelon, ReadDagSkabelon>();
            
+            services.AddScoped<IReadTurSkabelon, ReadTurSkabelon>();
+            services.AddScoped<ICreateTurSkabelon, CreateTurSkabelon>();
+            services.AddScoped<IUpdateTurSkabelon, UpdateTurSkabelon>();
+
+            services.AddScoped<IReadRejsePlanSkabelon, ReadRejseplanSkabelon>();
+            services.AddScoped<ICreateRejseplanSkabelon, CreateRejseplanSkabelon>();
+
+            services.AddScoped<IReadDag, ReadDag>();
+            services.AddScoped<IReadTur, ReadTur>();
+            services.AddScoped<IReadRejseplan, ReadRejseplan>();
 
             return services;
         }

@@ -1,0 +1,10 @@
+﻿@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
+
+@page "/skabeloner/tur/edit/{Id:int}"
+
+<EditTurSkabelonComponent Id="Id"/>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+}

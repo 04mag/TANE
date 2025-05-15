@@ -1,16 +1,20 @@
 ﻿@using System.Collections.ObjectModel
 @using TANE.Application.Dtos.Skabeloner
+@using TANE.Application.Groups.RejseplanSkabeloner.Commands.Interfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
 
-@inject DialogService DialogService
+@inject NotificationService NotificationService
+@inject NavigationManager NavigationManager
+@inject CustomStateProvider AuthStateProvider
+@inject ICreateRejseplanSkabelon CreateRejseplanSkabelon
 
 <div class="rz-p-0 rz-p-md-12">
 
     @if (showAddTurSkabelon)
     {
-        <TurSkabelonListComponent InjectedSkabeloner="TurSkabeloner" OnSelectSkabelon="OnTurSkabelonRowSelect"/>
+        <TurSkabelonListComponent InjectedSkabeloner="TurSkabeloner" OnSelect="OnTurSkabelonRowSelect" />
     }
 
     @if (!showAddTurSkabelon)
@@ -40,7 +44,7 @@
 
                 <br />
 
-                <h4>Ture:</h4>
+                <h3>Ture:</h3>
                 <TurSkabelonReorderListComponent InjectedSkabeloner="ObservableTurSkabeloner" OnDeleteSkabelon="OnTurSkabelonDelete" />
                 <div style="text-align: right; width: 100%;">
                     <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium" Style="width: 150px" Text="Tilføj Tur" Click="@(() => showAddTurSkabelon = !showAddTurSkabelon)"></RadzenButton>
@@ -48,7 +52,7 @@
 
                 <br />
 
-                <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Text="Opret tur skabelon"></RadzenButton>
+                <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Text="Opret rejseplan skabelon"></RadzenButton>
             </RadzenStack>
         </RadzenTemplateForm>
     }
@@ -98,18 +102,36 @@
         TurSkabeloner = InjectedTurSkabeloner;
     }
 
-    void OnSubmit(RejseplanSkabelon model)
+    async Task OnSubmit(RejseplanSkabelon model)
     {
         RejseplanSkabelon.Ture = ObservableTurSkabeloner.ToList();
 
-        Console.WriteLine($"Titel: {RejseplanSkabelon.Titel}\nBeskrivelse: {RejseplanSkabelon.Beskrivelse}");
+        await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
 
-        foreach (var dagSkabelon in RejseplanSkabelon.Ture)
+        try
         {
-            Console.WriteLine($"Tur: {dagSkabelon.Titel}");
-        }
+            await CreateRejseplanSkabelon.CreateRejseplanSkabelonAsync(RejseplanSkabelon, AuthStateProvider.CurrentUser.Token);
 
-        DialogService.Close(model);
+            NotificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Rejseplan skabelon oprettet",
+                    Detail = "Skabelon for rejseplanen blev oprettet.",
+                    Duration = 5000
+                });
+
+            NavigationManager.NavigateTo("/skabeloner/rejseplan-skabeloner/overview");
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Fejl",
+                    Detail = "Der opstod en fejl under oprettelse af rejseplan skabelon: " + ex.Message,
+                    Duration = 5000
+                });
+        }
     }
 
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args)

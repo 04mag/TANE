@@ -1,8 +1,11 @@
 ﻿@using TANE.Application.Groups.TurSkabeloner.Queries.Interfaces
 @using TANE.Application.Dtos.Skabeloner
 @using TANE.Domain.Entities
-@inject CustomStateProvider AuthStateProvider
+@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.RejsePlanSkabeloner.Components
 
+@inject CustomStateProvider AuthStateProvider
+@inject NotificationService NotificationService
+@inject NavigationManager NavigationManager
 @inject IReadTurSkabelon ReadTurSkabelon
 
 @page "/skabeloner/rejseplan-skabeloner/create"
@@ -12,12 +15,24 @@
 @code {
 
     public List<TurSkabelon> TurSkabeloner { get; set; } = new List<TurSkabelon>();
-    string _token;
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        _token = AuthStateProvider.CurrentUser.Token;
-        TurSkabeloner = await ReadTurSkabelon.ReadAllTurSkabelonerAsync(_token);
+        await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+
+        try
+        {
+            TurSkabeloner = await ReadTurSkabelon.ReadAllTurSkabelonerAsync(AuthStateProvider.CurrentUser.Token);
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Fejl",
+                    Detail = "Der opstod en fejl under indlæsning af tur skabeloner: " + ex.Message,
+                    Duration = 5000
+                });
+        }
     }
 }

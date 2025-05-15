@@ -7,7 +7,7 @@ using TANE.Domain.Entities;
 
 namespace TANE.Application.Groups.RejseplanSkabeloner.Queries.Interfaces
 {
-    internal interface IReadRejseplanSkabelon
+    public interface IReadRejsePlanSkabelon
     {
         Task<RejseplanSkabelon> ReadRejseplanSkabelonByIdAsync(int id, string jwtToken);
         Task<List<RejseplanSkabelon>> ReadRejseplanSkabelonerAsync(string jwtToken);

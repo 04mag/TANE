@@ -7,7 +7,7 @@ using TANE.Domain.Entities;
 
 namespace TANE.Application.Groups.RejseplanSkabeloner.Commands.Interfaces
 {
-    internal interface ICreateRejseplanSkabelon
+    public interface ICreateRejseplanSkabelon
     {
         Task<bool> CreateRejseplanSkabelonAsync(RejseplanSkabelon rejseplanSkabelon, string jwtToken);
     }
