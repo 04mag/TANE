@@ -16,7 +16,7 @@
 @inject IReadKunde ReadKunde
 @inject IRejseplanRepository RejseplanRepository
 @inject IJSRuntime JSRuntime
-
+@inject NotificationService NotificationService
 <RadzenDialog />
 
 <div class="rz-p-0 rz-p-md-12">
@@ -176,7 +176,7 @@
     private string _token = string.Empty;
 
     ObservableCollection<Tur> RejseplanTure { get; set; } = new ObservableCollection<Tur>();
-
+    private List<int> _originalTurIds = new();
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
@@ -192,7 +192,7 @@
 
         var ture = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
         RejseplanTure = new ObservableCollection<Tur>(ture.OrderBy(t => t.Sekvens));
-
+        _originalTurIds = ture.Select(t => t.Id).ToList();
 
     }
 
@@ -233,8 +233,35 @@
 
     private async Task HandleValidSubmit(Rejseplan model)
     {
+
     // skriv til datavbasen
+        var nyeTure = RejseplanTure
+            .Where(t => t.Id == 0 || !_originalTurIds.Contains(t.Id))
+            .ToList();
+
+    // 3) Tilføj dem enkeltvist
+        foreach (var tur in nyeTure)
+        {
+            var dto = new TurAssignDto
+            {
+                TurId = tur.Id,
+                RejseplanId = model.Id,
+            };
+            await RejseplanRepository.AddTurToRejseplanAsync(dto, _token);
+        }
+
+    // 4) Hvis du har ændret rækkefølge, så reorder:
+        var reorderDto = new TurReorderDto
+        {
+            TurIds     = RejseplanTure.Select(t => t.Id).ToList(),
+            RowVersion = model.RowVersion
+        };
+        await RejseplanRepository.ReorderTureAsync(model.Id, reorderDto, _token);
+
+    // 5) Opdater resten af rejseplanen uden at sende Ture-listen (så du undgår at lave double inserts)
+        model.Ture = null;  
         await RejseplanRepository.UpdateRejseplan(model.Id, model, _token);
+
         await OnSaved.InvokeAsync(model);
     }
 
@@ -260,7 +287,8 @@
             Beskrivelse = turSkabelon.Beskrivelse,
             RejseplanId = Item.Id
         };
-        Item.Ture.Add(tur);
+        tur.Sekvens = RejseplanTure.Count == 0 ? 1 : RejseplanTure.Max(t => t.Sekvens) + 1;
+        RejseplanTure.Add(tur);
     }
 
     private async void OnTurDelete(Tur tur)
@@ -308,27 +336,31 @@
 
     private async Task HandleTurReorder(IEnumerable<Tur> newOrder)
     {
+      // 1) Gem i DB
+        var dto = new TurReorderDto { TurIds = newOrder.Select(t => t.Id).ToList(), RowVersion = Item.RowVersion};
+        try
+        {
+            await RejseplanRepository.ReorderTureAsync(Item.Id, dto, _token);
+
+            StateHasChanged();
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Ture omrokeret",
+                Detail = "Ture er blevet omrokeret i rejseplanen.",
+                Duration = 4000
+            });
+
+        }
+        catch (Exception ex)
+        {
+            await DialogService.Alert($"Fejl: {ex.Message}");
+            return;
+        }
+
+          var ture = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
+          RejseplanTure = new ObservableCollection<Tur>(ture.OrderBy(t => t.Sekvens));
     }
-
-    // {
-    //   // 1) Gem i DB
-    //     var dto = new Tur { TurIds = newOrder.Select(t => t.Id).ToList(), RowVersion = Item.RowVersion};
-    //     try
-    //     {
-    //         await RejseplanRepository.ReorderTureAsync(Item.Id, dto, _token);
-
-    //         StateHasChanged();
-
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         await DialogService.Alert($"Fejl: {ex.Message}");
-    //         return;
-    //     }
-
-    //       var ture = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
-    //       RejseplanTure = new ObservableCollection<Tur>(ture.OrderBy(t => t.Sekvens));
-    // }
 
     private void HandleEdit(Tur tur)
     {

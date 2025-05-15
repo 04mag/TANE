@@ -52,7 +52,7 @@
         if (result is Rejseplan nyPlan)
         {
            await RejseplanRepository.CreateRejseplan(nyPlan, _token);
-            AlleRejseplaner.Add(nyPlan);
+            AlleRejseplaner = (await ReadRejseplan.ReadRejseplanerAsync(_token)).ToList();
             StateHasChanged();
         
         }

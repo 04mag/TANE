@@ -25,6 +25,8 @@ namespace TANE.Application.Mappings
             
             CreateMap<TurReadDto, Tur>()
                 .ForMember(dto => dto.Dage, opt => opt.MapFrom(t => t.Dage));
+            CreateMap<Tur, TurReadDto>()
+                .ForMember(dto => dto.Dage, opt => opt.MapFrom(t => t.Dage));
 
             // 3) Dag → Dag  <-- denne manglede du
             CreateMap<DagReadDto, Dag>();
