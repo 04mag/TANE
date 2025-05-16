@@ -9,6 +9,6 @@ namespace TANE.Application.Groups.DagSkabeloner.Commands.Interfaces
 {
     public interface ICreateDagSkabelon
     {
-        Task<bool> CreateDagSkabelonAsync(DagSkabelon dagSkabelon, string jwtToken);
+        Task<DagSkabelon> CreateDagSkabelonAsync(DagSkabelon dagSkabelon, string jwtToken);
     }
 }

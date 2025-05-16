@@ -152,15 +152,15 @@
             TurSkabelon.Beskrivelse = ExistingTurSkabelon.Beskrivelse;
           //  TurSkabelon.Sekvens = ExistingTurSkabelon.Sekvens;
             TurSkabelon.Pris = ExistingTurSkabelon.Pris;
-            TurSkabelon.Dage =  ExistingTurSkabelon.Dage?.Select(d => new DagSkabelon
-            {
-                Titel = d.Titel,
-                Beskrivelse = d.Beskrivelse,
-                Aktiviteter = d.Aktiviteter,
-                Måltider = d.Måltider,
-                Overnatning = d.Overnatning,
-           //     Sekvens = d.Sekvens
-            }).ToList();
+           //  TurSkabelon.Dage =  ExistingTurSkabelon.Dage?.Select(d => new DagSkabelon
+           //  {
+           //      Titel = d.Titel,
+           //      Beskrivelse = d.Beskrivelse,
+           //      Aktiviteter = d.Aktiviteter,
+           //      Måltider = d.Måltider,
+           //      Overnatning = d.Overnatning,
+           // //     Sekvens = d.Sekvens
+           //  }).ToList();
 
    
             StateHasChanged();
@@ -168,7 +168,7 @@
         else
         {
             TurSkabelon = new TurSkabelon();
-            TurSkabelon.Dage = new List<DagSkabelon>();
+            // TurSkabelon.Dage = new List<DagSkabelon>();
         }
     
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
@@ -215,7 +215,7 @@
           //  Sekvens = TurSkabelon.Dage.Count,
 
         };
-        TurSkabelon.Dage.Add(DagSkabelon);
+        // TurSkabelon.Dage.Add(DagSkabelon);
         ObservableDagSkabeloner.Add(new DagSkabelon
         {
             Titel = DagSkabelonSkabelon.Titel,
@@ -236,7 +236,7 @@
 
     private async Task HandleAddDagSkabelon(DagSkabelon DagSkabelon)
     {
-        TurSkabelon.Dage.Add(DagSkabelon);
+        // TurSkabelon.Dage.Add(DagSkabelon);
         ObservableDagSkabeloner.Add(new DagSkabelon
         {
             Titel = DagSkabelon.Titel,

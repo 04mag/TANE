@@ -20,12 +20,7 @@ namespace TANE.Application.Groups.TurSkabeloner.Commands
 
         public async Task<bool> CreateTurSkabelonAsync(TurSkabelon turSkabelon, string jwtToken)
         {
-            foreach (var dag in turSkabelon.Dage)
-            {
-                dag.Sekvens = turSkabelon.Dage.IndexOf(dag) + 1;
-            }
-
-            return await _turSkabelonRepository.CreateTurSkabelon(turSkabelon, jwtToken);
+            throw new NotImplementedException();
         }
     }
 }

@@ -135,7 +135,7 @@ else
             {
                 TurSkabelon = await ReadTurSkabelon.ReadTurSkabelonByIdAsync(Id, AuthStateProvider.CurrentUser.Token);
 
-                ObservableDage = new ObservableCollection<DagSkabelon>(TurSkabelon.Dage);
+                // ObservableDage = new ObservableCollection<DagSkabelon>(TurSkabelon.Dage);
 
                 if (TurSkabelon.Id == 0)
                 {
@@ -168,7 +168,7 @@ else
         {
            await CreateDagSkabelon.CreateDagSkabelonAsync(dag, AuthStateProvider.CurrentUser.Token);
         }
-        TurSkabelon!.Dage = ObservableDage.ToList();
+        // TurSkabelon!.Dage = ObservableDage.ToList();
 
         if (TurSkabelon.Id == 0)
         {

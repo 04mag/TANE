@@ -18,7 +18,7 @@ namespace TANE.Application.Groups.DagSkabeloner.Commands
             _dagSkabelonRepository = dagSkabelonRepository;
         }
 
-        public async Task<bool> CreateDagSkabelonAsync(DagSkabelon dagSkabelon, string jwtToken)
+        public async Task<DagSkabelon> CreateDagSkabelonAsync(DagSkabelon dagSkabelon, string jwtToken)
         {
             if (dagSkabelon == null)
             {
@@ -30,8 +30,8 @@ namespace TANE.Application.Groups.DagSkabeloner.Commands
                 throw new ArgumentException("JWT token cannot be null or empty", nameof(jwtToken));
             }
             
-            await _dagSkabelonRepository.CreateDagSkabelonAsync(dagSkabelon, jwtToken);
-            return true;
+            return await _dagSkabelonRepository.CreateDagSkabelonAsync(dagSkabelon, jwtToken);
+            
         }
     }
 }
