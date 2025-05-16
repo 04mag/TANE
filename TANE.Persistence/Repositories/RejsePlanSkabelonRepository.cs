@@ -53,7 +53,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved oprettelse af rejseplanskabelon.");
-                throw new Exception("Der opstod en uventet fejl under oprettelsen af rejseplanskabelonen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under oprettelsen af rejseplanskabelonen.", ex);
             }
         }
 
@@ -75,7 +75,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved sletning af rejseplanskabelon.");
-                throw new Exception("Der opstod en uventet fejl under sletningen af rejseplanskabelonen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under sletningen af rejseplanskabelonen.", ex);
             }
         }
 
@@ -98,7 +98,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved hentning af rejseplanskabeloner.");
-                throw new Exception("Der opstod en uventet fejl under hentning af rejseplanskabelonerne.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under hentning af rejseplanskabelonerne.", ex);
             }
         }
 
@@ -120,7 +120,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved hentning af rejseplanskabelon.");
-                throw new Exception("Der opstod en uventet fejl under hentning af rejseplanskabelonen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under hentning af rejseplanskabelonen.", ex);
             }
         }
 
@@ -143,7 +143,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved opdatering af rejseplanskabelon.");
-                throw new Exception("Der opstod en uventet fejl under opdatering af rejseplanskabelonen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under opdatering af rejseplanskabelonen.", ex);
             }
         }
     }

@@ -42,8 +42,6 @@
     [Parameter]
     public EventCallback<Dag> OnDelete { get; set; }
 
-    bool allowVirtualization = false;
-
     string searchText = string.Empty;
 
     private IQueryable<Dag> Var = new List<Dag>().AsQueryable();

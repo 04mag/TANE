@@ -238,7 +238,7 @@
 
     }
 
-    private async Task OnTurRowSelect(TurSkabelon turSkabelon)
+    private void OnTurRowSelect(TurSkabelon turSkabelon)
     {
         var tur = new Tur
         {
@@ -342,7 +342,7 @@
         var result = await DialogService.OpenAsync<CreateTurComponent>("Opret Ny Tur", parameters, options);
     }
 
-    private async Task HandleEditTur(Tur tur)
+    private void HandleEditTur(Tur tur)
     {
        var edit = Rejseplan.Ture.FirstOrDefault(t => t.Sekvens == tur.Sekvens);
         edit.Titel = tur.Titel;

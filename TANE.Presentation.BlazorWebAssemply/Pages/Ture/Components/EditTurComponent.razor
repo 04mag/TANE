@@ -11,6 +11,7 @@
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.DagSkabeloner.Components
 @inject CustomStateProvider AuthStateProvider
 @inject IDagRepository DagRepository
+@inject ITurRepository _TurRepository
 @inject IReadKunde ReadKunde
 @inject DialogService DialogService
 @inject CustomerState CustomerState
@@ -93,12 +94,7 @@
 
 @code{
     Kunde? NyKunde { get; set; }
-    [Inject] 
-    private ITurRepository _TurRepository { get; set; } = default!;
-
-    
-
-    [Parameter]
+   [Parameter]
     public EventCallback<Tur> OnAdd { get; set; }
     [Parameter]
     public EventCallback<Tur> OnEdit { get; set; }
@@ -152,6 +148,13 @@
 
     async Task OnSubmit()
     {
+        foreach (var dag in Observabledage)
+        {
+            if (dag.Id == 0)
+            {
+                await DagRepository.CreateDagAsync(dag, _token);
+            }
+        }
         await _TurRepository.UpdateTur(Tur.Id, Tur, _token);
         DialogService.Close();
     }
@@ -181,6 +184,7 @@
             Aktiviteter = dag.Aktiviteter,
             Måltider = dag.Måltider,
             Overnatning = dag.Overnatning,
+            TurId = dag.TurId
         });
         showAddDag = false;
     }

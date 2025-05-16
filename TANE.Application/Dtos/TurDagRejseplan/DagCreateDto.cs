@@ -11,6 +11,7 @@ namespace TANE.Application.Dtos
         public string? Måltider { get; set; } 
         public string? Overnatning { get; set; }
         public int? Sekvens { get; set; }
+        public int? TurId { get; set; } // FK til Tur
     }
 }
 

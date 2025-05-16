@@ -23,7 +23,7 @@ namespace TANE.Domain.Entities
 
         // Liste af ture tilknyttet bookingen
 
-        public List<Tur>? Ture { get; set; } = new();
+        public List<Tur> Ture { get; set; } = new();
         // Status‐flags
         public string OpfølgningNote { get; set; } 
         public Status? RejseplanStatus { get; set; }

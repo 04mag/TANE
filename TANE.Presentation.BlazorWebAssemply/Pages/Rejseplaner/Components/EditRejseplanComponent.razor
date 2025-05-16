@@ -129,6 +129,17 @@
               </ul>
           </ChildContent>
       </RadzenFormField> *@
+      <div class="flex gap-2 mt-4">
+        <RadzenButton ButtonType="ButtonType.Submit"
+                      Size="ButtonSize.Large"
+                      Text="Gem ændringer"
+                      Style="width:200px" />
+        <RadzenButton ButtonType="ButtonType.Button"
+                      Size="ButtonSize.Large"
+                      Text="Annuller"
+                      Style="width:200px"
+                      Click="CancelEdit" />
+      </div>
 
       <h4>Vælg ture:</h4>
             <TurReorderListComponent InjectedTure="RejseplanTure" OnDelete="OnTurDelete" OnReorder="HandleTurReorder" OnEdit="HandleEdit" />
@@ -142,17 +153,6 @@
                 <TurSkabelonListComponent OnSelect="OnTurRowSelect" />
       }
 
-      <div class="flex gap-2 mt-4">
-        <RadzenButton ButtonType="ButtonType.Submit"
-                      Size="ButtonSize.Large"
-                      Text="Gem ændringer"
-                      Style="width:200px" />
-        <RadzenButton ButtonType="ButtonType.Button"
-                      Size="ButtonSize.Large"
-                      Text="Annuller"
-                      Style="width:200px"
-                      Click="CancelEdit" />
-      </div>
     </RadzenStack>
   </RadzenTemplateForm>
 </div>
@@ -177,23 +177,43 @@
 
     ObservableCollection<Tur> RejseplanTure { get; set; } = new ObservableCollection<Tur>();
     private List<int> _originalTurIds = new();
+
     protected override async Task OnInitializedAsync()
     {
+    // 1) Auth + token
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
         _token = AuthStateProvider.CurrentUser.Token;
+
+    // 2) Hent kunder
         Kunder = await ReadKunde.GetAllKunderAsync(_token);
-    // din repo returnerer en ObservableCollection<Tur>
-        var obs = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
 
-    // konverter til List<Tur>
-        TurVar = (await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token))
-            .ToList();
+        await LoadTure();
+    }
 
+    private async Task LoadTure()
+    {
+    // 3) Hent alle ture *én* gang og konverter til List<Tur>
+        var alleTure = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
+        var tureListe = alleTure.ToList();
 
-        var ture = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
-        RejseplanTure = new ObservableCollection<Tur>(ture.OrderBy(t => t.Sekvens));
-        _originalTurIds = ture.Select(t => t.Id).ToList();
+    // 4) Gem til generel brug
+        TurVar = tureListe;
 
+    // 5) Byg en ObservableCollection, ordnet efter (evt. gammel) Sekvens
+        RejseplanTure = new ObservableCollection<Tur>(
+            tureListe.OrderBy(t => t.Sekvens)
+            );
+
+    // 6) Renummerér Sekvens til 1,2,3… i stedet for 0,1,2…
+        for (int i = 0; i < RejseplanTure.Count; i++)
+        {
+            RejseplanTure[i].Sekvens = i + 1;
+        }
+
+    // 7) Husk de originale Id’er, hvis du skal sammenligne senere
+        _originalTurIds = tureListe.Select(t => t.Id).ToList();
+
+        StateHasChanged();
     }
 
     // Kunde-søgning
@@ -239,7 +259,7 @@
             .Where(t => t.Id == 0 || !_originalTurIds.Contains(t.Id))
             .ToList();
 
-    // 3) Tilføj dem enkeltvist
+
         foreach (var tur in nyeTure)
         {
             var dto = new TurAssignDto
@@ -250,16 +270,16 @@
             await RejseplanRepository.AddTurToRejseplanAsync(dto, _token);
         }
 
-    // 4) Hvis du har ændret rækkefølge, så reorder:
+    //Reorder
         var reorderDto = new TurReorderDto
         {
-            TurIds     = RejseplanTure.Select(t => t.Id).ToList(),
+            TurIds = RejseplanTure.Select(t => t.Id).ToList(),
             OriginalRowVersion = model.RowVersion
         };
         await RejseplanRepository.ReorderTureAsync(model.Id, reorderDto, _token);
 
-    // 5) Opdater resten af rejseplanen uden at sende Ture-listen (så du undgår at lave double inserts)
-        model.Ture = null;  
+    // Opdater resten af rejseplanen uden at sende Ture-listen (så du undgår at lave double inserts)
+        model.Ture = null;
         await RejseplanRepository.UpdateRejseplan(model.Id, model, _token);
 
         await OnSaved.InvokeAsync(model);
@@ -278,7 +298,7 @@
         customerSearchTerm = $"{c.Fornavn} {c.Efternavn}";
     }
 
-    private async Task OnTurRowSelect(TurSkabelon turSkabelon)
+    private async void OnTurRowSelect(TurSkabelon turSkabelon)
     {
         var tur = new Tur
         {
@@ -288,7 +308,8 @@
             RejseplanId = Item.Id
         };
         tur.Sekvens = RejseplanTure.Count == 0 ? 1 : RejseplanTure.Max(t => t.Sekvens) + 1;
-        RejseplanTure.Add(tur);
+        await TurRepository.CreateTur(tur, _token);
+        await LoadTure();
     }
 
     private async void OnTurDelete(Tur tur)
@@ -333,7 +354,7 @@
             SelectCustomer(nyKunde);
         }
     }
-
+    
     private async Task HandleTurReorder(IEnumerable<Tur> newOrder)
     {
       // 1) Gem i DB
@@ -380,7 +401,5 @@
         {
             RejseplanTure[index] = tur;
         }
-
     }
-
 }

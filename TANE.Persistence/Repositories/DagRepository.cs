@@ -53,7 +53,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved oprettelse af dag.");
-                throw new Exception("Der opstod en uventet fejl under oprettelsen af dagen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under oprettelsen af dagen.", ex);
             }
         }
 
@@ -75,7 +75,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved sletning af dag.");
-                throw new Exception("Der opstod en uventet fejl under sletningen af dagen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under sletningen af dagen.", ex);
             }
         }
 
@@ -98,7 +98,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved hentning af dage.");
-                throw new Exception("Der opstod en uventet fejl under hentning af dagene.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under hentning af dagene.", ex);
             }
         }
 
@@ -120,7 +120,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved hentning af dag.");
-                throw new Exception("Der opstod en uventet fejl under hentning af dagen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under hentning af dagen.", ex);
             }
         }
 
@@ -143,7 +143,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved opdatering af dag.");
-                throw new Exception("Der opstod en uventet fejl under opdatering af dagen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under opdatering af dagen.", ex);
             }
         }
     }
