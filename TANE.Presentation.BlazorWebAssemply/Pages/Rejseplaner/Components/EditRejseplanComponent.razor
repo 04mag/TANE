@@ -177,6 +177,7 @@
 
     ObservableCollection<Tur> RejseplanTure { get; set; } = new ObservableCollection<Tur>();
     private List<int> _originalTurIds = new();
+
     protected override async Task OnInitializedAsync()
     {
     // 1) Auth + token
@@ -186,6 +187,11 @@
     // 2) Hent kunder
         Kunder = await ReadKunde.GetAllKunderAsync(_token);
 
+        await LoadTure();
+    }
+
+    private async Task LoadTure()
+    {
     // 3) Hent alle ture *én* gang og konverter til List<Tur>
         var alleTure = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
         var tureListe = alleTure.ToList();
@@ -206,8 +212,9 @@
 
     // 7) Husk de originale Id’er, hvis du skal sammenligne senere
         _originalTurIds = tureListe.Select(t => t.Id).ToList();
-    }
 
+        StateHasChanged();
+    }
 
     // Kunde-søgning
     private string customerSearchTerm = string.Empty;
@@ -252,7 +259,7 @@
             .Where(t => t.Id == 0 || !_originalTurIds.Contains(t.Id))
             .ToList();
 
- 
+
         foreach (var tur in nyeTure)
         {
             var dto = new TurAssignDto
@@ -263,16 +270,16 @@
             await RejseplanRepository.AddTurToRejseplanAsync(dto, _token);
         }
 
-        //Reorder
+    //Reorder
         var reorderDto = new TurReorderDto
         {
-            TurIds     = RejseplanTure.Select(t => t.Id).ToList(),
-            RowVersion = model.RowVersion
+            TurIds = RejseplanTure.Select(t => t.Id).ToList(),
+            OriginalRowVersion = model.RowVersion
         };
         await RejseplanRepository.ReorderTureAsync(model.Id, reorderDto, _token);
 
     // Opdater resten af rejseplanen uden at sende Ture-listen (så du undgår at lave double inserts)
-        model.Ture = null;  
+        model.Ture = null;
         await RejseplanRepository.UpdateRejseplan(model.Id, model, _token);
 
         await OnSaved.InvokeAsync(model);
@@ -291,7 +298,7 @@
         customerSearchTerm = $"{c.Fornavn} {c.Efternavn}";
     }
 
-    private void OnTurRowSelect(TurSkabelon turSkabelon)
+    private async void OnTurRowSelect(TurSkabelon turSkabelon)
     {
         var tur = new Tur
         {
@@ -301,7 +308,8 @@
             RejseplanId = Item.Id
         };
         tur.Sekvens = RejseplanTure.Count == 0 ? 1 : RejseplanTure.Max(t => t.Sekvens) + 1;
-        RejseplanTure.Add(tur);
+        await TurRepository.CreateTur(tur, _token);
+        await LoadTure();
     }
 
     private async void OnTurDelete(Tur tur)
@@ -346,11 +354,11 @@
             SelectCustomer(nyKunde);
         }
     }
-
+    
     private async Task HandleTurReorder(IEnumerable<Tur> newOrder)
     {
       // 1) Gem i DB
-        var dto = new TurReorderDto { TurIds = newOrder.Select(t => t.Id).ToList(), RowVersion = Item.RowVersion};
+        var dto = new TurReorderDto { TurIds = newOrder.Select(t => t.Id).ToList(), OriginalRowVersion = Item.RowVersion};
         try
         {
             await RejseplanRepository.ReorderTureAsync(Item.Id, dto, _token);
@@ -393,7 +401,5 @@
         {
             RejseplanTure[index] = tur;
         }
-
     }
-
 }
