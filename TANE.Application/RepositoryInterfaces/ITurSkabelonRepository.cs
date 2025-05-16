@@ -19,10 +19,10 @@ namespace TANE.Application.RepositoryInterfaces
         Task<List<TurSkabelon>> ReadAllTurSkabeloner(string jwtToken);
 
         //Ved ikke om resten bruges?
-        Task AddDagToTurSkabelonAsync(int turId, int dagId, string jwtToken);
-        Task ReorderDageAsync(int turId, DagReorderDto dto, string jwtToken);
-        Task RemoveDagFromTurSkabelonAsync(int turId, int dagId, string jwtToken);
+        //Task AddDagToTurSkabelonAsync(int turId, int dagId, string jwtToken);
+        //Task ReorderDageAsync(int turId, DagReorderDto dto, string jwtToken);
+        //Task RemoveDagFromTurSkabelonAsync(int turId, int dagId, string jwtToken);
 
-        Task<ObservableCollection<TurSkabelon>> ReadAllTurSkabelonePåRejseplan(int rejseplanId, string jwtToken);
+        //Task<ObservableCollection<TurSkabelon>> ReadAllTurSkabelonePåRejseplan(int rejseplanId, string jwtToken);
     }
 }

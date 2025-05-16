@@ -91,10 +91,10 @@
             {
                 await OnSubmitReturn.InvokeAsync(result);
             }
-
-            Skabelon = new DagSkabelon();
-
-            NavigationManager.NavigateTo("/skabeloner/dag/overview");
+            else
+            {
+                NavigationManager.NavigateTo("/skabeloner/dag/overview");
+            }
         }
         catch (Exception ex)
         {

@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Application.Dtos.Skabeloner;
 using TANE.Domain.Entities;
+using TANE.Application.Common.Exceptions;
 
 namespace TANE.Persistence.Repositories
 {
@@ -55,11 +56,18 @@ namespace TANE.Persistence.Repositories
 
         public async Task<bool> DeleteDagSkabelonAsync(int dagId, string jwtToken)
         {
-            var client = _factory.CreateClient("skabelon");
-            SetJwtToken(client, jwtToken);
+            try
+            {
+                var client = _factory.CreateClient("skabelon");
+                SetJwtToken(client, jwtToken);
 
-            var response = await client.DeleteAsync($"api/DagSkabelon/{dagId}");
-            return response.IsSuccessStatusCode;
+                var response = await client.DeleteAsync($"api/DagSkabelon/{dagId}");
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Der opstod en uventet fejl under sletningen af turskabelonen.", ex);
+            }
         }
 
         public async Task<List<DagSkabelon>> ReadAllDagSkabeloneAsync(string jwtToken)
@@ -121,6 +129,10 @@ namespace TANE.Persistence.Repositories
                     var updatedDag = await response.Content.ReadFromJsonAsync<DagSkabelon>();
 
                     return updatedDag;
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+                {
+                    throw new ConflictException("Der opstod en konflikt ved opdatering af dagsskabelonen.");
                 }
                 else
                 {

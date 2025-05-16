@@ -21,12 +21,23 @@ namespace TANE.Application.Groups.TurSkabeloner.Queries
 
         public async Task<List<TurSkabelon>> ReadAllTurSkabelonerAsync(string jwtToken)
         {
-            return await _turSkabelonRepository.ReadAllTurSkabeloner(jwtToken);
+            var result = await _turSkabelonRepository.ReadAllTurSkabeloner(jwtToken);
+
+            foreach (var turSkabelon in result)
+            {
+                turSkabelon.DagTurSkabelon = turSkabelon.DagTurSkabelon.OrderBy(x => x.Order).ToList();
+            }
+
+            return result;
         }
 
         public async Task<TurSkabelon> ReadTurSkabelonByIdAsync(int id, string jwtToken)
         {
-            return await _turSkabelonRepository.ReadTurSkabelonById(id, jwtToken);
+            var result = await _turSkabelonRepository.ReadTurSkabelonById(id, jwtToken);
+
+            result.DagTurSkabelon = result.DagTurSkabelon.OrderBy(x => x.Order).ToList();
+
+            return result;
         }
     }
 }

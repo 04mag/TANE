@@ -19,6 +19,11 @@ namespace TANE.Application.Groups.TurSkabeloner.Commands
 
         public async Task<TurSkabelon> UpdateTurSkabelonAsync(TurSkabelon turSkabelon, string jwtToken)
         {
+            foreach (var dagTurSkabelon in turSkabelon.DagTurSkabelon)
+            {
+                dagTurSkabelon.Order = turSkabelon.DagTurSkabelon.IndexOf(dagTurSkabelon);
+            }
+
             return await _turSkabelonRepository.UpdateTurSkabelon(turSkabelon.Id, turSkabelon, jwtToken);
         }
     }

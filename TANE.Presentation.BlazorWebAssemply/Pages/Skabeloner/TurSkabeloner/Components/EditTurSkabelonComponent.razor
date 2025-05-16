@@ -71,7 +71,8 @@
                 <h3>Dage:</h3>
                 <DagSkabelonReorderListComponent InjectedDagSkabeloner="ObservableDage" OnDelete="OnDagSkabelonDelete" />
                 <div style="text-align: right; width: 100%;">
-                    <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium" Style="width: 150px" Text="Tilføj Dag" Click="OpenCreateDagSkabelonDialog"></RadzenButton>
+                    <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium" Style="width: auto" Text="Tilføj eksisterende dag" Click="OpenSelectDagSkabelonDialog"></RadzenButton>
+                    <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium" Style="width: auto" Text="Opret ny dag" Click="OpenCreateDagSkabelonDialog"></RadzenButton>
                 </div>
 
             </RadzenStack>
@@ -107,14 +108,7 @@ else
     {
         await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
 
-        try
-        {
-            DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync(AuthStateProvider.CurrentUser.Token);
-        }
-        catch
-        {
-            
-        }
+        DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync(AuthStateProvider.CurrentUser.Token);
 
         await base.OnInitializedAsync();
     }
@@ -135,7 +129,12 @@ else
             {
                 TurSkabelon = await ReadTurSkabelon.ReadTurSkabelonByIdAsync(Id, AuthStateProvider.CurrentUser.Token);
 
-                // ObservableDage = new ObservableCollection<DagSkabelon>(TurSkabelon.Dage);
+                ObservableDage = new ObservableCollection<DagSkabelon>();
+
+                foreach (var dagTurSkabelon in TurSkabelon.DagTurSkabelon)
+                {
+                    ObservableDage.Add(dagTurSkabelon.DagSkabelon!);
+                }
 
                 if (TurSkabelon.Id == 0)
                 {
@@ -161,16 +160,22 @@ else
 
     async Task OnSubmit()
     {
-        var eksisterendeDage = ObservableDage
-            .Where(d => d.Id != 0)
-            .ToList();
-        foreach (var dag in eksisterendeDage)
-        {
-           await CreateDagSkabelon.CreateDagSkabelonAsync(dag, AuthStateProvider.CurrentUser.Token);
-        }
-        // TurSkabelon!.Dage = ObservableDage.ToList();
+        TurSkabelon.DagTurSkabelon = new List<DagTurSkabelon>();
 
-        if (TurSkabelon.Id == 0)
+        //Tilføjer dage til listen
+        foreach (var dagSkabelon in ObservableDage)
+        {
+            DagTurSkabelon dagTurSkabelon = new DagTurSkabelon()
+                {
+                    DagSkabelonId = dagSkabelon.Id,
+                    DagSkabelon = dagSkabelon,
+                    TurSkabelonId = TurSkabelon.Id
+                };
+
+            TurSkabelon.DagTurSkabelon.Add(dagTurSkabelon);
+        }
+
+        if (TurSkabelon!.Id == 0)
         {
             try
             {
@@ -237,7 +242,12 @@ else
     {
         ObservableDage.Add(dagSkabelon);
 
-        showAddDagSkabelon = !showAddDagSkabelon;
+        DialogService.Close(dagSkabelon);
+    }
+
+    private void OnDagSelected(DagSkabelon dagSkabelon)
+    {
+        ObservableDage.Add(dagSkabelon);
 
         DialogService.Close(dagSkabelon);
     }
@@ -246,11 +256,22 @@ else
     {
         var parameters = new Dictionary<string, object>
         {
-            { "OnAdd", EventCallback.Factory.Create<DagSkabelon>(this, OnDagSkabelonAdd) }
+            { "OnSubmitReturn", EventCallback.Factory.Create<DagSkabelon>(this, OnDagSkabelonAdd) }
         };
 
         // Åbner CreateDagSkabelonComponent i en dialog
-        var result = await DialogService.OpenAsync<CreateDagSkabelonComponent>("Opret Ny DagSkabelon", parameters);
+        var result = await DialogService.OpenAsync<CreateDagSkabelonComponent>("Opret ny dag skabelon", parameters);
+    }
 
+    private async Task OpenSelectDagSkabelonDialog()
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "OnSelect", EventCallback.Factory.Create<DagSkabelon>(this, OnDagSelected) },
+            { "InjectedSkabeloner", DagSkabeloner.Where(d => !ObservableDage.Any(o => o.Id == d.Id)).ToList() }
+        };
+
+        // Åbner CreateDagSkabelonComponent i en dialog
+        var result = await DialogService.OpenAsync<DagSkabelonListComponent>("Vælg eksisterende dag skabelon", parameters);
     }
 }
