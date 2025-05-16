@@ -129,6 +129,17 @@
               </ul>
           </ChildContent>
       </RadzenFormField> *@
+      <div class="flex gap-2 mt-4">
+        <RadzenButton ButtonType="ButtonType.Submit"
+                      Size="ButtonSize.Large"
+                      Text="Gem ændringer"
+                      Style="width:200px" />
+        <RadzenButton ButtonType="ButtonType.Button"
+                      Size="ButtonSize.Large"
+                      Text="Annuller"
+                      Style="width:200px"
+                      Click="CancelEdit" />
+      </div>
 
       <h4>Vælg ture:</h4>
             <TurReorderListComponent InjectedTure="RejseplanTure" OnDelete="OnTurDelete" OnReorder="HandleTurReorder" OnEdit="HandleEdit" />
@@ -142,17 +153,6 @@
                 <TurSkabelonListComponent OnSelect="OnTurRowSelect" />
       }
 
-      <div class="flex gap-2 mt-4">
-        <RadzenButton ButtonType="ButtonType.Submit"
-                      Size="ButtonSize.Large"
-                      Text="Gem ændringer"
-                      Style="width:200px" />
-        <RadzenButton ButtonType="ButtonType.Button"
-                      Size="ButtonSize.Large"
-                      Text="Annuller"
-                      Style="width:200px"
-                      Click="CancelEdit" />
-      </div>
     </RadzenStack>
   </RadzenTemplateForm>
 </div>
