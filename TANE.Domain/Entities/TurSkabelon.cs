@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace TANE.Domain.Entities
@@ -10,17 +11,14 @@ namespace TANE.Domain.Entities
     public class TurSkabelon
     {
         public int Id { get; set; }
-        public List<DagSkabelon> Dage{ get; set; } = new List<DagSkabelon>();
-        public int Sekvens { get; set; }
         public string Titel { get; set; } = string.Empty;
-        public string Beskrivelse { get; set; } = string.Empty;
-        public double Pris { get; set; }
 
-        [Timestamp]
-        public byte[] RowVersion { get; set; }
-        public int GetAntalDage()
-        {
-            return Dage.Count;
-        }
+        public string Beskrivelse { get; set; } = string.Empty;
+
+        public double Pris { get; set; } = 0;
+
+        public List<DagTurSkabelon> DagTurSkabelon { get; set; } = new List<DagTurSkabelon>();
+
+        public byte[]? RowVersion { get; set; } = null;
     }
 }
