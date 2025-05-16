@@ -9,6 +9,6 @@ namespace TANE.Application.Groups.TurSkabeloner.Commands.Interfaces
 {
     public interface IUpdateTurSkabelon
     {
-        Task<bool> UpdateTurSkabelonAsync(TurSkabelon turSkabelon, string jwtToken);
+        Task<TurSkabelon> UpdateTurSkabelonAsync(TurSkabelon turSkabelon, string jwtToken);
     }
 }

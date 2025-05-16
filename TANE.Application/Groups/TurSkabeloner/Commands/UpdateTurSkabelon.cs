@@ -17,9 +17,9 @@ namespace TANE.Application.Groups.TurSkabeloner.Commands
             _turSkabelonRepository = turSkabelonRepository;
         }
 
-        public async Task<bool> UpdateTurSkabelonAsync(TurSkabelon turSkabelon, string jwtToken)
+        public async Task<TurSkabelon> UpdateTurSkabelonAsync(TurSkabelon turSkabelon, string jwtToken)
         {
-            throw new NotImplementedException();
+            return await _turSkabelonRepository.UpdateTurSkabelon(turSkabelon.Id, turSkabelon, jwtToken);
         }
     }
 }
