@@ -254,7 +254,7 @@
         var reorderDto = new TurReorderDto
         {
             TurIds     = RejseplanTure.Select(t => t.Id).ToList(),
-            RowVersion = model.RowVersion
+            OriginalRowVersion = model.RowVersion
         };
         await RejseplanRepository.ReorderTureAsync(model.Id, reorderDto, _token);
 
@@ -337,7 +337,7 @@
     private async Task HandleTurReorder(IEnumerable<Tur> newOrder)
     {
       // 1) Gem i DB
-        var dto = new TurReorderDto { TurIds = newOrder.Select(t => t.Id).ToList(), RowVersion = Item.RowVersion};
+        var dto = new TurReorderDto { TurIds = newOrder.Select(t => t.Id).ToList(), OriginalRowVersion = Item.RowVersion};
         try
         {
             await RejseplanRepository.ReorderTureAsync(Item.Id, dto, _token);
