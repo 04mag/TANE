@@ -1,11 +1,14 @@
-﻿@using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces
+﻿@using TANE.Application.Groups.DagSkabeloner.Commands.Interfaces
+@using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces
 @using TANE.Domain.Entities
 @using TANE.Persistence.Repositories
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Application.Dtos.Skabeloner
 @using TANE.Application.RepositoryInterfaces
 @inject CustomStateProvider AuthStateProvider
-@inject IDagSkabelonRepository DagSkabelonRepository
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject ICreateDagSkabelon CreateDagSkabelon
 
 <div class="rz-p-0 rz-p-md-12">
     <h4>Opret Ny Dag Skabelon</h4>
@@ -21,7 +24,7 @@
                 </Helper>
             </RadzenFormField>
 
-            
+
             <RadzenFormField Text="Beskrivelse" Variant="@ThemeConfig.FormVariant">
                 <ChildContent>
                     <RadzenTextArea Name="Beskrivelse" @bind-Value="@Skabelon.Beskrivelse" Rows="4" />
@@ -59,31 +62,49 @@
 </div>
 
 @code {
-
-    
-    public DagSkabelon Skabelon { get; set; } = new DagSkabelon();
-
     [Parameter]
-    public EventCallback<DagSkabelon> OnAdd { get; set; }
+    public EventCallback<DagSkabelon> OnSubmitReturn { get; set; }
 
-    string _token;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var state = await AuthStateProvider.GetAuthenticationStateAsync();
-        _token = AuthStateProvider.CurrentUser.Token;
-
-    }
+    public DagSkabelon Skabelon { get; set; } = new DagSkabelon();
 
     void OnInvalidSubmit( )
     {
 
     }
 
-    void OnSubmit()
+    async Task OnSubmit()
     {
-     
-        InvokeAsync(() => OnAdd.InvokeAsync(Skabelon));
+        await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+
+        try
+        {
+            var result = await CreateDagSkabelon.CreateDagSkabelonAsync(Skabelon, AuthStateProvider.CurrentUser.Token);
+
+            NotificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Dag skabelon oprettet",
+                    Detail = "Dag skabelon er oprettet."
+                });
+
+            if (OnSubmitReturn.HasDelegate)
+            {
+                await OnSubmitReturn.InvokeAsync(result);
+            }
+
+            Skabelon = new DagSkabelon();
+
+            NavigationManager.NavigateTo("/skabeloner/dag/overview");
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Fejl ved oprettelse",
+                    Detail = ex.Message
+                });
+        }
     }
 }
 
