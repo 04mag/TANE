@@ -13,38 +13,9 @@
     <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span>Home
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-
-        @* Eksempel på at skjule nav menu punkt hvis man ikke er logget ind *@
-        <AuthorizeView>
-            <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="counter">
-                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-                    </NavLink>
-                </div>
-            </Authorized>
-        </AuthorizeView>
-
-
-        @* Eksempel på kun at vise menu punkt til admin rolle *@
-        <AuthorizeView>
-            @if (AuthStateProvider.CurrentUser.Roles.Contains("Admin"))
-            {
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="weather">
-                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-                    </NavLink>
-                </div>
-            }
-        </AuthorizeView>
 
         <AuthorizeView>
             @if (AuthStateProvider.CurrentUser.Roles.Contains("Admin"))
@@ -68,8 +39,86 @@
             }
         </AuthorizeView>
 
+        <!-- Font Awesome CDN (for at få ikoner til at fungere )-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+        <AuthorizeView>
+            <!--Kunde dropdown menu-->
+            <div class="nav-item px-3">
+                <div class="nav-link dropdown-toggle d-flex align-items-center justify-content-between" @onclick="() => ToggleDropdown(nameof(showKundeDropdown))">
+                    <span><i class="fas fa-user-friends me-2" aria-hidden="true"></i> Kunde</span>
+                    <!-- Customized version af en dropdown pil-->
+                    <i class="fas @(showKundeDropdown ? "fa-chevron-up" : "fa-chevron-down")"></i>
+                </div>
+                @if (showKundeDropdown)
+                {
+                    <div class="ps-4">
+                        <NavLink class="nav-link" href="/kunde/oversigt">
+                            <i class="fas fa-list me-2"></i> Oversigt
+                        </NavLink>
+                        <NavLink class="nav-link" href="/kunde/opret">
+                            <i class="fas fa-user-plus me-2"></i> Opret ny kunde
+                        </NavLink>
+                    </div>
+                }
+            </div>
+        </AuthorizeView>
         
-        
+        <AuthorizeView>
+            <!-- rejsplan dropdown menu-->
+            <div class="nav-item px-3">
+                <div class="nav-link dropdown-toggle d-flex align-items-center justify-content-between" @onclick="() => ToggleDropdown(nameof(showRejseDropdown))">
+                    <span><i class="fas fa-route me-2" aria-hidden="true"></i> Rejseplan</span>
+                    <!-- Customized version af en dropdown pil-->
+                    <i class="fas @(showRejseDropdown ? "fa-chevron-up" : "fa-chevron-down")"></i>
+                </div>
+                @if (showRejseDropdown)
+                {
+                    <div class="ps-4">
+                        <NavLink class="nav-link" href="/rejseplan/rejseskabeloner">
+                            <i class="fas fa-plane-departure me-2"></i> Rejseskabeloner
+                        </NavLink>
+                        <NavLink class="nav-link" href="/rejseplan/turskabeloner">
+                            <i class="fas fa-map-marked-alt me-2"></i> Turskabeloner
+                        </NavLink>
+                    </div>
+                }
+            </div>
+        </AuthorizeView>
+        <!-- styling for begge dropdown menuer-->
+        <style>
+            /* Fjern standard pil fra Bootstrap's dropdown-toggle så vi kan bruge en customize version  */
+            .dropdown-toggle::after {
+                display: none !important;
+            }
+
+            .nav-link:hover {
+                background-color: #555;
+                border-radius: 4px;
+                padding: 5px;
+                color: white;
+                text-decoration: none;
+            }
+
+            .nav-link i {
+                margin-right: 6px;
+            }
+
+            nav ul {
+                padding-left: 0;
+            }
+
+            nav summary {
+                cursor: pointer;
+                font-weight: bold;
+            }
+
+            .nav-link {
+                cursor: pointer;
+                color: white;
+                display: flex;
+            }
+        </style>
 
         <AuthorizeView>
             @* Tilføjer mellemrum ned til administarion knap *@
@@ -89,6 +138,8 @@
 
 @code {
     private bool collapseNavMenu = true;
+    private bool showKundeDropdown = false;
+    private bool showRejseDropdown = false;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
@@ -96,4 +147,20 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
+
+	/// Toggle dropdowns, so they can be opened and closed
+    private void ToggleDropdown(string dropdown)
+    {
+		// Toggle the dropdown based on the name passed in
+        switch (dropdown)
+        {
+            case nameof(showKundeDropdown):
+                showKundeDropdown = !showKundeDropdown;
+                break;
+            case nameof(showRejseDropdown):
+                showRejseDropdown = !showRejseDropdown;
+                break;
+        }
+    }
 }
+
