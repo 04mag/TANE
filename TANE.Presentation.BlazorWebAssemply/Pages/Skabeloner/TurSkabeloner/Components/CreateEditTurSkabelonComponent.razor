@@ -277,7 +277,7 @@ else
         };
 
         // Åbner CreateDagSkabelonComponent i en dialog
-        var result = await DialogService.OpenAsync<CreateDagSkabelonComponent>("Opret ny dag skabelon", parameters);
+        var result = await DialogService.OpenAsync<CreateEditDagSkabelonComponent>("Opret ny dag skabelon", parameters);
     }
 
     private async Task OpenSelectDagSkabelonDialog()

@@ -1,31 +1,61 @@
-﻿@using TANE.Application.Groups.DagSkabeloner.Queries
+﻿@using TANE.Application.Groups.DagSkabeloner.Commands.Interfaces
+@using TANE.Application.Groups.DagSkabeloner.Queries
 @using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.DagSkabeloner.Components
 @using TANE.Application.Dtos.Skabeloner
 
 @inject IReadDagSkabelon ReadDagSkabelon
+@inject IDeleteDagSkabelon DeleteDagSkabelon
+@inject DialogService DialogService
 @inject CustomStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 @inject NotificationService NotificationService
 
-@page "/skabeloner/dag/overview"
+@page "/skabeloner/dag"
 
 <PageTitle>Dag Skabeloner</PageTitle>
+
+<h3>Dag Skabeloner</h3>
+
+<div class="rz-p-0 rz-p-md-12">
+    <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
+        <RadzenButton ButtonType="ButtonType.Button"
+                      Size="ButtonSize.Large"
+                      Text="Opret ny dag skabelon"
+                      Click="@(() => NavigationManager.NavigateTo("skabeloner/dag/create"))" />
+    </div>
+</div>
 
 <DagSkabelonListComponent InjectedSkabeloner="DagSkabeloner" OnEdit="OnRowEditPressed" OnDelete="OnRowDeletePressed"/>
 
 @code {
     public List<DagSkabelon> DagSkabeloner { get; set; } = new List<DagSkabelon>();
 
-    private async Task OnRowEditPressed(DagSkabelon dagSkabelon)
+    private void OnRowEditPressed(DagSkabelon dagSkabelon)
     {
-        Console.WriteLine($"Edit pressed for: {dagSkabelon.Id}");
+        NavigationManager.NavigateTo($"skabeloner/dag/{dagSkabelon.Id}");
     }
 
     private async Task OnRowDeletePressed(DagSkabelon dagSkabelon)
     {
-        Console.WriteLine($"Delete pressed for: {dagSkabelon.Id}");
+        var result = await DialogService.Confirm($"Er du sikker på, at du vil slette dag skabelon med ID: {dagSkabelon.Id}?", "Bekræft sletning", new ConfirmOptions() { OkButtonText = "Ja", CancelButtonText = "Nej" });
+        if (result == true)
+        {
+            await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+
+            // Call the delete method here
+            var deleteResult = await DeleteDagSkabelon.DeleteDagSkabelonAsync(dagSkabelon.Id, AuthStateProvider.CurrentUser.Token);
+            if (deleteResult)
+            {
+                DagSkabeloner.Remove(dagSkabelon);
+                NotificationService.Notify(NotificationSeverity.Success, "Sletning", $"Dag skabelon med ID: {dagSkabelon.Id} er blevet slettet.");
+            }
+            else
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Sletning", $"Sletning af dag skabelon med ID: {dagSkabelon.Id} mislykkedes.");
+            }
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -33,7 +63,15 @@
 
         await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
 
-        DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync(AuthStateProvider.CurrentUser.Token);
+        try
+        {
+            DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync(AuthStateProvider.CurrentUser.Token);
+        }
+        catch
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Fejl", "Kunne ikke hente skabeloner.");
+        }
+
         await base.OnInitializedAsync();
     }
 }
