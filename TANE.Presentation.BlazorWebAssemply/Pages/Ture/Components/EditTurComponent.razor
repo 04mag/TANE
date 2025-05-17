@@ -71,7 +71,7 @@
             { 
                 
                 <h4>Dage:</h4>
-                <DagReorderListComponent InjectedDage="Observabledage" OnDelete="OnDagDelete"/>
+                <DagReorderListComponent InjectedDage="Observabledage" OnDelete="OnDagDelete" OnEdit="HandleEditDag"/>
                 <div style="text-align: right; width: 100%;">
 
                 </div>
@@ -193,6 +193,18 @@
 
     // Åbner CreateDagComponent i en dialog
         var result = await DialogService.OpenAsync<CreateDagComponent>("Opret Ny Dag", parameters);
+    }
+
+    private async Task HandleEditDag(Dag dag)
+    {
+       var parameters = new Dictionary<string, object>
+        {
+            { "OnEdit", EventCallback.Factory.Create<Dag>(this, HandleAddDag) },
+            { "Dag", dag }
+        };
+
+        // Åbner EditDagComponent i en dialog
+        var result = await DialogService.OpenAsync<EditDagComponent>("Rediger Dag", parameters);
     }
   
 
