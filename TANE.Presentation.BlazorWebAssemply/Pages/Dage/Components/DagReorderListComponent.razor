@@ -38,8 +38,9 @@
 </RadzenDataGrid>
 
 @code {
+
     [Parameter, EditorRequired]
-    public ObservableCollection<Dag> InjectedDage { get; set; }
+    public ObservableCollection<Dag> InjectedDage { get; set; } = new ObservableCollection<Dag>();
 
     [Parameter]
     public EventCallback<Dag> OnSelect { get; set; }

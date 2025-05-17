@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TANE.Domain.Entities;
 using TANE.Application.Dtos;
+using System.Collections.ObjectModel;
 
 namespace TANE.Application.RepositoryInterfaces
 {
@@ -15,5 +16,6 @@ namespace TANE.Application.RepositoryInterfaces
         Task<bool> DeleteDagAsync(int id, string jwtToken);
         Task<Dag> ReadDagByIdAsync(int id, string jwtToken);
         Task<List<Dag>> ReadAllDageAsync(string jwtToken);
+        Task<ObservableCollection<Dag>> ReadAllDagePåTur(int turId, string jwtToken);
     }
 }

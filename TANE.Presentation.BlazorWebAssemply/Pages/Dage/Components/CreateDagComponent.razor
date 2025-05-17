@@ -69,6 +69,8 @@
 
     [Parameter]
     public EventCallback<Dag> OnAdd { get; set; }
+    [Parameter]
+    public int TurId { get; set; }
 
     private string _token;
 
@@ -86,6 +88,8 @@
 
     async void OnSubmit()
     {
+        Dag.TurId = TurId;
+       await DagRepository.CreateDagAsync(Dag,_token);
         await OnAdd.InvokeAsync(Dag);
         Dag = new Dag();
 

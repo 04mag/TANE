@@ -11,5 +11,6 @@
         public string Overnatning { get; set; }
         public int? Sekvens { get; set; }
         public byte[] RowVersion { get; set; }
+        public int? TurId { get; set; } // FK til Tur
     }
 }

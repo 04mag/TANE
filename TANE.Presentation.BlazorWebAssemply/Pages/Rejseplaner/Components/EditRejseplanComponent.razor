@@ -17,6 +17,7 @@
 @inject IRejseplanRepository RejseplanRepository
 @inject IJSRuntime JSRuntime
 @inject NotificationService NotificationService
+@inject IDagRepository DagRepository
 <RadzenDialog />
 
 <div class="rz-p-0 rz-p-md-12">
@@ -233,6 +234,7 @@
     private ObservableCollection<Tur> SelectedtureVar = new();
 
     public ObservableCollection<Tur>? Observableture;
+    public ObservableCollection<Dag>? dage;
 
     private List<Tur> TurVar;
 
@@ -383,12 +385,14 @@
           RejseplanTure = new ObservableCollection<Tur>(ture.OrderBy(t => t.Sekvens));
     }
 
-    private void HandleEdit(Tur tur)
+    private async void HandleEdit(Tur tur)
     {
+        dage = await DagRepository.ReadAllDagePåTur(tur.Id, _token);
         var parameters = new Dictionary<string, object>
         {
             { "Tur", tur },
-            { "OnSaved", EventCallback.Factory.Create<Tur>(this, OnSave) }
+            { "OnSaved", EventCallback.Factory.Create<Tur>(this, OnSave) },
+            { "InjectedDage", dage }
         };
 
         DialogService.Open<EditTurComponent>("Rediger Tur", parameters);

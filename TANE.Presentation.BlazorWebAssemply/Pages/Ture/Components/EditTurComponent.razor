@@ -113,7 +113,7 @@
     public EventCallback<Tur> OnCreateTur { get; set; }
 
     [Parameter]
-    public List<Dag> InjectedDage { get; set; } = new List<Dag>();
+    public ObservableCollection<Dag> InjectedDage { get; set; } = new ObservableCollection<Dag>();
     
     string selectedCustomerEmail;  // Variable to hold selected customer email
     private string? _token;
@@ -139,11 +139,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-     
+
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         _token = AuthStateProvider.CurrentUser.Token;
 
         showAddDag = false;
+
+        Observabledage = InjectedDage;
     }
 
     async Task OnSubmit()
@@ -177,15 +179,7 @@
 
     private async Task HandleAddDag(Dag dag)
     {
-        Observabledage.Add(new Dag
-        {
-            Titel = dag.Titel,
-            Beskrivelse = dag.Beskrivelse,
-            Aktiviteter = dag.Aktiviteter,
-            Måltider = dag.Måltider,
-            Overnatning = dag.Overnatning,
-            TurId = dag.TurId
-        });
+        Observabledage.Add(dag);
         showAddDag = false;
     }
 
@@ -193,7 +187,8 @@
     {
         var parameters = new Dictionary<string, object>
         {
-            { "OnAdd", EventCallback.Factory.Create<Dag>(this, HandleAddDag) }
+            { "OnAdd", EventCallback.Factory.Create<Dag>(this, HandleAddDag) },
+            { "TurId", Tur.Id }
         };
 
     // Åbner CreateDagComponent i en dialog
