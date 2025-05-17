@@ -48,7 +48,7 @@
 
     private void OnEdit(TurSkabelon skabelon)
     {
-        var url = NavigationManager.ToAbsoluteUri($"skabeloner/tur/{skabelon.Id}");
+        var url = NavigationManager.ToAbsoluteUri($"skabeloner/tur/edit/{skabelon.Id}");
         NavigationManager.NavigateTo(url.ToString());
     }
 

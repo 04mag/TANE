@@ -10,5 +10,6 @@ namespace TANE.Domain.Entities
         [JsonIgnore]
         public TurSkabelon? TurSkabelon { get; set; }
         public int Order { get; set; } //tracks order
+        public byte[]? RowVersion { get; set; } = null;
     }
 }

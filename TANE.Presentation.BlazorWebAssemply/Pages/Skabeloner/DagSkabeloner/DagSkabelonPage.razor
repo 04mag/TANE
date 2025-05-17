@@ -34,7 +34,7 @@
 
     private void OnRowEditPressed(DagSkabelon dagSkabelon)
     {
-        NavigationManager.NavigateTo($"skabeloner/dag/{dagSkabelon.Id}");
+        NavigationManager.NavigateTo($"skabeloner/dag/edit/{dagSkabelon.Id}");
     }
 
     private async Task OnRowDeletePressed(DagSkabelon dagSkabelon)

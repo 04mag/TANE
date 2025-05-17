@@ -107,30 +107,23 @@ namespace TANE.Persistence.Repositories
 
         public async Task<TurSkabelon> UpdateTurSkabelon(int id, TurSkabelon tur, string jwtToken)
         {
-            try
+            var client = _factory.CreateClient("skabelon");
+            SetJwtToken(client, jwtToken);
+
+            var response = await client.PutAsJsonAsync($"api/TurSkabelon/{id}", tur);
+
+            if (response.IsSuccessStatusCode)
             {
-                var client = _factory.CreateClient("skabelon");
-                SetJwtToken(client, jwtToken);
-
-                var response = await client.PutAsJsonAsync($"api/TurSkabelon/{id}", tur);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var result = await response.Content.ReadFromJsonAsync<TurSkabelon>();
-                    return result!;
-                }
-                else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
-                {
-                    throw new ConflictException("Der opstod en konflikt ved opdatering af turskabelonen.");
-                }
-                else
-                {
-                    throw new Exception("Serveren returnerede en intern fejl. Prøv igen senere.");
-                }
+                var result = await response.Content.ReadFromJsonAsync<TurSkabelon>();
+                return result!;
             }
-            catch (Exception ex)
+            else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
             {
-                throw new Exception("Der opstod en uventet fejl under opdatering af turskabelonen.", ex);
+                throw new ConflictException("Der opstod en konflikt ved opdatering af turskabelonen. Prøv igen eller gendinlæs siden.");
+            }
+            else
+            {
+                throw new Exception("Serveren returnerede en intern fejl. Prøv igen senere.");
             }
         }
 
