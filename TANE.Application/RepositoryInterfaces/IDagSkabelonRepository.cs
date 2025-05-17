@@ -6,8 +6,8 @@ namespace TANE.Application.RepositoryInterfaces
 {
     public interface IDagSkabelonRepository
     {
-        Task<bool> CreateDagSkabelonAsync(DagSkabelon dag, string jwtToken);
-        Task<bool> UpdateDagSkabelonAsync(int id, DagSkabelon dag, string jwtToken);
+        Task<DagSkabelon> CreateDagSkabelonAsync(DagSkabelon dag, string jwtToken);
+        Task<DagSkabelon> UpdateDagSkabelonAsync(int id, DagSkabelon dag, string jwtToken);
         Task<bool> DeleteDagSkabelonAsync(int id, string jwtToken);
         Task<DagSkabelon> ReadDagSkabelonByIdAsync(int id, string jwtToken);
         Task<List<DagSkabelon>> ReadAllDagSkabeloneAsync(string jwtToken);

@@ -20,14 +20,7 @@ namespace TANE.Application.Groups.RejseplanSkabeloner.Commands
 
         public async Task<bool> UpdateRejseplanSkabelonAsync(RejseplanSkabelon rejseplanSkabelon, string jwtToken)
         {
-            foreach (var turSkabelon in rejseplanSkabelon.Ture)
-            {
-                turSkabelon.Sekvens = rejseplanSkabelon.Ture.IndexOf(turSkabelon) + 1;
-            }
-
-            var result = await _rejseplanSkabelonRepository.UpdateRejseplanSkabelonAsync(rejseplanSkabelon, jwtToken);
-
-            return result;
+            throw new NotImplementedException();
         }
     }
 }

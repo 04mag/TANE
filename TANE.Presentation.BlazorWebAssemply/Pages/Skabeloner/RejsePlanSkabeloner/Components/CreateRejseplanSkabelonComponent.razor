@@ -104,7 +104,7 @@
 
     async Task OnSubmit(RejseplanSkabelon model)
     {
-        RejseplanSkabelon.Ture = ObservableTurSkabeloner.ToList();
+        //RejseplanSkabelon.Ture = ObservableTurSkabeloner.ToList();
 
         await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
 

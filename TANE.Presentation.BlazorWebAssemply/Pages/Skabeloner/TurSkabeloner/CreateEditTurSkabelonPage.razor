@@ -1,0 +1,23 @@
+﻿@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
+
+@page "/skabeloner/tur/edit/{Id:int}"
+@page "/skabeloner/tur/create"
+
+
+@if (Id == 0)
+{
+    <PageTitle>Opret Ny Tur Skabelon</PageTitle>
+    <h3>Opret ny tur skabelon</h3>
+}
+else
+{
+    <PageTitle>Rediger Tur Skabelon</PageTitle>
+    <h3>Rediger tur skabelon</h3>
+}
+
+<CreateEditTurSkabelonComponent Id="Id"/>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+}

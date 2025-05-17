@@ -1,4 +1,5 @@
 ﻿@using System.Collections.ObjectModel
+@using TANE.Application.Common.Exceptions
 @using TANE.Application.Groups.DagSkabeloner.Commands
 @using TANE.Application.Groups.DagSkabeloner.Commands.Interfaces
 @using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces
@@ -8,6 +9,7 @@
 @using TANE.Domain.Entities
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.DagSkabeloner.Components
+@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.DagTurSkabeloner
 
 @inject CustomStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
@@ -27,18 +29,15 @@
             <RadzenStack Gap="1rem" class="rz-p-sm-12">
 
 
-                <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
-                    <RadzenButton ButtonType="ButtonType.Submit"
-                                  Size="ButtonSize.Large"
-                                  Text="@SaveButtonText" />
-                </div>
-
-                <!-- Id -->
-                <RadzenFormField Text="ID" Variant="@ThemeConfig.FormVariant">
-                    <ChildContent>
-                        <RadzenNumeric Name="Id" @bind-Value=@TurSkabelon.Id Style="width: 100%" Disabled="true" />
-                    </ChildContent>
-                </RadzenFormField>
+                @if (Id != 0)
+                {
+                    <!-- Id -->
+                    <RadzenFormField Text="ID" Variant="@ThemeConfig.FormVariant">
+                        <ChildContent>
+                            <RadzenNumeric Name="Id" @bind-Value=@TurSkabelon.Id Style="width: 100%" Disabled="true" />
+                        </ChildContent>
+                    </RadzenFormField>
+                }
 
                 <!-- Titel -->
                 <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
@@ -69,10 +68,16 @@
 
 
                 <h3>Dage:</h3>
-                <DagSkabelonReorderListComponent InjectedDagSkabeloner="ObservableDage" OnDelete="OnDagSkabelonDelete" />
+                <DagTurSkabelonReorderList InjectedDagSkabeloner="ObservableDagTure" OnDelete="OnDagSkabelonDelete" />
                 <div style="text-align: right; width: 100%;">
-                    <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium" Style="width: 150px" Text="Tilføj Dag" Click="OpenCreateDagSkabelonDialog"></RadzenButton>
+                    <RadzenButton ButtonType="ButtonType.Button" Style="width: auto" Text="Tilføj eksisterende dag" Click="OpenSelectDagSkabelonDialog"></RadzenButton>
+                    <RadzenButton ButtonType="ButtonType.Button" Style="width: auto" Text="Opret ny dag" Click="OpenCreateDagSkabelonDialog"></RadzenButton>
                 </div>
+
+                <br />
+
+                <RadzenButton ButtonType="ButtonType.Submit"
+                              Text="@SaveButtonText" />
 
             </RadzenStack>
         </RadzenTemplateForm>
@@ -80,17 +85,17 @@
 }
 else
 {
-    <h4>Tur skabelon kunne ikke indlæses</h4>
+    <h4>Skabelon kunne ikke indlæses</h4>
 }
 
 @code {
-    bool showAddDagSkabelon = false;
+    public EventCallback<TurSkabelon> ReturnObjectOnSubmit { get; set; }
 
     public TurSkabelon? TurSkabelon { get; set; } = new TurSkabelon();
 
     public List<DagSkabelon> DagSkabeloner { get; set; } = new List<DagSkabelon>();
 
-    public ObservableCollection<DagSkabelon> ObservableDage { get; set; } = new();
+    public ObservableCollection<DagTurSkabelon> ObservableDagTure { get; set; } = new();
 
     [Parameter]
     public int Id { get; set; } = 0;
@@ -107,14 +112,7 @@ else
     {
         await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
 
-        try
-        {
-            DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync(AuthStateProvider.CurrentUser.Token);
-        }
-        catch
-        {
-            
-        }
+        DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync(AuthStateProvider.CurrentUser.Token);
 
         await base.OnInitializedAsync();
     }
@@ -135,11 +133,16 @@ else
             {
                 TurSkabelon = await ReadTurSkabelon.ReadTurSkabelonByIdAsync(Id, AuthStateProvider.CurrentUser.Token);
 
-                ObservableDage = new ObservableCollection<DagSkabelon>(TurSkabelon.Dage);
+                ObservableDagTure = new ObservableCollection<DagTurSkabelon>();
+
+                foreach (var dagTurSkabelon in TurSkabelon.DagTurSkabelon)
+                {
+                    ObservableDagTure.Add(dagTurSkabelon);
+                }
 
                 if (TurSkabelon.Id == 0)
                 {
-                    throw new Exception("Tur skabelon ikke fundet");
+                    TurSkabelon = null;
                 }
             }
             catch
@@ -148,7 +151,7 @@ else
                     {
                         Severity = NotificationSeverity.Error,
                         Summary = "Fejl",
-                        Detail = "Der opstod en fejl under hentning af tur skabelon.",
+                        Detail = "Der opstod en fejl under hentning af skabelon.",
                         Duration = 5000
                     });
 
@@ -161,20 +164,19 @@ else
 
     async Task OnSubmit()
     {
-        var eksisterendeDage = ObservableDage
-            .Where(d => d.Id != 0)
-            .ToList();
-        foreach (var dag in eksisterendeDage)
-        {
-           await CreateDagSkabelon.CreateDagSkabelonAsync(dag, AuthStateProvider.CurrentUser.Token);
-        }
-        TurSkabelon!.Dage = ObservableDage.ToList();
+        TurSkabelon!.DagTurSkabelon = new List<DagTurSkabelon>();
 
-        if (TurSkabelon.Id == 0)
+        //Tilføjer dage til listen
+        foreach (var dagTurSkabelon in ObservableDagTure)
+        {
+            TurSkabelon.DagTurSkabelon.Add(dagTurSkabelon);
+        }
+
+        if (TurSkabelon!.Id == 0)
         {
             try
             {
-                await CreateTurSkabelon.CreateTurSkabelonAsync(TurSkabelon, AuthStateProvider.CurrentUser.Token);
+                var result = await CreateTurSkabelon.CreateTurSkabelonAsync(TurSkabelon, AuthStateProvider.CurrentUser.Token);
                 NotificationService.Notify(new NotificationMessage()
                     {
                         Severity = NotificationSeverity.Success,
@@ -182,14 +184,22 @@ else
                         Detail = "Tur skabelon oprettet",
                         Duration = 5000
                     });
-                NavigationManager.NavigateTo("/skabeloner/tur");
+
+                if (ReturnObjectOnSubmit.HasDelegate)
+                {
+                    await ReturnObjectOnSubmit.InvokeAsync(result);
+                }
+                else
+                {
+                    NavigationManager.NavigateTo("/skabeloner/tur");
+                }
             }
             catch (Exception ex)
             {
                 NotificationService.Notify(new NotificationMessage()
                     {
                         Severity = NotificationSeverity.Error,
-                        Summary = "Fejl",
+                        Summary = "Fejl ved oprettelse",
                         Detail = ex.Message,
                         Duration = 5000
                     });
@@ -199,7 +209,7 @@ else
         {
             try
             {
-                await UpdateTurSkabelon.UpdateTurSkabelonAsync(TurSkabelon, AuthStateProvider.CurrentUser.Token);
+                var result = await UpdateTurSkabelon.UpdateTurSkabelonAsync(TurSkabelon, AuthStateProvider.CurrentUser.Token);
                 NotificationService.Notify(new NotificationMessage()
                     {
                         Severity = NotificationSeverity.Success,
@@ -207,14 +217,31 @@ else
                         Detail = "Tur skabelon opdateret",
                         Duration = 5000
                     });
-                NavigationManager.NavigateTo("/skabeloner/tur");
+                if (ReturnObjectOnSubmit.HasDelegate)
+                {
+                    await ReturnObjectOnSubmit.InvokeAsync(result);
+                }
+                else
+                {
+                    NavigationManager.NavigateTo("/skabeloner/tur");
+                }
+            }
+            catch (ConflictException)
+            {
+                NotificationService.Notify(new NotificationMessage()
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Fejl ved opdatering",
+                        Detail = "Konflikt ved opdatering. Måske en anden har ændret skabelonen. Prøv igen eller genindlæs siden.",
+                        Duration = 5000
+                });
             }
             catch (Exception ex)
             {
                 NotificationService.Notify(new NotificationMessage()
                     {
                         Severity = NotificationSeverity.Error,
-                        Summary = "Fejl",
+                        Summary = "Fejl ved opdatering",
                         Detail = ex.Message,
                         Duration = 5000
                     });
@@ -228,29 +255,59 @@ else
 
     }
 
-    void OnDagSkabelonDelete(DagSkabelon dagSkabelon)
+    void OnDagSkabelonDelete(DagTurSkabelon dagSkabelon)
     {
-        ObservableDage.Remove(dagSkabelon);
+        ObservableDagTure.Remove(dagSkabelon);
     }
 
     private void OnDagSkabelonAdd(DagSkabelon dagSkabelon)
     {
-        ObservableDage.Add(dagSkabelon);
+        var nyDagTur = new DagTurSkabelon()
+        {
+            DagSkabelon = dagSkabelon,
+            DagSkabelonId = dagSkabelon.Id,
+            TurSkabelonId = TurSkabelon!.Id
+        };
 
-        showAddDagSkabelon = !showAddDagSkabelon;
+        ObservableDagTure.Add(nyDagTur);
 
-        DialogService.Close(dagSkabelon);
+        DialogService.Close();
+    }
+
+    private void OnDagSelected(DagSkabelon dagSkabelon)
+    {
+        var nyDagTur = new DagTurSkabelon()
+        {
+            DagSkabelon = dagSkabelon,
+            DagSkabelonId = dagSkabelon.Id,
+            TurSkabelonId = TurSkabelon!.Id
+        };
+
+        ObservableDagTure.Add(nyDagTur);
+
+        DialogService.Close();
     }
 
     private async Task OpenCreateDagSkabelonDialog()
     {
         var parameters = new Dictionary<string, object>
         {
-            { "OnAdd", EventCallback.Factory.Create<DagSkabelon>(this, OnDagSkabelonAdd) }
+            { "ReturnObjectOnSubmit", EventCallback.Factory.Create<DagSkabelon>(this, OnDagSkabelonAdd) }
         };
 
         // Åbner CreateDagSkabelonComponent i en dialog
-        var result = await DialogService.OpenAsync<CreateDagSkabelonComponent>("Opret Ny DagSkabelon", parameters);
+        var result = await DialogService.OpenAsync<CreateEditDagSkabelonComponent>("Opret ny dag skabelon", parameters);
+    }
 
+    private async Task OpenSelectDagSkabelonDialog()
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "OnSelect", EventCallback.Factory.Create<DagSkabelon>(this, OnDagSelected) },
+            { "InjectedSkabeloner", DagSkabeloner.Where(d => !ObservableDagTure.Any(o => o.DagSkabelon!.Id == d.Id)).ToList() }
+        };
+
+        // Åbner CreateDagSkabelonComponent i en dialog
+        var result = await DialogService.OpenAsync<DagSkabelonListComponent>("Vælg eksisterende dag skabelon", parameters);
     }
 }

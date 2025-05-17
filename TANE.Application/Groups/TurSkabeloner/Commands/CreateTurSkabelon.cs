@@ -18,11 +18,11 @@ namespace TANE.Application.Groups.TurSkabeloner.Commands
             _turSkabelonRepository = turSkabelonRepository;
         }
 
-        public async Task<bool> CreateTurSkabelonAsync(TurSkabelon turSkabelon, string jwtToken)
+        public async Task<TurSkabelon> CreateTurSkabelonAsync(TurSkabelon turSkabelon, string jwtToken)
         {
-            foreach (var dag in turSkabelon.Dage)
+            foreach (var dagTurSkabelon in turSkabelon.DagTurSkabelon)
             {
-                dag.Sekvens = turSkabelon.Dage.IndexOf(dag) + 1;
+                dagTurSkabelon.Order = turSkabelon.DagTurSkabelon.IndexOf(dagTurSkabelon) + 1;
             }
 
             return await _turSkabelonRepository.CreateTurSkabelon(turSkabelon, jwtToken);

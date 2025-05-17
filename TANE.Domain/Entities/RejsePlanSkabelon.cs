@@ -10,21 +10,10 @@ namespace TANE.Domain.Entities
     public class RejseplanSkabelon
     {
         public int  Id { get; set; }
-        public List<TurSkabelon> Ture { get; set; }
-
         public string Titel { get; set; } = string.Empty;
         public string Beskrivelse { get; set; } = string.Empty;
-        [Timestamp]
-        public byte[] RowVersion { get; set; }
-
-        public double GetPris()
-        {
-            return Ture.Sum(t => t.Pris);
-        }
-
-        public int GetAntalDage()
-        {
-            return Ture.Sum(t => t.GetAntalDage());
-        }
+        // Relation til ture
+        public List<RejseplanTurSkabelon> RejseplanTurSkabelon { get; set; } = new List<RejseplanTurSkabelon>();
+        public byte[]? RowVersion { get; set; } = null;
     }
 }
