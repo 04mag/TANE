@@ -53,9 +53,9 @@
 
     private string searchText = string.Empty;
 
-    private List<TurSkabelon> SkabelonerVar = new List<TurSkabelon>();
+    private IQueryable<TurSkabelon> SkabelonerVar = new List<TurSkabelon>().AsQueryable();
 
-    public List<TurSkabelon> Skabeloner
+    public IQueryable<TurSkabelon> Skabeloner
     {
         get
         {
@@ -65,7 +65,7 @@
             }
             else
             {
-                return SkabelonerVar.Where(x => x.Titel.ToLower().Contains(searchText.ToLower())).ToList();
+                return SkabelonerVar.Where(x => x.Titel.ToLower().Contains(searchText.ToLower()));
             }
         }
         set { SkabelonerVar = value; }
@@ -73,11 +73,20 @@
 
     public IList<TurSkabelon> SelectedSkabeloner { get; set; } = new List<TurSkabelon>();
 
-    protected override void OnParametersSet()
+    protected override void OnInitialized()
     {
-        Skabeloner = InjectedSkabeloner;
+        Skabeloner = InjectedSkabeloner.AsQueryable();
 
         SelectedSkabeloner = new List<TurSkabelon>() { Skabeloner.FirstOrDefault()! };
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Skabeloner = InjectedSkabeloner.AsQueryable();
+
+        SelectedSkabeloner = new List<TurSkabelon>() { Skabeloner.FirstOrDefault()! };
+
+        await base.OnParametersSetAsync();
     }
 
     private void HandleInput(ChangeEventArgs args)
@@ -94,20 +103,20 @@
     {
         await OnSelect.InvokeAsync(turskabelon);
 
-        Skabeloner = InjectedSkabeloner;
+        Skabeloner = InjectedSkabeloner.AsQueryable();
     }
 
     async Task EditRow(TurSkabelon turskabelon)
     {
         await OnEdit.InvokeAsync(turskabelon);
 
-        Skabeloner = InjectedSkabeloner;
+        Skabeloner = InjectedSkabeloner.AsQueryable();
     }
 
     async Task DeleteRow(TurSkabelon turskabelon)
     {
         await OnDelete.InvokeAsync(turskabelon);
 
-        Skabeloner = InjectedSkabeloner;
+        Skabeloner = InjectedSkabeloner.AsQueryable();
     }
 }
