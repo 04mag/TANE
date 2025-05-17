@@ -5,12 +5,9 @@
 @using TANE.Application.Dtos.Skabeloner
 @using TANE.Application.Dtos
 @using TANE.Presentation.BlazorWebAssemply.Pages.Dage.Components
-@inject ITurSkabelonRepository TurSkabelonRepository
 @inject CustomStateProvider AuthStateProvider
-@inject DialogService DialogService
-@page "/turskabeloner"
-
-
+@inject NavigationManager NavigationManager
+@inject NotificationService Notificationservice
 
 
     <RadzenTextBox @bind-Value="searchText" @oninput=@HandleInput Placeholder="Søg efter titel" Style="width: 100%" />
@@ -39,28 +36,7 @@
         </Columns>
     </RadzenDataGrid>
 
-
-@* @if (showNewTur)
-{
-    <RadzenButton Text="Opret Tur" ButtonType="ButtonType.Button" Click="OpenCreateTurDialog" />
-} *@
-
-@*Knap til tilføjelse af ny tur*@
-@* <div style="display:flex; justify-content:flex-end;">
-    <RadzenButton ButtonType="ButtonType.Button"
-                  Style="width:40px; background-color:green;"
-                  Size="ButtonSize.Small"
-                  Icon="add"
-                  Click="OpenCreateTurDialog" />
-</div> *@
-
 @code {
-    [Parameter] public EventCallback<Tur> OnCreateTur { get; set; }
-
-    private bool showNewTur = false;
-
-    private string _token;
-
     [Parameter, EditorRequired]
     public List<TurSkabelon> InjectedSkabeloner { get; set; }
 
@@ -97,13 +73,9 @@
 
     public IList<TurSkabelon> SelectedSkabeloner { get; set; } = new List<TurSkabelon>();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnParametersSet()
     {
-        var state = await AuthStateProvider.GetAuthenticationStateAsync();
-        _token = AuthStateProvider.CurrentUser.Token;
-        await base.OnInitializedAsync();
-
-        Skabeloner = await TurSkabelonRepository.ReadAllTurSkabeloner(_token);
+        Skabeloner = InjectedSkabeloner;
 
         SelectedSkabeloner = new List<TurSkabelon>() { Skabeloner.FirstOrDefault()! };
     }
@@ -137,22 +109,5 @@
         await OnDelete.InvokeAsync(turskabelon);
 
         Skabeloner = InjectedSkabeloner;
-    }
-
-    async Task HandleSubmitNewTur(Tur tur)
-	{
-		showNewTur = false;
-        await OnCreateTur.InvokeAsync(tur);
-	}
-
-    private async Task OpenCreateTurDialog()
-    {
-        var parameters = new Dictionary<string, object>
-        {
-            { "OnAdd", EventCallback.Factory.Create<Tur>(this, HandleSubmitNewTur) }
-        };
-
-    // Åbner CreateDagComponent i en dialog
-        var result = await DialogService.OpenAsync<CreateTurComponent>("Opret Ny Tur", parameters);
     }
 }
