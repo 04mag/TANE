@@ -10,6 +10,7 @@ using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
 using TANE.Application.Dtos;
 using System.Collections.ObjectModel;
+using System.Text;
 
 namespace TANE.Persistence.Repositories
 {
@@ -58,14 +59,23 @@ namespace TANE.Persistence.Repositories
             }
         }
 
-        public async Task<bool> DeleteDagAsync(int dagId, string jwtToken)
+        public async Task<bool> DeleteDagAsync(int dagId, byte[] rowVersion, string jwtToken)
         {
             try
             {
                 var client = _factory.CreateClient("rejseplan");
                 SetJwtToken(client, jwtToken);
 
-                var response = await client.DeleteAsync($"dag/{dagId}");
+                // 1) Konverter byte[] til Base64
+                var rowVersionBase64 = Convert.ToBase64String(rowVersion);
+
+                // 2) URL‐escape Base64‐strengen
+                var encoded = Uri.EscapeDataString(rowVersionBase64);
+
+                // 3) Sæt rowVersion på som query‐parameter
+                var requestUri = $"dag/{dagId}?rowVersion={encoded}";
+
+                var response = await client.DeleteAsync(requestUri);
                 return response.IsSuccessStatusCode;
             }
             catch (HttpRequestException ex)

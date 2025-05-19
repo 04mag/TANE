@@ -1,6 +1,7 @@
 ﻿@using TANE.Application.Dtos
 @using System.Collections.ObjectModel
 @using TANE.Application.Dtos.Skabeloner
+@using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces
 @using TANE.Application.Groups.Kunder.Queries.Interfaces
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
@@ -11,6 +12,7 @@
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.DagSkabeloner.Components
 @inject CustomStateProvider AuthStateProvider
 @inject IDagRepository DagRepository
+@inject IReadDagSkabelon ReadDagSkabelon
 @inject ITurRepository _TurRepository
 @inject IReadKunde ReadKunde
 @inject DialogService DialogService
@@ -82,6 +84,9 @@
 
             @if (showAddDag)
             {
+                <div style="border: 1px solid #ccc; padding: 1rem; border-radius: 6px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); margin-bottom: 1rem;">
+                    <DagSkabelonListComponent OnSelect="OnDagRowSelect" InjectedSkabeloner="DagSkabeloner"/>
+                </div>
                 <RadzenButton Text="Opret Dag" ButtonType="ButtonType.Button" Click="OpenCreateDagDialog" />
             }
 
@@ -107,6 +112,8 @@
 
     [Parameter] 
     public Tur? Tur { get; set; }
+
+    public List<DagSkabelon> DagSkabeloner { get; set; } = new List<DagSkabelon>();
 
 
     [Parameter]
@@ -146,6 +153,10 @@
         showAddDag = false;
 
         Observabledage = InjectedDage;
+
+        // henter skabeloner 
+       DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync(_token);
+
     }
 
     async Task OnSubmit()
@@ -168,13 +179,43 @@
 
     private async Task OnDagRowSelect(DagSkabelon dagSkabelon)
     {
+    // mapping fra DagSkabelon til Dag
+        var dag = new Dag
+        {
+
+            Titel = dagSkabelon.Titel,
+            Beskrivelse = dagSkabelon.Beskrivelse,
+            Aktiviteter = dagSkabelon.Aktiviteter,
+            Måltider = dagSkabelon.Måltider,
+            Overnatning = dagSkabelon.Overnatning,
+            Sekvens = Observabledage.Count,
+            TurId = Tur.Id
+
+        };
+
+    // tilføj dag til Tur
+       await DagRepository.CreateDagAsync(dag, _token);
+
+    // tilføj dag til ObservableCollection (for UI opdatering))
+      Observabledage = await DagRepository.ReadAllDagePåTur(Tur.Id, _token);
+        StateHasChanged();
+        showAddDag = false;
       
     }
 
 
-    private void OnDagDelete(Dag Dag)
+    private async Task OnDagDelete(Dag Dag)
     {
-        Observabledage.Remove(Dag);
+        try
+        {
+            await DagRepository.DeleteDagAsync(Dag.Id,Dag.RowVersion,_token);
+            Observabledage.Remove(Dag);
+        }
+        catch (Exception ex)
+        {
+            // Håndter fejl her, hvis nødvendigt
+            Console.WriteLine($"Fejl ved sletning af dag: {ex.Message}");
+        }
     }
 
     private async Task HandleAddDag(Dag dag)
