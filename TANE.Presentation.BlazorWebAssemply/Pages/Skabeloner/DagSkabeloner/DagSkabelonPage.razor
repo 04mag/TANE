@@ -14,20 +14,29 @@
 
 @page "/skabeloner/dag"
 
-<PageTitle>Dag Skabeloner</PageTitle>
+<AuthorizeView>
+    <Authorized>
+        <PageTitle>Dag Skabeloner</PageTitle>
+        <h3>Dag Skabeloner</h3>
 
-<h3>Dag Skabeloner</h3>
+        <div class="rz-p-0 rz-p-md-12">
+            <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
+                <RadzenButton ButtonType="ButtonType.Button"
+                              Size="ButtonSize.Large"
+                              Text="Opret ny dag skabelon"
+                              Click="@(() => NavigationManager.NavigateTo("skabeloner/dag/create"))" />
+            </div>
+        </div>
 
-<div class="rz-p-0 rz-p-md-12">
-    <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
-        <RadzenButton ButtonType="ButtonType.Button"
-                      Size="ButtonSize.Large"
-                      Text="Opret ny dag skabelon"
-                      Click="@(() => NavigationManager.NavigateTo("skabeloner/dag/create"))" />
-    </div>
-</div>
+        <DagSkabelonListComponent InjectedSkabeloner="DagSkabeloner" OnEdit="OnRowEditPressed" OnDelete="OnRowDeletePressed" />
+    </Authorized>
+    <NotAuthorized>
+        <PageTitle>Adgang nægtet</PageTitle>
+        <h3>Adgang nægtet</h3>
+        <p>Du har ikke adgang til denne side.</p>
+    </NotAuthorized>
+</AuthorizeView>
 
-<DagSkabelonListComponent InjectedSkabeloner="DagSkabeloner" OnEdit="OnRowEditPressed" OnDelete="OnRowDeletePressed"/>
 
 @code {
     public List<DagSkabelon> DagSkabeloner { get; set; } = new List<DagSkabelon>();

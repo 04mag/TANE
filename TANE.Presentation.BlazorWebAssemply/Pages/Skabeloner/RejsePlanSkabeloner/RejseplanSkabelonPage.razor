@@ -12,20 +12,32 @@
 @inject IDeleteRejseplanSkabelon DeleteRejseplanSkabelon
 @page "/skabeloner/rejseplan"
 
-<PageTitle>Rejseplan Skabeloner</PageTitle>
 
-<h3>Rejseplan Skabeloner</h3>
+<AuthorizeView>
+    <Authorized>
 
-<div class="rz-p-0 rz-p-md-12">
-    <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
-        <RadzenButton ButtonType="ButtonType.Button"
-                      Size="ButtonSize.Large"
-                      Text="Opret ny rejseplan skabelon"
-                      Click="@(() => NavigationManager.NavigateTo("skabeloner/rejseplan/create"))" />
-    </div>
-</div>
+        <PageTitle>Rejseplan Skabeloner</PageTitle>
+        <h3>Rejseplan Skabeloner</h3>
 
-<RejseplanSkabelonListComponent InjectedSkabeloner="@Skabeloner" OnEdit="@OnEdit" OnDelete="@OnDelete" />
+        <div class="rz-p-0 rz-p-md-12">
+            <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
+                <RadzenButton ButtonType="ButtonType.Button"
+                              Size="ButtonSize.Large"
+                              Text="Opret ny rejseplan skabelon"
+                              Click="@(() => NavigationManager.NavigateTo("skabeloner/rejseplan/create"))" />
+            </div>
+        </div>
+
+        <RejseplanSkabelonListComponent InjectedSkabeloner="@Skabeloner" OnEdit="@OnEdit" OnDelete="@OnDelete" />
+    </Authorized>
+    <NotAuthorized>
+        <PageTitle>Adgang nægtet</PageTitle>
+        <h3>Adgang nægtet</h3>
+        <p>Du har ikke adgang til denne side.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+
 
 @code {
     List<RejseplanSkabelon> Skabeloner { get; set; } = new List<RejseplanSkabelon>();
