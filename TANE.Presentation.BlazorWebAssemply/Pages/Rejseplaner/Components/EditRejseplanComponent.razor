@@ -3,6 +3,7 @@
 @using TANE.Application.Dtos.Skabeloner
 @using TANE.Application.Dtos.TurDagRejseplan
 @using TANE.Application.Groups.Kunder.Queries.Interfaces
+@using TANE.Application.Groups.TurSkabeloner.Queries.Interfaces
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
 @using TANE.Persistence.Repositories
@@ -13,6 +14,7 @@
 @inject DialogService DialogService
 @inject CustomStateProvider AuthStateProvider
 @inject ITurRepository TurRepository
+@inject IReadTurSkabelon ReadTurSkabelon
 @inject IReadKunde ReadKunde
 @inject IRejseplanRepository RejseplanRepository
 @inject IJSRuntime JSRuntime
@@ -144,14 +146,26 @@
 
       <h4>Vælg ture:</h4>
             <TurReorderListComponent InjectedTure="RejseplanTure" OnDelete="OnTurDelete" OnReorder="HandleTurReorder" OnEdit="HandleEdit" />
-      <div style="text-align: right; width: 100%;">
-        <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium"
-                      Style="width:150px" Text="Tilføj Tur"
-                      Click="@(() => showAddTur = !showAddTur)" />
+      <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:1rem;">
+          <!-- Venstre knap -->
+          <RadzenButton 
+              ButtonType="ButtonType.Button" 
+              Size="ButtonSize.Medium"
+              Style="width:150px" 
+              Text="Vælg tur-skabelon"
+              Click="@(() => showAddTur = !showAddTur)" />
+
+          <!-- Højre knap -->
+          <RadzenButton 
+              ButtonType="ButtonType.Button"
+              Size="ButtonSize.Medium"
+              Text="Ny tur"
+              Style="background-color:greenyellow;"
+              Click="OpenCreateTurDialog" />
       </div>
       @if (showAddTur)
       {
-                <TurSkabelonListComponent OnSelect="OnTurRowSelect" />
+                <TurSkabelonListComponent OnSelect="OnTurRowSelect" InjectedSkabeloner="TurSkabeloner" />
       }
 
     </RadzenStack>
@@ -178,6 +192,7 @@
 
     ObservableCollection<Tur> RejseplanTure { get; set; } = new ObservableCollection<Tur>();
     private List<int> _originalTurIds = new();
+    List<TurSkabelon> TurSkabeloner = new List<TurSkabelon>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -189,6 +204,9 @@
         Kunder = await ReadKunde.GetAllKunderAsync(_token);
 
         await LoadTure();
+
+        // 3) Hent skabeloner
+        TurSkabeloner = await ReadTurSkabelon.ReadAllTurSkabelonerAsync(_token);
     }
 
     private async Task LoadTure()
@@ -405,5 +423,44 @@
         {
             RejseplanTure[index] = tur;
         }
+    }
+
+    
+    private async Task OpenCreateTurDialog()
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "OnCreateTur", EventCallback.Factory.Create<Tur>(this, HandleCreateTur) }
+            
+        };
+        var options = new DialogOptions
+        {
+            Width = "90vw",    
+            Height = "90vw",   
+            Resizable = true    // gør den kan flyttes/størrelsesændres, hvis ønsket
+        };
+
+    // Åbner CreateDagComponent i en dialog
+        var result = await DialogService.OpenAsync<CreateTurComponent>("Opret Ny Tur", parameters, options);
+    }
+
+    private async void HandleCreateTur(Tur tur)
+    {
+        tur.Sekvens = Item.Ture.Count + 1;
+        tur.RejseplanId = Item.Id;
+        Item.Ture.Add(tur);
+        RejseplanTure.Add(new Tur
+        {
+            Titel = tur.Titel,
+            Beskrivelse = tur.Beskrivelse,
+            TurStartTidspunkt = DateTime.Today,
+            TurSlutTidspunkt = DateTime.Today.AddDays(7),
+                Sekvens = RejseplanTure.Count + 1
+        });
+
+        await TurRepository.CreateTur(tur, _token);
+        await LoadTure();
+
+        showAddTur = false;
     }
 }
