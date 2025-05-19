@@ -1,0 +1,23 @@
+﻿@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.RejsePlanSkabeloner.Components
+
+@page "/skabeloner/rejseplan/edit/{Id:int}"
+@page "/skabeloner/rejseplan/create"
+
+
+@if (Id == 0)
+{
+    <PageTitle>Opret Ny Rejseplan Skabelon</PageTitle>
+    <h3>Opret ny rejseplan skabelon</h3>
+}
+else
+{
+    <PageTitle>Rediger Rejseplan Skabelon</PageTitle>
+    <h3>Rediger rejseplan skabelon</h3>
+}
+
+<CreateEditRejseplanSkabelonComponent Id="Id" />
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+}

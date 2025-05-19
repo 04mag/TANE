@@ -75,7 +75,7 @@ namespace TANE.Persistence.Repositories
             var client = _factory.CreateClient("skabelon");
             SetJwtToken(client, jwtToken);
 
-            var response = await client.PutAsJsonAsync($"api/TurSkabelon/{rejseplanSkabelon.Id}", rejseplanSkabelon);
+            var response = await client.PutAsJsonAsync($"api/RejseplanSkabelon/{rejseplanSkabelon.Id}", rejseplanSkabelon);
 
             if (response.IsSuccessStatusCode)
             {

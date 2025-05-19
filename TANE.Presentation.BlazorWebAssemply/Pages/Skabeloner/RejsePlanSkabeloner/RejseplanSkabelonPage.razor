@@ -1,0 +1,75 @@
+﻿@using TANE.Application.Groups.RejseplanSkabeloner.Commands.Interfaces
+@using TANE.Application.Groups.RejseplanSkabeloner.Queries.Interfaces
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.RejsePlanSkabeloner.Components
+@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
+
+@inject CustomStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IReadRejsePlanSkabelon ReadRejseplanSkabelon
+@inject IDeleteRejseplanSkabelon DeleteRejseplanSkabelon
+@page "/skabeloner/rejseplan"
+
+<PageTitle>Rejseplan Skabeloner</PageTitle>
+
+<h3>Rejseplan Skabeloner</h3>
+
+<div class="rz-p-0 rz-p-md-12">
+    <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
+        <RadzenButton ButtonType="ButtonType.Button"
+                      Size="ButtonSize.Large"
+                      Text="Opret ny rejseplan skabelon"
+                      Click="@(() => NavigationManager.NavigateTo("skabeloner/rejseplan/create"))" />
+    </div>
+</div>
+
+<RejseplanSkabelonListComponent InjectedSkabeloner="@Skabeloner" OnEdit="@OnEdit" OnDelete="@OnDelete" />
+
+@code {
+    List<RejseplanSkabelon> Skabeloner { get; set; } = new List<RejseplanSkabelon>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+
+        try
+        {
+            Skabeloner = await ReadRejseplanSkabelon.ReadRejseplanSkabelonerAsync(AuthStateProvider.CurrentUser.Token);
+        }
+        catch
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Fejl", "Kunne ikke hente skabeloner.");
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private void OnEdit(RejseplanSkabelon skabelon)
+    {
+        var url = NavigationManager.ToAbsoluteUri($"skabeloner/rejseplan/edit/{skabelon.Id}");
+        NavigationManager.NavigateTo(url.ToString());
+    }
+
+    private async Task OnDelete(RejseplanSkabelon skabelon)
+    {
+        var result = await DialogService.Confirm($"Er du sikker på, at du vil slette rejseplan skabelon med ID: {skabelon.Id}?", "Bekræft sletning", new ConfirmOptions() { OkButtonText = "Ja", CancelButtonText = "Nej" });
+        if (result == true)
+        {
+            await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+
+            // Call the delete method here
+            var deleteResult = await DeleteRejseplanSkabelon.DeleteRejseplanSkabelonAsync(skabelon.Id, AuthStateProvider.CurrentUser.Token);
+            if (deleteResult)
+            {
+                Skabeloner.Remove(skabelon);
+                NotificationService.Notify(NotificationSeverity.Success, "Sletning", $"Rejseplan skabelon med ID: {skabelon.Id} er blevet slettet.");
+            }
+            else
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Sletning", $"Sletning af rejseplan skabelon med ID: {skabelon.Id} mislykkedes.");
+            }
+        }
+    }
+}

@@ -63,6 +63,8 @@ namespace TANE.Application.Configuration
 
             services.AddScoped<IReadRejsePlanSkabelon, ReadRejseplanSkabelon>();
             services.AddScoped<ICreateRejseplanSkabelon, CreateRejseplanSkabelon>();
+            services.AddScoped<IUpdateRejseplanSkabelon, UpdateRejseplanSkabelon>();
+            services.AddScoped<IDeleteRejseplanSkabelon, DeleteRejseplanSkabelon>();
 
             services.AddScoped<IReadDag, ReadDag>();
             services.AddScoped<IReadTur, ReadTur>();
