@@ -116,32 +116,24 @@ namespace TANE.Persistence.Repositories
 
         public async Task<DagSkabelon> UpdateDagSkabelonAsync(int id, DagSkabelon dag, string jwtToken)
         {
-            try
+            var client = _factory.CreateClient("skabelon");
+            SetJwtToken(client, jwtToken);
+
+            var response = await client.PutAsJsonAsync($"api/DagSkabelon/{id}", dag);
+
+            if (response.IsSuccessStatusCode)
             {
+                var updatedDag = await response.Content.ReadFromJsonAsync<DagSkabelon>();
 
-                var client = _factory.CreateClient("skabelon");
-                SetJwtToken(client, jwtToken);
-
-                var response = await client.PutAsJsonAsync($"api/DagSkabelon/{id}", dag);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var updatedDag = await response.Content.ReadFromJsonAsync<DagSkabelon>();
-
-                    return updatedDag;
-                }
-                else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
-                {
-                    throw new ConflictException("Der opstod en konflikt ved opdatering af dagsskabelonen.");
-                }
-                else
-                {
-                    throw new Exception("Serveren returnerede en intern fejl. Prøv igen senere.");
-                }
+                return updatedDag;
             }
-            catch (Exception ex)
+            else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
             {
-                throw new Exception("Der opstod en uventet fejl under opdatering af dagsskabelonen.", ex);
+                throw new ConflictException("Der opstod en konflikt ved opdatering af dagsskabelonen.");
+            }
+            else
+            {
+                throw new Exception("Serveren returnerede en intern fejl. Prøv igen senere.");
             }
         }
     }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TANE.Application.Groups.DagSkabeloner.Commands.Interfaces
 {
-    internal interface IDeleteDagSkabelon
+    public interface IDeleteDagSkabelon
     {
         Task<bool> DeleteDagSkabelonAsync(int id, string jwtToken);
     }

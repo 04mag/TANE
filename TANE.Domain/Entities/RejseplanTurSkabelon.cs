@@ -8,5 +8,6 @@ namespace TANE.Domain.Entities
         public TurSkabelon? TurSkabelon { get; set; }
         public int RejseplanSkabelonId { get; set; }
         public int Order { get; set; } //tracks order
+        public byte[]? RowVersion { get; set; } = null;
     }
 }

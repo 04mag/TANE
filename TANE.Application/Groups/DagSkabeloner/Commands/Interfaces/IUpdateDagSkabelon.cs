@@ -7,7 +7,7 @@ using TANE.Domain.Entities;
 
 namespace TANE.Application.Groups.DagSkabeloner.Commands.Interfaces
 {
-    internal interface IUpdateDagSkabelon
+    public interface IUpdateDagSkabelon
     {
         Task<DagSkabelon> UpdateDagSkabelonAsync(DagSkabelon dagSkabelon, string jwtToken);
     }

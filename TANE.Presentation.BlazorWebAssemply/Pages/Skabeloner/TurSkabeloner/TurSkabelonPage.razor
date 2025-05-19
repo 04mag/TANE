@@ -1,0 +1,75 @@
+﻿@using TANE.Application.Groups.TurSkabeloner.Commands.Interfaces
+@using TANE.Application.Groups.TurSkabeloner.Queries.Interfaces
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
+
+@inject CustomStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IReadTurSkabelon ReadTurSkabelon
+@inject IDeleteTurSkabelon DeleteTurSkabelon
+
+@page "/skabeloner/tur"
+
+<PageTitle>Tur Skabeloner</PageTitle>
+
+<h3>Tur Skabeloner</h3>
+
+<div class="rz-p-0 rz-p-md-12">
+    <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
+        <RadzenButton ButtonType="ButtonType.Button"
+                      Size="ButtonSize.Large"
+                      Text="Opret ny tur skabelon"
+                      Click="@(() => NavigationManager.NavigateTo("skabeloner/tur/create"))" />
+    </div>
+</div>
+
+<TurSkabelonListComponent InjectedSkabeloner="@Skabeloner" OnEdit="@OnEdit" OnDelete="@OnDelete" />
+
+@code {
+    List<TurSkabelon> Skabeloner { get; set; } = new List<TurSkabelon>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+
+        try
+        {
+            Skabeloner = await ReadTurSkabelon.ReadAllTurSkabelonerAsync(AuthStateProvider.CurrentUser.Token);
+        }
+        catch
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Fejl", "Kunne ikke hente skabeloner.");
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private void OnEdit(TurSkabelon skabelon)
+    {
+        var url = NavigationManager.ToAbsoluteUri($"skabeloner/tur/edit/{skabelon.Id}");
+        NavigationManager.NavigateTo(url.ToString());
+    }
+
+    private async Task OnDelete(TurSkabelon skabelon)
+    {
+        var result = await DialogService.Confirm($"Er du sikker på, at du vil slette tur skabelon med ID: {skabelon.Id}?", "Bekræft sletning", new ConfirmOptions() { OkButtonText = "Ja", CancelButtonText = "Nej" });
+        if (result == true)
+        {
+            await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+            
+            // Call the delete method here
+            var deleteResult = await DeleteTurSkabelon.DeleteTurSkabelonAsync(skabelon.Id, AuthStateProvider.CurrentUser.Token);
+            if (deleteResult)
+            {
+                Skabeloner.Remove(skabelon);
+                NotificationService.Notify(NotificationSeverity.Success, "Sletning", $"Tur skabelon med ID: {skabelon.Id} er blevet slettet.");
+            }
+            else
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Sletning", $"Sletning af tur skabelon med ID: {skabelon.Id} mislykkedes.");
+            }
+        }
+    }
+}

@@ -51,7 +51,6 @@ namespace TANE.Application.Configuration
             services.AddScoped<IDeleteKunde, DeleteKunde>();
 
 
-
             services.AddScoped<ICreateDagSkabelon, CreateDagSkabelon>();
             services.AddScoped<IUpdateDagSkabelon, UpdateDagSkabelon>();
             services.AddScoped<IDeleteDagSkabelon, DeleteDagSkabelon>();
@@ -60,6 +59,7 @@ namespace TANE.Application.Configuration
             services.AddScoped<IReadTurSkabelon, ReadTurSkabelon>();
             services.AddScoped<ICreateTurSkabelon, CreateTurSkabelon>();
             services.AddScoped<IUpdateTurSkabelon, UpdateTurSkabelon>();
+            services.AddScoped<IDeleteTurSkabelon, DeleteTurSkabelon>();
 
             services.AddScoped<IReadRejsePlanSkabelon, ReadRejseplanSkabelon>();
             services.AddScoped<ICreateRejseplanSkabelon, CreateRejseplanSkabelon>();

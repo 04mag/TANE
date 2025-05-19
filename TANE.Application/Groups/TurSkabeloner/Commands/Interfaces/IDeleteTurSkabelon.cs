@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TANE.Application.Groups.TurSkabeloner.Commands.Interfaces
 {
-    internal interface IDeleteTurSkabelon
+    public interface IDeleteTurSkabelon
     {
         Task<bool> DeleteTurSkabelonAsync(int id, string jwtToken);
     }

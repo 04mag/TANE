@@ -22,12 +22,12 @@ namespace TANE.Application.Groups.DagSkabeloner.Commands
         {
             if (dagSkabelon == null)
             {
-                throw new ArgumentNullException(nameof(dagSkabelon), "DagSkabelon cannot be null");
+                throw new ArgumentNullException(nameof(dagSkabelon), "DagSkabelon må ikke være tom.");
             }
 
             if (string.IsNullOrEmpty(jwtToken))
             {
-                throw new ArgumentException("JWT token cannot be null or empty", nameof(jwtToken));
+                throw new ArgumentException("JWT token mangler.", nameof(jwtToken));
             }
             
             return await _dagSkabelonRepository.CreateDagSkabelonAsync(dagSkabelon, jwtToken);
