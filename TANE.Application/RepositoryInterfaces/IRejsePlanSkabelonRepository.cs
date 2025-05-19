@@ -11,8 +11,8 @@ namespace TANE.Application.RepositoryInterfaces
     {
         Task<List<RejseplanSkabelon>> ReadAllRejseplanSkabelonerAsync(string jwtToken);
         Task<RejseplanSkabelon> ReadRejseplanSkabelonByIdAsync(int id, string jwtToken);
-        Task<bool> CreateRejseplanSkabelonAsync(RejseplanSkabelon rejseplanSkabelon, string jwtToken);
-        Task<bool> UpdateRejseplanSkabelonAsync(RejseplanSkabelon rejseplanSkabelon, string jwtToken);
+        Task<RejseplanSkabelon> CreateRejseplanSkabelonAsync(RejseplanSkabelon rejseplanSkabelon, string jwtToken);
+        Task<RejseplanSkabelon> UpdateRejseplanSkabelonAsync(RejseplanSkabelon rejseplanSkabelon, string jwtToken);
         Task<bool> DeleteRejseplanSkabelonAsync(int id, string jwtToken);
     }
 }

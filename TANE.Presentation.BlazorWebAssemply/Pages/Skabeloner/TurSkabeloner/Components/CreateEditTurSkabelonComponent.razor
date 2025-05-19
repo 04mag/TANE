@@ -89,6 +89,7 @@ else
 }
 
 @code {
+    [Parameter]
     public EventCallback<TurSkabelon> ReturnObjectOnSubmit { get; set; }
 
     public TurSkabelon? TurSkabelon { get; set; } = new TurSkabelon();
@@ -296,7 +297,7 @@ else
         };
 
         // Åbner CreateDagSkabelonComponent i en dialog
-        var result = await DialogService.OpenAsync<CreateEditDagSkabelonComponent>("Opret ny dag skabelon", parameters);
+        var result = await DialogService.OpenAsync<CreateEditDagSkabelonComponent>("Opret ny dag skabelon", parameters, CustomDialogOptions.DialogOptions);
     }
 
     private async Task OpenSelectDagSkabelonDialog()
@@ -308,6 +309,6 @@ else
         };
 
         // Åbner CreateDagSkabelonComponent i en dialog
-        var result = await DialogService.OpenAsync<DagSkabelonListComponent>("Vælg eksisterende dag skabelon", parameters);
+        var result = await DialogService.OpenAsync<DagSkabelonListComponent>("Vælg eksisterende dag skabelon", parameters, CustomDialogOptions.DialogOptions);
     }
 }

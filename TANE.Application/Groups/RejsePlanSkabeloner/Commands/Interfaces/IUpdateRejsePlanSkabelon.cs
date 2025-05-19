@@ -7,8 +7,8 @@ using TANE.Domain.Entities;
 
 namespace TANE.Application.Groups.RejseplanSkabeloner.Commands.Interfaces
 {
-    internal interface IUpdateRejseplanSkabelon
+    public interface IUpdateRejseplanSkabelon
     {
-        Task<bool> UpdateRejseplanSkabelonAsync(RejseplanSkabelon rejseplanSkabelon, string jwtToken);
+        Task<RejseplanSkabelon> UpdateRejseplanSkabelonAsync(RejseplanSkabelon rejseplanSkabelon, string jwtToken);
     }
 }

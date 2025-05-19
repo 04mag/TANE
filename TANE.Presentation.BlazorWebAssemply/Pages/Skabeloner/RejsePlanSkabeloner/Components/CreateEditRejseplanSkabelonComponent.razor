@@ -1,0 +1,312 @@
+﻿@using System.Collections.ObjectModel
+@using TANE.Application.Common.Exceptions
+@using TANE.Application.Groups.RejseplanSkabeloner.Commands.Interfaces
+@using TANE.Application.Groups.RejseplanSkabeloner.Queries.Interfaces
+@using TANE.Application.Groups.TurSkabeloner.Commands.Interfaces
+@using TANE.Application.Groups.TurSkabeloner.Queries.Interfaces
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Configuration
+@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.RejseplanTurSkabeloner
+@using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.TurSkabeloner.Components
+@inject CustomStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IReadRejsePlanSkabelon ReadRejseplanSkabelon
+@inject IReadTurSkabelon ReadTurSkabelon
+@inject ICreateRejseplanSkabelon CreateRejseplanSkabelon
+@inject IUpdateRejseplanSkabelon UpdateRejseplanSkabelon
+@inject ICreateTurSkabelon CreateTurSkabelon
+
+@if (RejseplanSkabelon != null)
+{
+    <div class="rz-p-0 rz-p-md-12">
+        <!-- Flex-container med 100% bredde -->
+        <RadzenTemplateForm TItem="RejseplanSkabelon" Data=@RejseplanSkabelon Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+            <RadzenStack Gap="1rem" class="rz-p-sm-12">
+
+
+                @if (Id != 0)
+                {
+                    <!-- Id -->
+                    <RadzenFormField Text="ID" Variant="@ThemeConfig.FormVariant">
+                        <ChildContent>
+                            <RadzenNumeric Name="Id" @bind-Value=@RejseplanSkabelon.Id Style="width: 100%" Disabled="true" />
+                        </ChildContent>
+                    </RadzenFormField>
+                }
+
+                <!-- Titel -->
+                <RadzenFormField Text="Titel" Variant="@ThemeConfig.FormVariant">
+                    <ChildContent>
+                        <RadzenTextBox Name="Titel" @bind-Value=@RejseplanSkabelon.Titel Style="width: 100%" />
+                    </ChildContent>
+                    <Helper>
+                        <RadzenRequiredValidator Component="Titel" Text="Titel skal udfyldes." />
+                    </Helper>
+                </RadzenFormField>
+
+                <!-- Beskrivelse -->
+                <RadzenFormField Text="Beskrivelse" Variant="@ThemeConfig.FormVariant">
+                    <ChildContent>
+                        <RadzenTextArea Name="Beskrivelse" @bind-Value=@RejseplanSkabelon.Beskrivelse Rows="4" Style="width: 100%" />
+                    </ChildContent>
+                    <Helper>
+                        <RadzenRequiredValidator Component="Beskrivelse" Text="Beskrivelse skal udfyldes." />
+                    </Helper>
+                </RadzenFormField>
+
+                <h3>Ture:</h3>
+                <RejseplanTurReorderListComponent InjectedSkabeloner="ObservableRejseplanTure" OnDeleteSkabelon="OnTurSkabelonDelete" />
+                <div style="text-align: right; width: 100%;">
+                    <RadzenButton ButtonType="ButtonType.Button" Style="width: auto" Text="Tilføj eksisterende tur" Click="OpenSelectTurSkabelonDialog"></RadzenButton>
+                    <RadzenButton ButtonType="ButtonType.Button" Style="width: auto" Text="Opret ny tur" Click="OpenCreateTurSkabelonDialog"></RadzenButton>
+                </div>
+
+                <br />
+
+                <RadzenButton ButtonType="ButtonType.Submit"
+                              Text="@SaveButtonText" />
+
+            </RadzenStack>
+        </RadzenTemplateForm>
+    </div>
+}
+else
+{
+    <h4>Skabelon kunne ikke indlæses</h4>
+}
+
+@code {
+    public EventCallback<RejseplanSkabelon> ReturnObjectOnSubmit { get; set; }
+
+    public RejseplanSkabelon? RejseplanSkabelon { get; set; } = new RejseplanSkabelon();
+
+    public List<TurSkabelon> TurSkabeloner { get; set; } = new List<TurSkabelon>();
+
+    public ObservableCollection<RejseplanTurSkabelon> ObservableRejseplanTure { get; set; } = new();
+
+    [Parameter]
+    public int Id { get; set; } = 0;
+
+    private string saveButtonTextVar = "Gem skabelon";
+
+    public string SaveButtonText
+    {
+        get { return saveButtonTextVar; }
+        set { saveButtonTextVar = value; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+
+        TurSkabeloner = await ReadTurSkabelon.ReadAllTurSkabelonerAsync(AuthStateProvider.CurrentUser.Token);
+
+        await base.OnInitializedAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id == 0)
+        {
+            RejseplanSkabelon = new RejseplanSkabelon();
+
+            SaveButtonText = "Opret skabelon";
+        }
+        else
+        {
+            await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+
+            try
+            {
+                RejseplanSkabelon = await ReadRejseplanSkabelon.ReadRejseplanSkabelonByIdAsync(Id, AuthStateProvider.CurrentUser.Token);
+
+                ObservableRejseplanTure = new ObservableCollection<RejseplanTurSkabelon>();
+
+                foreach (var rejseplanTurSkabelon in RejseplanSkabelon.RejseplanTurSkabelon)
+                {
+                    ObservableRejseplanTure.Add(rejseplanTurSkabelon);
+                }
+
+                if (RejseplanSkabelon.Id == 0)
+                {
+                    RejseplanSkabelon = null;
+                }
+            }
+            catch
+            {
+                NotificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Fejl",
+                    Detail = "Der opstod en fejl under hentning af skabelon.",
+                    Duration = 5000
+                });
+
+                RejseplanSkabelon = null;
+            }
+        }
+
+        await base.OnParametersSetAsync();
+    }
+
+    async Task OnSubmit()
+    {
+        RejseplanSkabelon!.RejseplanTurSkabelon = new List<RejseplanTurSkabelon>();
+
+        //Tilføjer ture til listen
+        foreach (var rejseplanTurSkabelon in ObservableRejseplanTure)
+        {
+            RejseplanSkabelon.RejseplanTurSkabelon.Add(rejseplanTurSkabelon);
+        }
+
+        if (RejseplanSkabelon!.Id == 0)
+        {
+            try
+            {
+                var result = await CreateRejseplanSkabelon.CreateRejseplanSkabelonAsync(RejseplanSkabelon, AuthStateProvider.CurrentUser.Token);
+                NotificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Oprettet",
+                    Detail = "Rejseplan skabelon oprettet",
+                    Duration = 5000
+                });
+
+                if (ReturnObjectOnSubmit.HasDelegate)
+                {
+                    await ReturnObjectOnSubmit.InvokeAsync(result);
+                }
+                else
+                {
+                    NavigationManager.NavigateTo("/skabeloner/rejseplan");
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Fejl ved oprettelse",
+                    Detail = ex.Message,
+                    Duration = 5000
+                });
+            }
+        }
+        else
+        {
+            try
+            {
+                var result = await UpdateRejseplanSkabelon.UpdateRejseplanSkabelonAsync(RejseplanSkabelon, AuthStateProvider.CurrentUser.Token);
+                NotificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Opdateret",
+                    Detail = "Rejseplan skabelon opdateret",
+                    Duration = 5000
+                });
+                if (ReturnObjectOnSubmit.HasDelegate)
+                {
+                    await ReturnObjectOnSubmit.InvokeAsync(result);
+                }
+                else
+                {
+                    NavigationManager.NavigateTo("/skabeloner/rejseplan");
+                }
+            }
+            catch (ConflictException)
+            {
+                NotificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Fejl ved opdatering",
+                    Detail = "Konflikt ved opdatering. Måske en anden har ændret skabelonen. Prøv igen eller genindlæs siden.",
+                    Duration = 5000
+                });
+            }
+            catch (ArgumentException)
+            {
+                NotificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Fejl ved opdatering",
+                    Detail = "Serveren returnerede en fejl. Præv evt. igen.",
+                    Duration = 5000
+                });
+            }
+            catch (Exception)
+            {
+                NotificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Fejl ved opdatering",
+                    Detail = "Der kan ikke oprettes forbindelse til serveren.",
+                    Duration = 5000
+                });
+            }
+        }
+
+    }
+
+    void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    {
+
+    }
+
+    void OnTurSkabelonDelete(RejseplanTurSkabelon rejseplanTurSkabelon)
+    {
+        ObservableRejseplanTure.Remove(rejseplanTurSkabelon);
+    }
+
+    private void OnTurSkabelonAdd(TurSkabelon turSkabelon)
+    {
+        var nyRejseTur = new RejseplanTurSkabelon()
+        {
+            TurSkabelon = turSkabelon,
+            TurSkabelonId = turSkabelon.Id,
+            RejseplanSkabelonId = RejseplanSkabelon!.Id
+        };
+
+        ObservableRejseplanTure.Add(nyRejseTur);
+
+        DialogService.Close();
+    }
+
+    private void OnTurSelected(TurSkabelon turSkabelon)
+    {
+        var nyRejseTur = new RejseplanTurSkabelon()
+        {
+            TurSkabelon = turSkabelon,
+            TurSkabelonId = turSkabelon.Id,
+            RejseplanSkabelonId = RejseplanSkabelon!.Id
+        };
+
+        ObservableRejseplanTure.Add(nyRejseTur);
+
+        DialogService.Close();
+    }
+
+    private async Task OpenCreateTurSkabelonDialog()
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "ReturnObjectOnSubmit", EventCallback.Factory.Create<TurSkabelon>(this, OnTurSkabelonAdd) }
+        };
+
+        // Åbner CreateDagSkabelonComponent i en dialog
+        var result = await DialogService.OpenAsync<CreateEditTurSkabelonComponent>("Opret ny tur skabelon", parameters, CustomDialogOptions.DialogOptions);
+    }
+
+    private async Task OpenSelectTurSkabelonDialog()
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "OnSelect", EventCallback.Factory.Create<TurSkabelon>(this, OnTurSelected) },
+            { "InjectedSkabeloner", TurSkabeloner.Where(d => !ObservableRejseplanTure.Any(o => o.TurSkabelon!.Id == d.Id)).ToList() }
+        };
+
+        // Åbner CreateDagSkabelonComponent i en dialog
+        var result = await DialogService.OpenAsync<TurSkabelonListComponent>("Vælg eksisterende tur skabelon", parameters, CustomDialogOptions.DialogOptions);
+    }
+}
