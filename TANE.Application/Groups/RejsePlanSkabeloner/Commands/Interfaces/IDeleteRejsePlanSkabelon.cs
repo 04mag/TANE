@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TANE.Application.Groups.RejseplanSkabeloner.Commands.Interfaces
 {
-    internal interface IDeleteRejseplanSkabelon
+    public interface IDeleteRejseplanSkabelon
     {
         Task<bool> DeleteRejseplanSkabelonAsync(int id, string jwtToken);
     }
