@@ -12,20 +12,31 @@
 
 @page "/skabeloner/tur"
 
-<PageTitle>Tur Skabeloner</PageTitle>
 
-<h3>Tur Skabeloner</h3>
 
-<div class="rz-p-0 rz-p-md-12">
-    <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
-        <RadzenButton ButtonType="ButtonType.Button"
-                      Size="ButtonSize.Large"
-                      Text="Opret ny tur skabelon"
-                      Click="@(() => NavigationManager.NavigateTo("skabeloner/tur/create"))" />
-    </div>
-</div>
+<AuthorizeView>
+    <Authorized>
+        <PageTitle>Tur Skabeloner</PageTitle>
 
-<TurSkabelonListComponent InjectedSkabeloner="@Skabeloner" OnEdit="@OnEdit" OnDelete="@OnDelete" />
+        <h3>Tur Skabeloner</h3>
+
+        <div class="rz-p-0 rz-p-md-12">
+            <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
+                <RadzenButton ButtonType="ButtonType.Button"
+                              Size="ButtonSize.Large"
+                              Text="Opret ny tur skabelon"
+                              Click="@(() => NavigationManager.NavigateTo("skabeloner/tur/create"))" />
+            </div>
+        </div>
+
+        <TurSkabelonListComponent InjectedSkabeloner="@Skabeloner" OnEdit="@OnEdit" OnDelete="@OnDelete" />
+    </Authorized>
+    <NotAuthorized>
+        <PageTitle>Adgang nægtet</PageTitle>
+        <h3>Adgang nægtet</h3>
+        <p>Du har ikke adgang til denne side.</p>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     List<TurSkabelon> Skabeloner { get; set; } = new List<TurSkabelon>();

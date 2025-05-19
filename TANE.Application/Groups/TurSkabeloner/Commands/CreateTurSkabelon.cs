@@ -22,7 +22,7 @@ namespace TANE.Application.Groups.TurSkabeloner.Commands
         {
             foreach (var dagTurSkabelon in turSkabelon.DagTurSkabelon)
             {
-                dagTurSkabelon.Order = turSkabelon.DagTurSkabelon.IndexOf(dagTurSkabelon) + 1;
+                dagTurSkabelon.Order = turSkabelon.DagTurSkabelon.IndexOf(dagTurSkabelon);
             }
 
             return await _turSkabelonRepository.CreateTurSkabelon(turSkabelon, jwtToken);

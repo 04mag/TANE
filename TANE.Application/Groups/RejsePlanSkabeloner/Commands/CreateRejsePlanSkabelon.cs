@@ -18,8 +18,13 @@ namespace TANE.Application.Groups.RejseplanSkabeloner.Commands
             _rejseplanSkabelonRepository = rejseplanSkabelonRepository;
         }
 
-        public async Task<bool> CreateRejseplanSkabelonAsync(RejseplanSkabelon rejseplanSkabelon, string jwtToken)
+        public async Task<RejseplanSkabelon> CreateRejseplanSkabelonAsync(RejseplanSkabelon rejseplanSkabelon, string jwtToken)
         {
+            foreach (var rejseplanTurSkabelon in rejseplanSkabelon.RejseplanTurSkabelon)
+            {
+                rejseplanTurSkabelon.Order = rejseplanSkabelon.RejseplanTurSkabelon.IndexOf(rejseplanTurSkabelon);
+            }
+
             return await _rejseplanSkabelonRepository.CreateRejseplanSkabelonAsync(rejseplanSkabelon, jwtToken);
         }
     }
