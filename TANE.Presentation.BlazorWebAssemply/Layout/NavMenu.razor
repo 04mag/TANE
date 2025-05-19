@@ -85,6 +85,32 @@
                 }
             </div>
         </AuthorizeView>
+
+        <AuthorizeView>
+            <!-- skabelon dropdown menu-->
+            <div class="nav-item px-3">
+                <div class="nav-link dropdown-toggle d-flex align-items-center justify-content-between" @onclick="() => ToggleDropdown(nameof(showSkabelonDropdown))">
+                    <span><i class="fas fa-ruler me-2" aria-hidden="true"></i> Skabeloner</span>
+                    <!-- Customized version af en dropdown pil-->
+                    <i class="fas @(showSkabelonDropdown ? "fa-chevron-up" : "fa-chevron-down")"></i>
+                </div>
+                @if (showSkabelonDropdown)
+                {
+                    <div class="ps-4">
+                        <NavLink class="nav-link" href="/skabeloner/dag">
+                            Dage
+                        </NavLink>
+                        <NavLink class="nav-link" href="/skabeloner/tur">
+                            Ture
+                        </NavLink>
+                        <NavLink class="nav-link" href="/skabeloner/rejseplan">
+                            Rejseplaner
+                        </NavLink>
+                    </div>
+                }
+            </div>
+        </AuthorizeView>
+
         <!-- styling for begge dropdown menuer-->
         <style>
             /* Fjern standard pil fra Bootstrap's dropdown-toggle så vi kan bruge en customize version  */
@@ -140,6 +166,7 @@
     private bool collapseNavMenu = true;
     private bool showKundeDropdown = false;
     private bool showRejseDropdown = false;
+    private bool showSkabelonDropdown = false;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
@@ -159,6 +186,9 @@
                 break;
             case nameof(showRejseDropdown):
                 showRejseDropdown = !showRejseDropdown;
+                break;
+            case nameof(showSkabelonDropdown):
+                showSkabelonDropdown = !showSkabelonDropdown;
                 break;
         }
     }
