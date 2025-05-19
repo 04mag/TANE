@@ -1,6 +1,7 @@
 ﻿@using TANE.Application.Dtos
 @using System.Collections.ObjectModel
 @using TANE.Application.Dtos.Skabeloner
+@using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces
 @using TANE.Application.Groups.Kunder.Queries.Interfaces
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
@@ -11,6 +12,7 @@
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.DagSkabeloner.Components
 @inject CustomStateProvider AuthStateProvider
 @inject IDagRepository DagRepository
+@inject IReadDagSkabelon ReadDagSkabelon
 @inject IReadKunde ReadKunde
 @inject DialogService DialogService
 @inject CustomerState CustomerState
@@ -108,7 +110,7 @@
             @if (showAddDag)
             {
                 <div style="border: 1px solid #ccc; padding: 1rem; border-radius: 6px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); margin-bottom: 1rem;">
-                    <DagSkabelonListComponent OnSelect="OnDagRowSelect"/>
+                    <DagSkabelonListComponent OnSelect="OnDagRowSelect" InjectedSkabeloner="DagSkabeloner"/>
                 </div>
             }
 
@@ -130,6 +132,8 @@
 
     [Parameter]
     public EventCallback<Tur> OnEditTur { get; set; }
+
+    public List<DagSkabelon> DagSkabeloner { get; set; } = new List<DagSkabelon>();
 
     [Parameter] 
     public Tur? ExistingTur { get; set; }
@@ -181,6 +185,8 @@
         _token = AuthStateProvider.CurrentUser.Token;
 
         showAddDag = false;
+        // Hent alle DagSkabeloner
+        DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync(_token);
 
     }
 

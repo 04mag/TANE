@@ -20,7 +20,7 @@
 @inject IJSRuntime JSRuntime
 @inject NotificationService NotificationService
 @inject IDagRepository DagRepository
-<RadzenDialog />
+
 
 <div class="rz-p-0 rz-p-md-12">
   <h4>Rediger Rejseplan</h4>
@@ -444,7 +444,7 @@
         var result = await DialogService.OpenAsync<CreateTurComponent>("Opret Ny Tur", parameters, options);
     }
 
-    private async void HandleCreateTur(Tur tur)
+    private async Task HandleCreateTur(Tur tur)
     {
         tur.Sekvens = Item.Ture.Count + 1;
         tur.RejseplanId = Item.Id;
