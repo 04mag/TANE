@@ -23,7 +23,6 @@
 
 
 <div class="rz-p-0 rz-p-md-12">
-    <h4>Rediger tur</h4>
     <RadzenTemplateForm TItem="Tur" Data=@Tur Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
         <RadzenStack Gap="1rem" class="rz-p-sm-12">
             <!-- Titel -->
@@ -262,7 +261,7 @@
     {
        var parameters = new Dictionary<string, object>
         {
-            { "OnEdit", EventCallback.Factory.Create<Dag>(this, HandleAddDag) },
+           
             { "Dag", dag }
         };
 

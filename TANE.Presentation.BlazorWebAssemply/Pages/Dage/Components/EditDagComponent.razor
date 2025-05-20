@@ -8,9 +8,11 @@
 @inject CustomStateProvider AuthStateProvider
 @inject IDagRepository DagRepository
 @inject DialogService DialogService
+@inject NotificationService NotificationService
+@inject NavigationManager NavManager
+@inject CustomStateProvider AuthProvider
 
 <div class="rz-p-0 rz-p-md-12">
-    <h4>Opret Ny Dag </h4>
     <RadzenTemplateForm TItem="Dag" Data=@Dag Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
         <RadzenStack Gap="1rem" class="rz-p-sm-12" Style="max-width: 900px; margin: auto;">
 
@@ -90,8 +92,18 @@
 
     async void OnSubmit()
     {
+        NotificationService.Notify(new NotificationMessage()
+        {
+            Severity = NotificationSeverity.Success,
+            Summary = "Dag opdateret",
+            Detail = $"Dag {Dag.Titel} er opdateret.",
+            Duration = 4000
+        });
+
+        await AuthProvider.RefreshTokenAsync(NavManager, NotificationService);
+
         await DagRepository.UpdateDagAsync(Dag.Id,Dag,_token);
-       await OnEdit.InvokeAsync(Dag);
+        await OnEdit.InvokeAsync(Dag);
 
     // succes besked
 
