@@ -17,9 +17,11 @@
 @inject ITurRepository _TurRepository
 @inject IReadKunde ReadKunde
 @inject DialogService DialogService
-@inject NotificationService NotificationService
-@inject CustomerState CustomerState
 @inject IJSRuntime JSRuntime
+@inject NavigationManager NavManager
+@inject NotificationService NotificationService
+@inject CustomStateProvider AuthProvider
+
 
 
 <div class="rz-p-0 rz-p-md-12">
@@ -163,6 +165,16 @@
 
     async Task OnSubmit()
     {
+        NotificationService.Notify(new NotificationMessage()
+        {
+            Severity = NotificationSeverity.Success,
+            Summary = "Tur opdateret",
+            Detail = $"Turen {Tur.Titel} er opdateret.",
+            Duration = 4000
+        });
+
+        await AuthProvider.RefreshTokenAsync(NavManager, NotificationService);
+
         foreach (var dag in Observabledage)
         {
             if (dag.Id == 0)

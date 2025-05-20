@@ -16,6 +16,9 @@
 @inject IReadKunde ReadKunde
 @inject DialogService DialogService
 @inject CustomerState CustomerState
+@inject NavigationManager NavManager
+@inject NotificationService NotificationService
+@inject CustomStateProvider AuthProvider
 
 
 
@@ -192,6 +195,17 @@
 
     async Task OnSubmit()
     {
+        NotificationService.Notify(new NotificationMessage()
+        {
+            Severity = NotificationSeverity.Success,
+            Summary = "Tur oprettet",
+            Detail = $"Turen {Tur.Titel} er oprettet.",
+            Duration = 4000
+        });
+
+        await AuthProvider.RefreshTokenAsync(NavManager, NotificationService);
+
+
         if (ExistingTur != null)
         {
             await OnEditTur.InvokeAsync(Tur);
