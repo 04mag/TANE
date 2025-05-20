@@ -11,11 +11,6 @@
 
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
     <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span>Home
-            </NavLink>
-        </div>
 
         <AuthorizeView>
             @if (AuthStateProvider.CurrentUser.Roles.Contains("Admin"))
@@ -75,11 +70,11 @@
                 @if (showRejseDropdown)
                 {
                     <div class="ps-4">
-                        <NavLink class="nav-link" href="/rejseplan/rejseskabeloner">
-                            <i class="fas fa-plane-departure me-2"></i> Rejseskabeloner
+                        <NavLink class="nav-link" href="/rejseplaner">
+                            <i class="fas fa-plane-departure me-2"></i> Rejseplaner
                         </NavLink>
-                        <NavLink class="nav-link" href="/rejseplan/turskabeloner">
-                            <i class="fas fa-map-marked-alt me-2"></i> Turskabeloner
+                        <NavLink class="nav-link" href="/">
+                            <i class="fas fa-map-marked-alt me-2"></i> Ture
                         </NavLink>
                     </div>
                 }
@@ -117,13 +112,17 @@
             .dropdown-toggle::after {
                 display: none !important;
             }
+            .nav-link {
+                padding: 5px;  
+                border-radius: 4px; 
+    text-decoration: none;
+    color: inherit; 
+    transition: background-color 0.2s ease, color 0.2s ease; 
+            }
 
             .nav-link:hover {
-                background-color: #555;
-                border-radius: 4px;
-                padding: 5px;
+                background-color: transparent;
                 color: white;
-                text-decoration: none;
             }
 
             .nav-link i {

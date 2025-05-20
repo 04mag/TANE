@@ -1,0 +1,128 @@
+﻿@page "/ture"
+@using TANE.Application.Dtos
+@using TANE.Application.Groups.Ture.Queries.Interfaces
+@using TANE.Application.RepositoryInterfaces
+@using TANE.Domain.Entities
+@using TANE.Presentation.BlazorWebAssemply.Pages.Ture.Components
+@inject IReadTur ReadTur
+@inject CustomStateProvider AuthStateProvider
+@inject ITurRepository TurRepository
+@inject Radzen.DialogService DialogService
+
+<h3>Ture</h3>
+
+<RadzenButton Icon="add_circle"
+              Style="margin-bottom:10px"
+              Text="Ny Tur"
+              Click="CreateNew" />
+
+<TurListComponent Data="AlleTure" OnEdit="BeginEdit" />
+
+@code {
+    private List<Tur> AlleTure = new();
+    private Tur SelectedTur = default!;
+    private string _token = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        _token = AuthStateProvider.CurrentUser.Token;
+        AlleTure = (await ReadTur.ReadAllTureAsync(_token)).ToList();
+    }
+
+    async void CreateNew()
+    {
+
+        var parameters = new Dictionary<string, object>()
+        {
+            { "InjectedTure", AlleTure },
+            {"OnCreate", HandleCreate}
+        };
+
+        var result = await DialogService.OpenAsync<CreateTurComponent>(
+            title: "Ny rejseplan",
+          
+            options: new DialogOptions {   
+                Width      = "80vw",       // 80% af viewport‐bredden
+                Height     = "90vh",       // 90% af viewport‐højden
+                Resizable  = true,         // kan trækkes i hjørner for at ændre størrelse
+                Draggable  = true,         // kan flyttes rundt
+            } 
+            );
+        if (result is Tur nyPlan)
+        {
+           await TurRepository.CreateTur(nyPlan, _token);
+            AlleTure = (await ReadTur.ReadAllTureAsync(_token)).ToList();
+            StateHasChanged();
+        
+        }
+
+    }
+
+    void HandleCreate(Tur rejseplan)
+    {
+        DialogService.Close();
+    }
+
+    void BeginEdit(Tur plan)
+    {
+        SelectedTur = plan;
+        OpenEditDialog(plan);
+    }
+
+    async void OpenEditDialog(Tur plan)
+    {
+        var result = await DialogService.OpenAsync<EditTurComponent>(
+            title: plan.Id == 0 ? "Ny rejseplan" : "Rediger rejseplan",
+            parameters: new Dictionary<string, object> {
+                ["Item"]      = plan,
+                ["currentId"] = plan.Id
+            },
+            options: new DialogOptions {   
+                Width      = "80vw",       // 80% af viewport‐bredden
+                Height     = "90vh",       // 90% af viewport‐højden
+                Resizable  = true,         // kan trækkes i hjørner for at ændre størrelse
+                Draggable  = true,         // kan flyttes rundt
+            } 
+        );
+
+        // Når dialogen lukkes, returnerer vi evt. den opdaterede DTO
+        if (result is Tur dto)
+        {
+            await SaveEdit(dto);
+            StateHasChanged();  // Genrend listen
+        }
+    }
+
+    async Task SaveEdit(Tur dto)
+    {
+        dto.RowVersion = SelectedTur.RowVersion;
+        await TurRepository.UpdateTur(dto.Id, dto, _token);
+
+        var idx = AlleTure.FindIndex(r => r.Id == dto.Id);
+        if (idx >= 0)
+        {
+            AlleTure[idx] = new Tur
+            {
+                Id               = dto.Id, 
+                TurStartTidspunkt = dto.TurStartTidspunkt,
+                Titel            = dto.Titel,
+                Beskrivelse      = dto.Beskrivelse,
+                TurSlutTidspunkt = dto.TurSlutTidspunkt,
+                Pris = dto.Pris,
+                Dage = dto.Dage?.Select(d => new Dag
+                {
+                    Id = d.Id,
+                    Titel = d.Titel,
+                    Beskrivelse = d.Beskrivelse,
+                    Sekvens = d.Sekvens,
+                    Aktiviteter = d.Aktiviteter,
+                    Måltider = d.Måltider,
+                    Overnatning = d.Overnatning,
+                }).ToList(),
+                Sekvens = dto.Sekvens,
+                RejseplanId = dto.RejseplanId,
+            };
+        }
+    }
+}

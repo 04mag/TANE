@@ -57,7 +57,7 @@ Data="@Kunder" ColumnWidth="150px" LogicalFilterOperator="LogicalFilterOperator.
 	public EventCallback<Kunde> OnDeleteKunde { get; set; }
 
 	
-    string searchText = "JAN";
+    string searchText = "";
 	private IQueryable<Kunde> KunderVar = new List<Kunde>().AsQueryable();
 
 	public IQueryable<Kunde> Kunder
