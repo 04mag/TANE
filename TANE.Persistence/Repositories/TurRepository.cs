@@ -171,7 +171,7 @@ namespace TANE.Persistence.Repositories
             }
         }
 
-        public async Task ReorderDageAsync(int turId, Dag dag, string jwtToken)
+        public async Task ReorderDageAsync(int turId, DagReorderDto dag, string jwtToken)
         {
             try
             {

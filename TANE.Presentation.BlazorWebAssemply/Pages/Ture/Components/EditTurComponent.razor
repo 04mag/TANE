@@ -5,6 +5,7 @@
 @using TANE.Application.Groups.Kunder.Queries.Interfaces
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
+@using TANE.Persistence.Repositories
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
 @using TANE.Presentation.BlazorWebAssemply.Pages.Dage.Components
@@ -16,7 +17,9 @@
 @inject ITurRepository _TurRepository
 @inject IReadKunde ReadKunde
 @inject DialogService DialogService
+@inject NotificationService NotificationService
 @inject CustomerState CustomerState
+@inject IJSRuntime JSRuntime
 
 
 <div class="rz-p-0 rz-p-md-12">
@@ -73,7 +76,7 @@
             { 
                 
                 <h4>Dage:</h4>
-                <DagReorderListComponent InjectedDage="Observabledage" OnDelete="OnDagDelete" OnEdit="HandleEditDag"/>
+                <DagReorderListComponent InjectedDage="Observabledage" OnDelete="OnDagDelete" OnReorder="HandleDagReorder" OnEdit="HandleEditDag" />
                 <div style="text-align: right; width: 100%;">
 
                 </div>
@@ -206,16 +209,35 @@
 
     private async Task OnDagDelete(Dag Dag)
     {
+        bool confirmed;
         try
         {
-            await DagRepository.DeleteDagAsync(Dag.Id,Dag.RowVersion,_token);
-            Observabledage.Remove(Dag);
+            confirmed = await JSRuntime.InvokeAsync<bool>(
+                "confirm", $"Er du sikker på, at du vil fjerne dagen ''{Dag.Titel}'' fra turen ''{Tur.Titel}''? Handlingen kan IKKE fortrydes!");
+        }
+        catch (Exception jsEx)
+        {
+            await DialogService.Alert($"Beklager, dialogen kunne ikke vises: {jsEx.Message}");
+            return;
+        }
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+
+        try
+        {
+            var deleteDagAsync = await DagRepository.DeleteDagAsync(Dag.Id, Dag.RowVersion, _token);
         }
         catch (Exception ex)
         {
-            // Håndter fejl her, hvis nødvendigt
-            Console.WriteLine($"Fejl ved sletning af dag: {ex.Message}");
+            await DialogService.Alert($"Fejl under sletning: {ex.Message}");
+            return;
         }
+
+        Observabledage.Remove(Dag);
     }
 
     private async Task HandleAddDag(Dag dag)
@@ -248,6 +270,34 @@
         var result = await DialogService.OpenAsync<EditDagComponent>("Rediger Dag", parameters);
     }
   
+     
+    private async Task HandleDagReorder(IEnumerable<Dag> newOrder)
+    {
+    // 1) Gem i DB
+        var dto = new DagReorderDto { DagIds = newOrder.Select(t => t.Id).ToList(), OriginalRowVersion = Tur.RowVersion};
+        try
+        {
+            await _TurRepository.ReorderDageAsync(Tur.Id, dto, _token);
+
+            StateHasChanged();
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Dage omrokeret",
+                Detail = "Dage er blevet omrokeret på turen.",
+                Duration = 4000
+            });
+
+        }
+        catch (Exception ex)
+        {
+            await DialogService.Alert($"Fejl: {ex.Message}");
+            return;
+        }
+
+        var dage = await DagRepository.ReadAllDagePåTur(Tur.Id, _token);
+        Dage = new List<Dag>(dage.OrderBy(t => t.Sekvens));
+    }
 
 }
 

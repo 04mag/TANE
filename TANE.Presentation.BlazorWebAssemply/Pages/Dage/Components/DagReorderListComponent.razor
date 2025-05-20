@@ -40,7 +40,7 @@
 @code {
 
     [Parameter, EditorRequired]
-    public ObservableCollection<Dag> InjectedDage { get; set; } = new ObservableCollection<Dag>();
+    public IList<Dag> InjectedDage { get; set; }
 
     [Parameter]
     public EventCallback<Dag> OnSelect { get; set; }
@@ -50,6 +50,9 @@
 
     [Parameter]
     public EventCallback<Dag> OnDelete { get; set; }
+
+    [Parameter]
+    public EventCallback<IEnumerable<Dag>> OnReorder { get; set; }
 
     IList<Dag> selectedDage;
 
@@ -82,17 +85,39 @@
         args.Attributes.Add("title", "Drag row to reorder");
         args.Attributes.Add("style", "cursor:grab");
         args.Attributes.Add("draggable", "true");
-        args.Attributes.Add("ondragover", "event.preventDefault();event.target.closest('.rz-data-row').classList.add('my-class')");
+        args.Attributes.Add("ondragover", "event.preventDefault(); event.target.closest('.rz-data-row').classList.add('my-class')");
         args.Attributes.Add("ondragleave", "event.target.closest('.rz-data-row').classList.remove('my-class')");
-        args.Attributes.Add("ondragstart", EventCallback.Factory.Create<DragEventArgs>(this, () => draggedItem = args.Data));
-        args.Attributes.Add("ondrop", EventCallback.Factory.Create<DragEventArgs>(this, (Action)(() =>
-        {
-            var draggedIndex = this.InjectedDage.IndexOf(draggedItem);
-            var droppedIndex = this.InjectedDage.IndexOf(args.Data);
-            this.InjectedDage.Remove(draggedItem);
-            this.InjectedDage.Insert((int)(draggedIndex <= droppedIndex ? droppedIndex++ : droppedIndex), draggedItem);
+        args.Attributes.Add(
+            "ondragstart",
+            EventCallback.Factory.Create<DragEventArgs>(this, (evt) => draggedItem = args.Data)
+            );
+        args.Attributes.Add("ondrop",
+            EventCallback.Factory.Create<DragEventArgs>(this, async _ =>
+            {
+                if (draggedItem == null) return;
 
-            JSRuntime.InvokeVoidAsync("eval", $"document.querySelector('.my-class').classList.remove('my-class')");
-        })));
+                var draggedIndex = InjectedDage.IndexOf(draggedItem);
+                var droppedIndex = InjectedDage.IndexOf(args.Data);
+
+                if (draggedIndex != droppedIndex)
+                {
+                    InjectedDage.Remove(draggedItem);
+                    InjectedDage.Insert(draggedIndex <= droppedIndex ? droppedIndex++ : droppedIndex, draggedItem);
+                }
+
+                await JSRuntime.InvokeVoidAsync(
+                    "eval",
+                    "document.querySelector('.my-class').classList.remove('my-class')"
+                    );
+                StateHasChanged();
+                if (OnReorder.HasDelegate)
+                {
+                    await OnReorder.InvokeAsync(InjectedDage);
+                }
+                for (int i = 0; i < InjectedDage.Count; i++)
+                    InjectedDage[i].Sekvens = i + 1;
+
+                InjectedDage = InjectedDage.OrderBy(t => t.Sekvens).ToList();
+            }));
     }
 }
