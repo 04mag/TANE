@@ -31,6 +31,8 @@ using TANE.Application.Groups.TurSkabeloner.Queries.Interfaces;
 using TANE.Application.Groups.TurSkabeloner.Queries;
 using TANE.Application.Groups.TurSkabeloner.Commands.Interfaces;
 using TANE.Application.Groups.TurSkabeloner.Commands;
+using TANE.Application.Groups.RejsePlaner.Commands.Interfaces;
+using TANE.Application.Groups.RejsePlaner.Commands;
 
 namespace TANE.Application.Configuration
 {
@@ -69,6 +71,7 @@ namespace TANE.Application.Configuration
             services.AddScoped<IReadDag, ReadDag>();
             services.AddScoped<IReadTur, ReadTur>();
             services.AddScoped<IReadRejseplan, ReadRejseplan>();
+            services.AddScoped<IGeneratePdf, GeneratePdf>();
 
             return services;
         }

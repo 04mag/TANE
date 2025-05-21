@@ -9,6 +9,8 @@ using Microsoft.Extensions.Logging;
 using TANE.Application.RepositoryInterfaces;
 using TANE.Domain.Entities;
 using TANE.Application.Dtos;
+using System.Collections.ObjectModel;
+using System.Text;
 
 namespace TANE.Persistence.Repositories
 {
@@ -53,18 +55,27 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved oprettelse af dag.");
-                throw new Exception("Der opstod en uventet fejl under oprettelsen af dagen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under oprettelsen af dagen.", ex);
             }
         }
 
-        public async Task<bool> DeleteDagAsync(int dagId, string jwtToken)
+        public async Task<bool> DeleteDagAsync(int dagId, byte[] rowVersion, string jwtToken)
         {
             try
             {
                 var client = _factory.CreateClient("rejseplan");
                 SetJwtToken(client, jwtToken);
 
-                var response = await client.DeleteAsync($"dag/{dagId}");
+                // 1) Konverter byte[] til Base64
+                var rowVersionBase64 = Convert.ToBase64String(rowVersion);
+
+                // 2) URL‐escape Base64‐strengen
+                var encoded = Uri.EscapeDataString(rowVersionBase64);
+
+                // 3) Sæt rowVersion på som query‐parameter
+                var requestUri = $"dag/{dagId}?rowVersion={encoded}";
+
+                var response = await client.DeleteAsync(requestUri);
                 return response.IsSuccessStatusCode;
             }
             catch (HttpRequestException ex)
@@ -75,7 +86,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved sletning af dag.");
-                throw new Exception("Der opstod en uventet fejl under sletningen af dagen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under sletningen af dagen.", ex);
             }
         }
 
@@ -98,7 +109,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved hentning af dage.");
-                throw new Exception("Der opstod en uventet fejl under hentning af dagene.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under hentning af dagene.", ex);
             }
         }
 
@@ -120,7 +131,7 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved hentning af dag.");
-                throw new Exception("Der opstod en uventet fejl under hentning af dagen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under hentning af dagen.", ex);
             }
         }
 
@@ -143,7 +154,33 @@ namespace TANE.Persistence.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Uventet fejl ved opdatering af dag.");
-                throw new Exception("Der opstod en uventet fejl under opdatering af dagen.", ex);
+                throw new ArgumentException("Der opstod en uventet fejl under opdatering af dagen.", ex);
+            }
+        }
+
+        public async Task<ObservableCollection<Dag>> ReadAllDagePåTur(int turId, string jwtToken)
+        {
+            try
+            {
+                var client = _factory.CreateClient("rejseplan");
+                SetJwtToken(client, jwtToken);
+
+                var response = await client.GetAsync($"Dag/tur/{turId}");
+                if (!response.IsSuccessStatusCode)
+                    throw new ArgumentException($"Kunne ikke hente dage på tur: {response.StatusCode}.");
+
+                var dtos = await response.Content.ReadFromJsonAsync<ObservableCollection<DagReadDto>>();
+                return _mapper.Map<ObservableCollection<Dag>>(dtos) ?? new ObservableCollection<Dag>();
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "Fejl ved HTTP-opkald under hentning af dage på tur {TurId}.",turId);
+                return new ObservableCollection<Dag>();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Uventet fejl ved hentning af dage på tur.");
+                throw new ArgumentException("Der opstod en uventet fejl under hentning af dage på turen.", ex);
             }
         }
     }

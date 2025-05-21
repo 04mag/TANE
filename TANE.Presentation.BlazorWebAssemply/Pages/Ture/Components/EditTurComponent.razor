@@ -1,9 +1,11 @@
 ﻿@using TANE.Application.Dtos
 @using System.Collections.ObjectModel
 @using TANE.Application.Dtos.Skabeloner
+@using TANE.Application.Groups.DagSkabeloner.Queries.Interfaces
 @using TANE.Application.Groups.Kunder.Queries.Interfaces
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
+@using TANE.Persistence.Repositories
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
 @using TANE.Presentation.BlazorWebAssemply.Pages.Dage.Components
@@ -11,13 +13,18 @@
 @using TANE.Presentation.BlazorWebAssemply.Pages.Skabeloner.DagSkabeloner.Components
 @inject CustomStateProvider AuthStateProvider
 @inject IDagRepository DagRepository
+@inject IReadDagSkabelon ReadDagSkabelon
+@inject ITurRepository _TurRepository
 @inject IReadKunde ReadKunde
 @inject DialogService DialogService
-@inject CustomerState CustomerState
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavManager
+@inject NotificationService NotificationService
+@inject CustomStateProvider AuthProvider
+
 
 
 <div class="rz-p-0 rz-p-md-12">
-    <h4>Rediger tur</h4>
     <RadzenTemplateForm TItem="Tur" Data=@Tur Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
         <RadzenStack Gap="1rem" class="rz-p-sm-12">
             <!-- Titel -->
@@ -70,7 +77,7 @@
             { 
                 
                 <h4>Dage:</h4>
-                <DagReorderListComponent InjectedDage="Observabledage" OnDelete="OnDagDelete"/>
+                <DagReorderListComponent InjectedDage="Observabledage" OnDelete="OnDagDelete" OnReorder="HandleDagReorder" OnEdit="HandleEditDag" />
                 <div style="text-align: right; width: 100%;">
 
                 </div>
@@ -81,6 +88,9 @@
 
             @if (showAddDag)
             {
+                <div style="border: 1px solid #ccc; padding: 1rem; border-radius: 6px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); margin-bottom: 1rem;">
+                    <DagSkabelonListComponent OnSelect="OnDagRowSelect" InjectedSkabeloner="DagSkabeloner"/>
+                </div>
                 <RadzenButton Text="Opret Dag" ButtonType="ButtonType.Button" Click="OpenCreateDagDialog" />
             }
 
@@ -93,12 +103,7 @@
 
 @code{
     Kunde? NyKunde { get; set; }
-    [Inject] 
-    private ITurRepository _TurRepository { get; set; } = default!;
-
-    
-
-    [Parameter]
+   [Parameter]
     public EventCallback<Tur> OnAdd { get; set; }
     [Parameter]
     public EventCallback<Tur> OnEdit { get; set; }
@@ -112,12 +117,14 @@
     [Parameter] 
     public Tur? Tur { get; set; }
 
+    public List<DagSkabelon> DagSkabeloner { get; set; } = new List<DagSkabelon>();
+
 
     [Parameter]
     public EventCallback<Tur> OnCreateTur { get; set; }
 
     [Parameter]
-    public List<Dag> InjectedDage { get; set; } = new List<Dag>();
+    public ObservableCollection<Dag> InjectedDage { get; set; } = new ObservableCollection<Dag>();
     
     string selectedCustomerEmail;  // Variable to hold selected customer email
     private string? _token;
@@ -143,15 +150,38 @@
 
     protected override async Task OnInitializedAsync()
     {
-     
+
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         _token = AuthStateProvider.CurrentUser.Token;
 
         showAddDag = false;
+
+        Observabledage = InjectedDage;
+
+        // henter skabeloner 
+       DagSkabeloner = await ReadDagSkabelon.ReadAllDagSkabelonerAsync(_token);
+
     }
 
     async Task OnSubmit()
     {
+        NotificationService.Notify(new NotificationMessage()
+        {
+            Severity = NotificationSeverity.Success,
+            Summary = "Tur opdateret",
+            Detail = $"Turen {Tur.Titel} er opdateret.",
+            Duration = 4000
+        });
+
+        await AuthProvider.RefreshTokenAsync(NavManager, NotificationService);
+
+        foreach (var dag in Observabledage)
+        {
+            if (dag.Id == 0)
+            {
+                await DagRepository.CreateDagAsync(dag, _token);
+            }
+        }
         await _TurRepository.UpdateTur(Tur.Id, Tur, _token);
         DialogService.Close();
     }
@@ -163,25 +193,67 @@
 
     private async Task OnDagRowSelect(DagSkabelon dagSkabelon)
     {
+    // mapping fra DagSkabelon til Dag
+        var dag = new Dag
+        {
+
+            Titel = dagSkabelon.Titel,
+            Beskrivelse = dagSkabelon.Beskrivelse,
+            Aktiviteter = dagSkabelon.Aktiviteter,
+            Måltider = dagSkabelon.Måltider,
+            Overnatning = dagSkabelon.Overnatning,
+            Sekvens = Observabledage.Count,
+            TurId = Tur.Id
+
+        };
+
+    // tilføj dag til Tur
+       await DagRepository.CreateDagAsync(dag, _token);
+
+    // tilføj dag til ObservableCollection (for UI opdatering))
+      Observabledage = await DagRepository.ReadAllDagePåTur(Tur.Id, _token);
+        StateHasChanged();
+        showAddDag = false;
       
     }
 
 
-    private void OnDagDelete(Dag Dag)
+    private async Task OnDagDelete(Dag Dag)
     {
+        bool confirmed;
+        try
+        {
+            confirmed = await JSRuntime.InvokeAsync<bool>(
+                "confirm", $"Er du sikker på, at du vil fjerne dagen ''{Dag.Titel}'' fra turen ''{Tur.Titel}''? Handlingen kan IKKE fortrydes!");
+        }
+        catch (Exception jsEx)
+        {
+            await DialogService.Alert($"Beklager, dialogen kunne ikke vises: {jsEx.Message}");
+            return;
+        }
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+
+        try
+        {
+            var deleteDagAsync = await DagRepository.DeleteDagAsync(Dag.Id, Dag.RowVersion, _token);
+        }
+        catch (Exception ex)
+        {
+            await DialogService.Alert($"Fejl under sletning: {ex.Message}");
+            return;
+        }
+
         Observabledage.Remove(Dag);
     }
 
     private async Task HandleAddDag(Dag dag)
     {
-        Observabledage.Add(new Dag
-        {
-            Titel = dag.Titel,
-            Beskrivelse = dag.Beskrivelse,
-            Aktiviteter = dag.Aktiviteter,
-            Måltider = dag.Måltider,
-            Overnatning = dag.Overnatning,
-        });
+        Observabledage.Add(dag);
         showAddDag = false;
     }
 
@@ -189,13 +261,54 @@
     {
         var parameters = new Dictionary<string, object>
         {
-            { "OnAdd", EventCallback.Factory.Create<Dag>(this, HandleAddDag) }
+            { "OnAdd", EventCallback.Factory.Create<Dag>(this, HandleAddDag) },
+            { "TurId", Tur.Id }
         };
 
     // Åbner CreateDagComponent i en dialog
         var result = await DialogService.OpenAsync<CreateDagComponent>("Opret Ny Dag", parameters);
     }
+
+    private async Task HandleEditDag(Dag dag)
+    {
+       var parameters = new Dictionary<string, object>
+        {
+           
+            { "Dag", dag }
+        };
+
+        // Åbner EditDagComponent i en dialog
+        var result = await DialogService.OpenAsync<EditDagComponent>("Rediger Dag", parameters);
+    }
   
+     
+    private async Task HandleDagReorder(IEnumerable<Dag> newOrder)
+    {
+    // 1) Gem i DB
+        var dto = new DagReorderDto { DagIds = newOrder.Select(t => t.Id).ToList(), OriginalRowVersion = Tur.RowVersion};
+        try
+        {
+            await _TurRepository.ReorderDageAsync(Tur.Id, dto, _token);
+
+            StateHasChanged();
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Dage omrokeret",
+                Detail = "Dage er blevet omrokeret på turen.",
+                Duration = 4000
+            });
+
+        }
+        catch (Exception ex)
+        {
+            await DialogService.Alert($"Fejl: {ex.Message}");
+            return;
+        }
+
+        var dage = await DagRepository.ReadAllDagePåTur(Tur.Id, _token);
+        Dage = new List<Dag>(dage.OrderBy(t => t.Sekvens));
+    }
 
 }
 

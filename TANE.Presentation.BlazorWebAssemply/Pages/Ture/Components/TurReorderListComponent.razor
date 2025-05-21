@@ -84,7 +84,7 @@
       
     }
 
-   async void HandleEdit(Tur tur)
+   void HandleEdit(Tur tur)
     {
         var pas = new Tur
         {
@@ -121,7 +121,7 @@
         await OnDelete.InvokeAsync(tur);
     }
 
-    async void RowRender(RowRenderEventArgs<Tur> args)
+     void RowRender(RowRenderEventArgs<Tur> args)
     {
         args.Attributes.Add("title", "Drag row to reorder");
         args.Attributes.Add("style", "cursor:grab");

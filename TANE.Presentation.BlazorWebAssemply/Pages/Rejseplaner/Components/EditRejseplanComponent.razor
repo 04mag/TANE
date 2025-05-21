@@ -3,6 +3,7 @@
 @using TANE.Application.Dtos.Skabeloner
 @using TANE.Application.Dtos.TurDagRejseplan
 @using TANE.Application.Groups.Kunder.Queries.Interfaces
+@using TANE.Application.Groups.TurSkabeloner.Queries.Interfaces
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
 @using TANE.Persistence.Repositories
@@ -13,11 +14,13 @@
 @inject DialogService DialogService
 @inject CustomStateProvider AuthStateProvider
 @inject ITurRepository TurRepository
+@inject IReadTurSkabelon ReadTurSkabelon
 @inject IReadKunde ReadKunde
 @inject IRejseplanRepository RejseplanRepository
 @inject IJSRuntime JSRuntime
 @inject NotificationService NotificationService
-<RadzenDialog />
+@inject IDagRepository DagRepository
+
 
 <div class="rz-p-0 rz-p-md-12">
   <h4>Rediger Rejseplan</h4>
@@ -129,19 +132,6 @@
               </ul>
           </ChildContent>
       </RadzenFormField> *@
-
-      <h4>Vælg ture:</h4>
-            <TurReorderListComponent InjectedTure="RejseplanTure" OnDelete="OnTurDelete" OnReorder="HandleTurReorder" OnEdit="HandleEdit" />
-      <div style="text-align: right; width: 100%;">
-        <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Medium"
-                      Style="width:150px" Text="Tilføj Tur"
-                      Click="@(() => showAddTur = !showAddTur)" />
-      </div>
-      @if (showAddTur)
-      {
-                <TurSkabelonListComponent OnSelect="OnTurRowSelect" />
-      }
-
       <div class="flex gap-2 mt-4">
         <RadzenButton ButtonType="ButtonType.Submit"
                       Size="ButtonSize.Large"
@@ -153,6 +143,31 @@
                       Style="width:200px"
                       Click="CancelEdit" />
       </div>
+
+      <h4>Vælg ture:</h4>
+            <TurReorderListComponent InjectedTure="RejseplanTure" OnDelete="OnTurDelete" OnReorder="HandleTurReorder" OnEdit="HandleEdit" />
+      <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:1rem;">
+          <!-- Venstre knap -->
+          <RadzenButton 
+              ButtonType="ButtonType.Button" 
+              Size="ButtonSize.Medium"
+              Style="width:150px" 
+              Text="Vælg tur-skabelon"
+              Click="@(() => showAddTur = !showAddTur)" />
+
+          <!-- Højre knap -->
+          <RadzenButton 
+              ButtonType="ButtonType.Button"
+              Size="ButtonSize.Medium"
+              Text="Ny tur"
+              Style="background-color:greenyellow;"
+              Click="OpenCreateTurDialog" />
+      </div>
+      @if (showAddTur)
+      {
+                <TurSkabelonListComponent OnSelect="OnTurRowSelect" InjectedSkabeloner="TurSkabeloner" />
+      }
+
     </RadzenStack>
   </RadzenTemplateForm>
 </div>
@@ -177,23 +192,47 @@
 
     ObservableCollection<Tur> RejseplanTure { get; set; } = new ObservableCollection<Tur>();
     private List<int> _originalTurIds = new();
+    List<TurSkabelon> TurSkabeloner = new List<TurSkabelon>();
+
     protected override async Task OnInitializedAsync()
     {
+    // 1) Auth + token
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
         _token = AuthStateProvider.CurrentUser.Token;
+
+    // 2) Hent kunder
         Kunder = await ReadKunde.GetAllKunderAsync(_token);
-    // din repo returnerer en ObservableCollection<Tur>
-        var obs = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
 
-    // konverter til List<Tur>
-        TurVar = (await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token))
-            .ToList();
+        await LoadTure();
 
+        // 3) Hent skabeloner
+        TurSkabeloner = await ReadTurSkabelon.ReadAllTurSkabelonerAsync(_token);
+    }
 
-        var ture = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
-        RejseplanTure = new ObservableCollection<Tur>(ture.OrderBy(t => t.Sekvens));
-        _originalTurIds = ture.Select(t => t.Id).ToList();
+    private async Task LoadTure()
+    {
+    // 3) Hent alle ture *én* gang og konverter til List<Tur>
+        var alleTure = await TurRepository.ReadAllTurePåRejseplan(Item.Id, _token);
+        var tureListe = alleTure.ToList();
 
+    // 4) Gem til generel brug
+        TurVar = tureListe;
+
+    // 5) Byg en ObservableCollection, ordnet efter (evt. gammel) Sekvens
+        RejseplanTure = new ObservableCollection<Tur>(
+            tureListe.OrderBy(t => t.Sekvens)
+            );
+
+    // 6) Renummerér Sekvens til 1,2,3… i stedet for 0,1,2…
+        for (int i = 0; i < RejseplanTure.Count; i++)
+        {
+            RejseplanTure[i].Sekvens = i + 1;
+        }
+
+    // 7) Husk de originale Id’er, hvis du skal sammenligne senere
+        _originalTurIds = tureListe.Select(t => t.Id).ToList();
+
+        StateHasChanged();
     }
 
     // Kunde-søgning
@@ -213,6 +252,7 @@
     private ObservableCollection<Tur> SelectedtureVar = new();
 
     public ObservableCollection<Tur>? Observableture;
+    public ObservableCollection<Dag>? dage;
 
     private List<Tur> TurVar;
 
@@ -239,7 +279,7 @@
             .Where(t => t.Id == 0 || !_originalTurIds.Contains(t.Id))
             .ToList();
 
-    // 3) Tilføj dem enkeltvist
+
         foreach (var tur in nyeTure)
         {
             var dto = new TurAssignDto
@@ -250,16 +290,16 @@
             await RejseplanRepository.AddTurToRejseplanAsync(dto, _token);
         }
 
-    // 4) Hvis du har ændret rækkefølge, så reorder:
+    //Reorder
         var reorderDto = new TurReorderDto
         {
-            TurIds     = RejseplanTure.Select(t => t.Id).ToList(),
-            RowVersion = model.RowVersion
+            TurIds = RejseplanTure.Select(t => t.Id).ToList(),
+            OriginalRowVersion = model.RowVersion
         };
         await RejseplanRepository.ReorderTureAsync(model.Id, reorderDto, _token);
 
-    // 5) Opdater resten af rejseplanen uden at sende Ture-listen (så du undgår at lave double inserts)
-        model.Ture = null;  
+    // Opdater resten af rejseplanen uden at sende Ture-listen (så du undgår at lave double inserts)
+        model.Ture = null;
         await RejseplanRepository.UpdateRejseplan(model.Id, model, _token);
 
         await OnSaved.InvokeAsync(model);
@@ -278,7 +318,7 @@
         customerSearchTerm = $"{c.Fornavn} {c.Efternavn}";
     }
 
-    private async Task OnTurRowSelect(TurSkabelon turSkabelon)
+    private async void OnTurRowSelect(TurSkabelon turSkabelon)
     {
         var tur = new Tur
         {
@@ -288,7 +328,8 @@
             RejseplanId = Item.Id
         };
         tur.Sekvens = RejseplanTure.Count == 0 ? 1 : RejseplanTure.Max(t => t.Sekvens) + 1;
-        RejseplanTure.Add(tur);
+        await TurRepository.CreateTur(tur, _token);
+        await LoadTure();
     }
 
     private async void OnTurDelete(Tur tur)
@@ -310,7 +351,7 @@
             return;
         }
 
-        bool succeeded;
+
         try
         {
             await RejseplanRepository.RemoveTurFromRejseplanAsync(Item.Id, tur.Id, _token);
@@ -333,11 +374,11 @@
             SelectCustomer(nyKunde);
         }
     }
-
+    
     private async Task HandleTurReorder(IEnumerable<Tur> newOrder)
     {
       // 1) Gem i DB
-        var dto = new TurReorderDto { TurIds = newOrder.Select(t => t.Id).ToList(), RowVersion = Item.RowVersion};
+        var dto = new TurReorderDto { TurIds = newOrder.Select(t => t.Id).ToList(), OriginalRowVersion = Item.RowVersion};
         try
         {
             await RejseplanRepository.ReorderTureAsync(Item.Id, dto, _token);
@@ -362,12 +403,14 @@
           RejseplanTure = new ObservableCollection<Tur>(ture.OrderBy(t => t.Sekvens));
     }
 
-    private void HandleEdit(Tur tur)
+    private async void HandleEdit(Tur tur)
     {
+        dage = await DagRepository.ReadAllDagePåTur(tur.Id, _token);
         var parameters = new Dictionary<string, object>
         {
             { "Tur", tur },
-            { "OnSaved", EventCallback.Factory.Create<Tur>(this, OnSave) }
+            { "OnSaved", EventCallback.Factory.Create<Tur>(this, OnSave) },
+            { "InjectedDage", dage }
         };
 
         DialogService.Open<EditTurComponent>("Rediger Tur", parameters);
@@ -380,7 +423,44 @@
         {
             RejseplanTure[index] = tur;
         }
-
     }
 
+    
+    private async Task OpenCreateTurDialog()
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "OnCreateTur", EventCallback.Factory.Create<Tur>(this, HandleCreateTur) }
+            
+        };
+        var options = new DialogOptions
+        {
+            Width = "90vw",    
+            Height = "90vw",   
+            Resizable = true    // gør den kan flyttes/størrelsesændres, hvis ønsket
+        };
+
+    // Åbner CreateDagComponent i en dialog
+        var result = await DialogService.OpenAsync<CreateTurComponent>("Opret Ny Tur", parameters, options);
+    }
+
+    private async Task HandleCreateTur(Tur tur)
+    {
+        tur.Sekvens = Item.Ture.Count + 1;
+        tur.RejseplanId = Item.Id;
+        Item.Ture.Add(tur);
+        RejseplanTure.Add(new Tur
+        {
+            Titel = tur.Titel,
+            Beskrivelse = tur.Beskrivelse,
+            TurStartTidspunkt = DateTime.Today,
+            TurSlutTidspunkt = DateTime.Today.AddDays(7),
+                Sekvens = RejseplanTure.Count + 1
+        });
+
+        await TurRepository.CreateTur(tur, _token);
+        await LoadTure();
+
+        showAddTur = false;
+    }
 }

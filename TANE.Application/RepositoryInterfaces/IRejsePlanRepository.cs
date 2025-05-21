@@ -19,5 +19,7 @@ namespace TANE.Application.RepositoryInterfaces
         Task AddTurToRejseplanAsync(TurAssignDto assignDto, string jwtToken);
         Task ReorderTureAsync(int rejseplanId, TurReorderDto newOrder, string jwtToken);
         Task RemoveTurFromRejseplanAsync(int rejseplanId, int turId, string jwtToken);
+
+        Task<HttpResponseMessage> GetRejseplanPdf(Rejseplan rejseplan, string jwtToken);
     }
 }

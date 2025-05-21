@@ -13,6 +13,7 @@
         public DateTime? TurStartTidspunkt { get; set; } = DateTime.Today;
         public DateTime? TurSlutTidspunkt { get; set; } = DateTime.Today.AddDays(7);
 
+        public int? RejseplanId { get; set; }
         public int? Sekvens{ get; set; }
     }
 }

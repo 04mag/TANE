@@ -2,8 +2,10 @@
 @using System.Collections.ObjectModel
 @using TANE.Application.Dtos.Skabeloner
 @using TANE.Application.Groups.Kunder.Queries.Interfaces
+@using TANE.Application.Groups.TurSkabeloner.Queries.Interfaces
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
+@using TANE.Persistence.Repositories
 @using TANE.Presentation.BlazorWebAssemply.Configuration
 @using TANE.Presentation.BlazorWebAssemply.Pages.Kunder.Component
 @using TANE.Presentation.BlazorWebAssemply.Pages.Ture.Components
@@ -12,6 +14,8 @@
 @inject CustomStateProvider AuthStateProvider
 @inject ITurRepository TurRepository
 @inject IReadKunde ReadKunde
+@inject ITurSkabelonRepository TurSkabelonRepository
+@inject IReadTurSkabelon ReadTurskabelon
 @inject DialogService DialogService
 @inject CustomerState CustomerState
 @inject NotificationService NotificationService
@@ -150,8 +154,8 @@
                             border-radius:6px;
                             box-shadow:0 2px 4px rgba(0,0,0,0.1);
                             margin-bottom:1rem;">
-                    <TurSkabelonListComponent OnSelect="OnTurRowSelect" 
-                        OnCreateTur="HandleCreateTur"/>
+                    <TurSkabelonListComponent OnSelect="OnTurRowSelect" InjectedSkabeloner="TurSkabeloner"
+                        />
                 </div>
             }
 
@@ -170,6 +174,7 @@
     [Inject] private IKundeRepository KundeRepository { get; set; } = default!;
 
     private List<Kunde> Kunder = new List<Kunde>();
+    List<TurSkabelon> TurSkabeloner = new List<TurSkabelon>();
 
     private EventCallback<Rejseplan> OnCreate { get; set; } = default!;
 
@@ -196,14 +201,13 @@
 
     public Rejseplan Rejseplan { get; set; } = new Rejseplan();
 
-    
-
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         _token = AuthStateProvider.CurrentUser.Token;
 
         Kunder = await ReadKunde.GetAllKunderAsync(_token);
+        TurSkabeloner = await  ReadTurskabelon.ReadAllTurSkabelonerAsync(_token);
 
         Rejseplan = new Rejseplan();
         Rejseplan.Ture = new List<Tur>();
@@ -238,7 +242,7 @@
 
     }
 
-    private async Task OnTurRowSelect(TurSkabelon turSkabelon)
+    private void OnTurRowSelect(TurSkabelon turSkabelon)
     {
         var tur = new Tur
         {
@@ -342,7 +346,7 @@
         var result = await DialogService.OpenAsync<CreateTurComponent>("Opret Ny Tur", parameters, options);
     }
 
-    private async Task HandleEditTur(Tur tur)
+    private void HandleEditTur(Tur tur)
     {
        var edit = Rejseplan.Ture.FirstOrDefault(t => t.Sekvens == tur.Sekvens);
         edit.Titel = tur.Titel;

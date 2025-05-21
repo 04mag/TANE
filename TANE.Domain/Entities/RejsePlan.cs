@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,11 +20,11 @@ namespace TANE.Domain.Entities
         public double? FlyPris { get; set; }
         public int? AntalDage { get; set; }
         public double? TotalPris { get; set; }
-        public DateTime? AfrejseTidspunkt { get; set; }
+        public DateTime AfrejseTidspunkt { get; set; }
 
         // Liste af ture tilknyttet bookingen
 
-        public List<Tur>? Ture { get; set; } = new();
+        public List<Tur> Ture { get; set; } = new();
         // Status‐flags
         public string OpfølgningNote { get; set; } 
         public Status? RejseplanStatus { get; set; }
@@ -40,5 +41,31 @@ namespace TANE.Domain.Entities
         }
         [Timestamp]
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+
+        public int GetAntalOvernatninger()
+        {
+            return Ture.Sum(t => t.GetAntalOvernatninger());
+        }
+
+        public DateTime GetHjemRejseDag()
+        {
+            return AfrejseTidspunkt.AddDays(GetAntalDage());
+        }
+
+        public int GetAntalDage()
+        {
+            return Ture.Sum(t => t.GetAntalDage());
+        }
+
+        public double GetTotalPrisUdenFly()
+        {
+            return Ture.Sum(t => t.Pris);
+        }
+
+        public string PrintTotalPrisPrPerson()
+        {
+            double totalPris = GetTotalPrisUdenFly() + (FlyPris ?? 0);
+            return totalPris.ToString("C", new CultureInfo("da-DK"));
+        }
     }
 }

@@ -1,0 +1,160 @@
+﻿@using TANE.Application.Groups.Rejseplaner.Queries.Interfaces
+@using TANE.Application.RepositoryInterfaces
+@using TANE.Domain.Entities
+
+@inject NavigationManager NavigationManager
+@inject CustomStateProvider AuthStateProvider
+@inject NotificationService NotificationService
+@inject IReadRejseplan ReadRejsePlan
+@inject IDagRepository DagRepository
+
+
+@page "/rejseplaner/overview/{Id:int}"
+
+
+@if (Model == null)
+{
+    <h3>Indlæser...</h3>
+}
+else
+{
+    <div class="w-100">
+        <!-- Hero Section -->
+        <div class="position-relative w-100" style="height: 16rem; background-color: #5c4130">
+
+            <!-- Download-knap -->
+            <div class="position-absolute top-0 end-0 m-3">
+                <GeneratePdfComponent Rejseplan="Model" />
+            </div>
+
+            <!-- Tekstindhold -->
+            <div class="position-absolute top-50 start-50 translate-middle text-center text-white">
+                <h1 class="display-1 fw-bold">Rejseplanen</h1>
+                <h2 class="h3 fw-semibold">til dit livs oplevelse</h2>
+            </div>
+        </div>
+
+
+        @{
+            int count = 1;
+        }
+
+        <div class="w-100">
+            @foreach (var tur in Model.Ture)
+            {
+                //Opret div container for at vise tur titel, beskrivelse og pris
+                <div class="bg-dark text-white p-4 page-break-inside-avoid">
+                    <h2 class="h2 fw-bold">Tur @tur.Sekvens - @tur.Titel</h2>
+                    @if (!string.IsNullOrEmpty(tur.Beskrivelse))
+                    {
+                        <p>@tur.Beskrivelse</p>
+                    }
+                    <p class="fw-semibold">Pris: @tur.Pris.ToString("N2") DKK</p>
+                </div>
+
+                @foreach (var dag in tur.Dage!)
+                {
+                    <div class="page-break-inside-avoid">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="p-3" style="background-color: #FDC879">
+                                    <h2 class="h3 fw-semibold text-dark">Dag @count - @dag.Titel</h2>
+                                </div>
+                            </div>
+
+                            @if (string.IsNullOrEmpty(dag.Aktiviteter) && string.IsNullOrEmpty(dag.Måltider) && string.IsNullOrEmpty(dag.Overnatning))
+                            {
+                                <div class="col-12">
+                                    <p class="p-3 text-dark">@dag.Beskrivelse</p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-md-7">
+                                    <p class="p-3 text-dark">@dag.Beskrivelse</p>
+                                </div>
+                            }
+
+                            <div class="col-md-5 p-3">
+                                @if (!string.IsNullOrEmpty(dag.Aktiviteter))
+                                {
+                                    <div class="border-start border-2 border-dark ps-3 mb-3">
+                                        <h3 class="h5 fw-semibold">Aktiviteter</h3>
+                                        <p>@dag.Aktiviteter</p>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(dag.Måltider))
+                                {
+                                    <div class="border-start border-2 border-dark ps-3 mb-3">
+                                        <h3 class="h5 fw-semibold">Måltider</h3>
+                                        <p>@dag.Måltider</p>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(dag.Overnatning))
+                                {
+                                    <div class="border-start border-2 border-dark ps-3 mb-3">
+                                        <h3 class="h5 fw-semibold">Overnatning</h3>
+                                        <p>@dag.Overnatning</p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    count++;
+                }
+            }
+
+            <!-- Summary Section -->
+            <div class="bg-dark text-white p-4 page-break-inside-avoid">
+                <h1 class="h4 fw-semibold mb-4">Rejse oversigt</h1>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <h5>Start dato</h5>
+                        <p>@Model.AfrejseTidspunkt.ToShortDateString()</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Slut dato</h5>
+                        <p>@Model.GetHjemRejseDag().ToShortDateString()</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Antal rejsedage</h5>
+                        <p>@Model.GetAntalDage() dage / @Model.GetAntalOvernatninger() overnatninger</p>
+                    </div>
+                </div>
+                <h2 class="h5 text-decoration-underline">Pris/person: @Model.PrintTotalPrisPrPerson()</h2>
+            </div>
+        </div>
+    </div>
+
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public int Id { get; set; }
+
+    public Rejseplan? Model { get; set; } = null;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+
+        try
+        {
+            var result = await ReadRejsePlan.ReadRejseplanByIdAsync(Id, AuthStateProvider.CurrentUser.Token);
+
+            Model = result;
+
+            foreach (var tur in Model.Ture)
+            {
+                var dageObservable = await DagRepository.ReadAllDagePåTur(tur.Id, AuthStateProvider.CurrentUser.Token);
+
+                tur.Dage = dageObservable.ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Fejl ved indlæsning af rejseplan.");
+        }
+
+    }
+}

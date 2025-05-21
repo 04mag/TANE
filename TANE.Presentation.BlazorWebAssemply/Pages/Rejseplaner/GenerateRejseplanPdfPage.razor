@@ -1,0 +1,56 @@
+﻿@using Microsoft.JSInterop
+@using TANE.Application.Groups.RejsePlaner.Commands.Interfaces
+@using TANE.Application.Groups.Rejseplaner.Queries.Interfaces
+@using TANE.Application.RepositoryInterfaces
+@using TANE.Domain.Entities
+
+@inject NavigationManager NavigationManager
+@inject CustomStateProvider AuthStateProvider
+@inject NotificationService NotificationService
+@inject IReadRejseplan ReadRejsePlan
+@inject IDagRepository DagRepository
+@inject IGeneratePdf GeneratePdf
+@inject IJSRuntime JSRuntime
+
+@page "/rejseplaner/pdf/{Id:int}"
+
+
+@code {
+    [Parameter, EditorRequired]
+    public int Id { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+
+        try
+        {
+            var result = await ReadRejsePlan.ReadRejseplanByIdAsync(Id, AuthStateProvider.CurrentUser.Token);
+
+            foreach (var tur in result.Ture)
+            {
+                var dageObservable = await DagRepository.ReadAllDagePåTur(tur.Id, AuthStateProvider.CurrentUser.Token);
+
+                tur.Dage = dageObservable.ToList();
+            }
+
+            var responseMessage = await GeneratePdf.GeneratePdfFromRejseplanAsync(result, AuthStateProvider.CurrentUser.Token);
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var pdfBytes = await responseMessage.Content.ReadAsByteArrayAsync();
+                var fileName = $"Rejseplan_{Id}.pdf";
+                await JSRuntime.InvokeVoidAsync(
+                    "blazorDownloadFile",
+                    fileName,
+                    "application/pdf",
+                    Convert.ToBase64String(pdfBytes)
+                );
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Fejl ved indlæsning af rejseplan.");
+        }
+    }
+}

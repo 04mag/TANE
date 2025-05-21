@@ -1,34 +1,33 @@
-﻿@page "/rejseplaner"
+﻿@page "/ture"
 @using TANE.Application.Dtos
-@using TANE.Application.Groups.Rejseplaner.Queries.Interfaces
+@using TANE.Application.Groups.Ture.Queries.Interfaces
 @using TANE.Application.RepositoryInterfaces
 @using TANE.Domain.Entities
-@using TANE.Presentation.BlazorWebAssemply.Pages.Rejseplaner.Components
-@inject IReadRejseplan ReadRejseplan
+@using TANE.Presentation.BlazorWebAssemply.Pages.Ture.Components
+@inject IReadTur ReadTur
 @inject CustomStateProvider AuthStateProvider
-@inject IRejseplanRepository RejseplanRepository
+@inject ITurRepository TurRepository
 @inject Radzen.DialogService DialogService
-@inject NavigationManager NavigationManager
 
-<h3>Rejseplaner</h3>
+<h3>Ture</h3>
 
 <RadzenButton Icon="add_circle"
               Style="margin-bottom:10px"
-              Text="Ny Rejseplan"
+              Text="Ny Tur"
               Click="CreateNew" />
 
-<RejseplanListComponent Data="AlleRejseplaner" OnEdit="BeginEdit" OnSelect="OnSelct" />
+<TurListComponent Data="AlleTure" OnEdit="BeginEdit" />
 
 @code {
-    private List<Rejseplan> AlleRejseplaner = new();
-    private Rejseplan SelectedRejseplan = default!;
+    private List<Tur> AlleTure = new();
+    private Tur SelectedTur = default!;
     private string _token = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
         _token = AuthStateProvider.CurrentUser.Token;
-        AlleRejseplaner = (await ReadRejseplan.ReadRejseplanerAsync(_token)).ToList();
+        AlleTure = (await ReadTur.ReadAllTureAsync(_token)).ToList();
     }
 
     async void CreateNew()
@@ -36,13 +35,13 @@
 
         var parameters = new Dictionary<string, object>()
         {
-            { "InjectedTure", AlleRejseplaner },
+            { "InjectedTure", AlleTure },
             {"OnCreate", HandleCreate}
         };
 
-        var result = await DialogService.OpenAsync<CreateRejseplanComponent>(
+        var result = await DialogService.OpenAsync<CreateTurComponent>(
             title: "Ny rejseplan",
-
+          
             options: new DialogOptions {   
                 Width      = "80vw",       // 80% af viewport‐bredden
                 Height     = "90vh",       // 90% af viewport‐højden
@@ -50,35 +49,30 @@
                 Draggable  = true,         // kan flyttes rundt
             } 
             );
-        if (result is Rejseplan nyPlan)
+        if (result is Tur nyPlan)
         {
-            await RejseplanRepository.CreateRejseplan(nyPlan, _token);
-            AlleRejseplaner = (await ReadRejseplan.ReadRejseplanerAsync(_token)).ToList();
+           await TurRepository.CreateTur(nyPlan, _token);
+            AlleTure = (await ReadTur.ReadAllTureAsync(_token)).ToList();
             StateHasChanged();
-
+        
         }
 
     }
 
-    void HandleCreate(Rejseplan rejseplan)
+    void HandleCreate(Tur rejseplan)
     {
         DialogService.Close();
     }
 
-    void BeginEdit(Rejseplan plan)
+    void BeginEdit(Tur plan)
     {
-        SelectedRejseplan = plan;
+        SelectedTur = plan;
         OpenEditDialog(plan);
     }
 
-    void OnSelct(Rejseplan plan)
+    async void OpenEditDialog(Tur plan)
     {
-        NavigationManager.NavigateTo($"/rejseplaner/overview/{plan.Id}");
-    }
-
-    async void OpenEditDialog(Rejseplan plan)
-    {
-        var result = await DialogService.OpenAsync<EditRejseplanComponent>(
+        var result = await DialogService.OpenAsync<EditTurComponent>(
             title: plan.Id == 0 ? "Ny rejseplan" : "Rediger rejseplan",
             parameters: new Dictionary<string, object> {
                 ["Item"]      = plan,
@@ -93,34 +87,41 @@
         );
 
         // Når dialogen lukkes, returnerer vi evt. den opdaterede DTO
-        if (result is Rejseplan dto)
+        if (result is Tur dto)
         {
             await SaveEdit(dto);
             StateHasChanged();  // Genrend listen
         }
     }
 
-    async Task SaveEdit(Rejseplan dto)
+    async Task SaveEdit(Tur dto)
     {
-        dto.RowVersion = SelectedRejseplan.RowVersion;
-        await RejseplanRepository.UpdateRejseplan(dto.Id, dto, _token);
+        dto.RowVersion = SelectedTur.RowVersion;
+        await TurRepository.UpdateTur(dto.Id, dto, _token);
 
-        var idx = AlleRejseplaner.FindIndex(r => r.Id == dto.Id);
+        var idx = AlleTure.FindIndex(r => r.Id == dto.Id);
         if (idx >= 0)
         {
-            AlleRejseplaner[idx] = new Rejseplan
+            AlleTure[idx] = new Tur
             {
-                Id               = dto.Id,
-                KundeId          = dto.KundeId,
+                Id               = dto.Id, 
+                TurStartTidspunkt = dto.TurStartTidspunkt,
                 Titel            = dto.Titel,
                 Beskrivelse      = dto.Beskrivelse,
-                AntalVoksne      = dto.AntalVoksne,
-                AntalBørn        = dto.AntalBørn,
-                Lufthavn         = dto.Lufthavn,
-                FlyPris          = dto.FlyPris,
-                AntalDage        = dto.AntalDage,
-                AfrejseTidspunkt = dto.AfrejseTidspunkt,
-                RowVersion       = dto.RowVersion,
+                TurSlutTidspunkt = dto.TurSlutTidspunkt,
+                Pris = dto.Pris,
+                Dage = dto.Dage?.Select(d => new Dag
+                {
+                    Id = d.Id,
+                    Titel = d.Titel,
+                    Beskrivelse = d.Beskrivelse,
+                    Sekvens = d.Sekvens,
+                    Aktiviteter = d.Aktiviteter,
+                    Måltider = d.Måltider,
+                    Overnatning = d.Overnatning,
+                }).ToList(),
+                Sekvens = dto.Sekvens,
+                RejseplanId = dto.RejseplanId,
             };
         }
     }
