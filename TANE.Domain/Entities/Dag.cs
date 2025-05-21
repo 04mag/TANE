@@ -20,5 +20,17 @@ namespace TANE.Domain.Entities
         public int? TurId { get; set; } // FK til Tur
         [Timestamp]
         public byte[] RowVersion { get; set; } // Til optimistic concurrency
+
+        public int GetAntalOvernatninger()
+        {
+            if (string.IsNullOrEmpty(Overnatning))
+            {
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
+        }
     }
 }

@@ -22,6 +22,16 @@ namespace TANE.Domain.Entities
         public int? RejseplanId { get; set; } // FK til Rejseplan
         [Timestamp]
         public byte[] RowVersion { get; set; }
+
+        public int GetAntalOvernatninger()
+        {
+            return Dage?.Sum(d => d.GetAntalOvernatninger()) ?? 0;
+        }
+
+        public int GetAntalDage()
+        {
+            return Dage?.Count ?? 0;
+        }
     }
 }
 
