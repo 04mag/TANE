@@ -49,6 +49,12 @@ namespace TANE.Persistence.Configuration
                 {
                     client.BaseAddress = new Uri(baseAddress, "kunde/");
                 });
+            services.AddHttpClient(
+                "rejseplanpdf",
+                client =>
+                {
+                    client.BaseAddress = new Uri(baseAddress, "rejseplanpdf/");
+                });
 
             //Repositories
             services.AddScoped<IDagRepository, DagRepository>();

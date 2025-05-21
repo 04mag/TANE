@@ -224,5 +224,13 @@ namespace TANE.Persistence.Repositories
                 throw new ArgumentException("Der opstod en uventet fejl under fjernelse af tur fra rejseplan.", ex);
             }
         }
+
+        public async Task<HttpResponseMessage> GetRejseplanPdf(Rejseplan rejseplan, string jwtToken)
+        {
+            var client = _factory.CreateClient("rejseplanpdf");
+            SetJwtToken(client, jwtToken);
+
+            return await client.PostAsJsonAsync("api/PdfCreator", rejseplan);
+        }
     }
 }
