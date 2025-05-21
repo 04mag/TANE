@@ -20,15 +20,20 @@ else
 {
     <div class="w-100">
         <!-- Hero Section -->
-        <div class="position-relative w-100">
-            <img src="https://images.unsplash.com/photo-1553276947-408abd403dc5?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                 class="img-fluid w-100" style="height: 16rem; object-fit: cover;" alt="Random image">
-            <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50 rounded"></div>
-            <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center text-white">
+        <div class="position-relative w-100" style="height: 16rem; background-color: #5c4130">
+
+            <!-- Download-knap -->
+            <div class="position-absolute top-0 end-0 m-3">
+                <GeneratePdfComponent Rejseplan="Model" />
+            </div>
+
+            <!-- Tekstindhold -->
+            <div class="position-absolute top-50 start-50 translate-middle text-center text-white">
                 <h1 class="display-1 fw-bold">Rejseplanen</h1>
-                <h2 class="h4 fw-semibold">til dit livs oplevelse</h2>
+                <h2 class="h3 fw-semibold">til dit livs oplevelse</h2>
             </div>
         </div>
+
 
         @{
             int count = 1;

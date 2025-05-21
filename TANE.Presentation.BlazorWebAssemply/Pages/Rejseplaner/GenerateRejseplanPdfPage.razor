@@ -14,20 +14,6 @@
 
 @page "/rejseplaner/pdf/{Id:int}"
 
-
-<script>
-    window.blazorDownloadFile = (fileName, contentType, base64Data) => {
-      const link = document.createElement('a');
-      link.href = "data:" + contentType + ";base64," + base64Data;
-      link.download = fileName;
-      link.click();
-    };
-</script>
-
-<h3>GenerateRejseplanPdfPage</h3>
-
-
-
 @code {
     [Parameter, EditorRequired]
     public int Id { get; set; }

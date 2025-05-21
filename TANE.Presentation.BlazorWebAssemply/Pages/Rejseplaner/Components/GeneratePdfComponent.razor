@@ -1,0 +1,46 @@
+﻿@using TANE.Application.Groups.RejsePlaner.Commands.Interfaces
+@using TANE.Domain.Entities
+@using Microsoft.JSInterop
+
+@inject NavigationManager NavigationManager
+@inject CustomStateProvider AuthStateProvider
+@inject NotificationService NotificationService
+@inject IJSRuntime JSRuntime
+@inject IGeneratePdf GeneratePdf
+
+<RadzenButton ButtonType="ButtonType.Button" Style="width: auto" Text="Download rejseplan (PDF)" Click="DownloadPdf"></RadzenButton>
+
+@code {
+    [Parameter, EditorRequired]
+    public Rejseplan Rejseplan { get; set; }
+
+    private async Task DownloadPdf()
+    {
+        await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
+
+        try
+        {
+            var responseMessage = await GeneratePdf.GeneratePdfFromRejseplanAsync(Rejseplan, AuthStateProvider.CurrentUser.Token);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var pdfBytes = await responseMessage.Content.ReadAsByteArrayAsync();
+                var fileName = $"Rejseplan_{Rejseplan.Id}.pdf";
+                await JSRuntime.InvokeVoidAsync(
+                    "blazorDownloadFile",
+                    fileName,
+                    "application/pdf",
+                    Convert.ToBase64String(pdfBytes)
+                );
+            }
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage()
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Fejl ved download af PDF",
+                Detail = ex.Message
+            });
+        }
+    }
+}
