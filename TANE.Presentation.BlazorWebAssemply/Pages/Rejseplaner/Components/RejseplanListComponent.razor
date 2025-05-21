@@ -11,8 +11,15 @@
         <RadzenDataGridColumn TItem="Rejseplan" Property="Id" Title="ID" Width="60px" />
         <RadzenDataGridColumn TItem="Rejseplan" Property="Titel" Title="Titel" />
         <RadzenDataGridColumn TItem="Rejseplan" Property="Beskrivelse" Title="Beskrivelse" />
-        <RadzenDataGridColumn TItem="Rejseplan" Title="Handlinger" Filterable="false" Sortable="false" Width="120px">
+        <RadzenDataGridColumn TItem="Rejseplan" Title="Handlinger" Filterable="false" Sortable="false" Width="200px">
             <Template Context="plan">
+                @if (OnSelect.HasDelegate)
+                {
+                    <RadzenButton class="me-2" Icon="file_open"
+                                  Text="Vis"
+                                  Size="ButtonSize.Small"
+                                  Click="() => OnSelect.InvokeAsync(plan)" />
+                }
                 <RadzenButton Icon="edit"
                               Size="ButtonSize.Small"
                               Text="Rediger"
@@ -28,4 +35,7 @@
 
     [Parameter]
     public EventCallback<Rejseplan> OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<Rejseplan> OnSelect { get; set; }
 }

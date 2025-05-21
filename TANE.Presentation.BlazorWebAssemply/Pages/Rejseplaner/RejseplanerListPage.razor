@@ -8,6 +8,7 @@
 @inject CustomStateProvider AuthStateProvider
 @inject IRejseplanRepository RejseplanRepository
 @inject Radzen.DialogService DialogService
+@inject NavigationManager NavigationManager
 
 <h3>Rejseplaner</h3>
 
@@ -16,7 +17,7 @@
               Text="Ny Rejseplan"
               Click="CreateNew" />
 
-<RejseplanListComponent Data="AlleRejseplaner" OnEdit="BeginEdit" />
+<RejseplanListComponent Data="AlleRejseplaner" OnEdit="BeginEdit" OnSelect="OnSelct" />
 
 @code {
     private List<Rejseplan> AlleRejseplaner = new();
@@ -41,7 +42,7 @@
 
         var result = await DialogService.OpenAsync<CreateRejseplanComponent>(
             title: "Ny rejseplan",
-          
+
             options: new DialogOptions {   
                 Width      = "80vw",       // 80% af viewport‐bredden
                 Height     = "90vh",       // 90% af viewport‐højden
@@ -51,10 +52,10 @@
             );
         if (result is Rejseplan nyPlan)
         {
-           await RejseplanRepository.CreateRejseplan(nyPlan, _token);
+            await RejseplanRepository.CreateRejseplan(nyPlan, _token);
             AlleRejseplaner = (await ReadRejseplan.ReadRejseplanerAsync(_token)).ToList();
             StateHasChanged();
-        
+
         }
 
     }
@@ -68,6 +69,11 @@
     {
         SelectedRejseplan = plan;
         OpenEditDialog(plan);
+    }
+
+    void OnSelct(Rejseplan plan)
+    {
+        NavigationManager.NavigateTo($"/rejseplaner/overview/{plan.Id}");
     }
 
     async void OpenEditDialog(Rejseplan plan)
