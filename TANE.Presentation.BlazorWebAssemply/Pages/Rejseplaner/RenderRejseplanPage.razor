@@ -8,7 +8,6 @@
 @inject IReadRejseplan ReadRejsePlan
 @inject IDagRepository DagRepository
 
-@layout MinimalLayout
 
 @page "/rejseplaner/render/{Id:int}"
 
@@ -38,6 +37,16 @@ else
         <div class="w-100">
             @foreach (var tur in Model.Ture)
             {
+                //Opret div container for at vise tur titel, beskrivelse og pris
+                <div class="bg-dark text-white p-4 page-break-inside-avoid">
+                    <h2 class="h2 fw-bold">Tur @tur.Sekvens - @tur.Titel</h2>
+                    @if (!string.IsNullOrEmpty(tur.Beskrivelse))
+                    {
+                        <p>@tur.Beskrivelse</p>
+                    }
+                    <p class="fw-semibold">Pris: @tur.Pris.ToString("N2") DKK</p>
+                </div>
+
                 @foreach (var dag in tur.Dage!)
                 {
                     <div class="page-break-inside-avoid">
