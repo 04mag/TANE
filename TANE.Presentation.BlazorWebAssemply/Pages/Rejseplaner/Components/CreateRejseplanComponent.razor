@@ -252,7 +252,16 @@
             Pris = 0,
             TurStartTidspunkt = DateTime.Today,
             TurSlutTidspunkt = DateTime.Today.AddDays(7),
-            Sekvens = Rejseplan.Ture.Count
+            Sekvens = Rejseplan.Ture.Count,
+            Dage = turSkabelon.DagTurSkabelon?.Select(d => new Dag
+            {
+                Titel = d.DagSkabelon.Titel,
+                Beskrivelse = d.DagSkabelon.Beskrivelse,
+                Sekvens = d.Order,
+                Måltider = d.DagSkabelon.Måltider,
+                Overnatning = d.DagSkabelon.Overnatning,
+                Aktiviteter = d.DagSkabelon.Aktiviteter,
+            }).ToList()
         };
         Rejseplan.Ture.Add(tur);
         Observableture.Add(new Tur
@@ -262,7 +271,16 @@
             Beskrivelse = turSkabelon.Beskrivelse,
             TurStartTidspunkt = DateTime.Today,
             TurSlutTidspunkt = DateTime.Today.AddDays(7),
-                Sekvens = Observableture.Count 
+                Sekvens = Observableture.Count,
+            Dage = turSkabelon.DagTurSkabelon?.Select(d => new Dag
+            {
+                Titel = d.DagSkabelon.Titel,
+                Beskrivelse = d.DagSkabelon.Beskrivelse,
+                Sekvens = d.Order,
+                Måltider = d.DagSkabelon.Måltider,
+                Overnatning = d.DagSkabelon.Overnatning,
+                Aktiviteter = d.DagSkabelon.Aktiviteter,
+            }).ToList()
         });
         showAddTur = false;
         StateHasChanged();
