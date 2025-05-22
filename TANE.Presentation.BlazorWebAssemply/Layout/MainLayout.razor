@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject CustomStateProvider AuthStateProvider
 
 <div class="page">
 
@@ -13,9 +14,9 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
             <AuthorizeView>
                 <Authorized>
+                    <a href="/account-administration">(@AuthStateProvider.CurrentUser.Email)</a>
                     <a href="/logout">Log ud</a>
                 </Authorized>
                 <NotAuthorized>
