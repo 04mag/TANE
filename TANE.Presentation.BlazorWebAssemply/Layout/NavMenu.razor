@@ -12,28 +12,6 @@
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
     <nav class="flex-column">
 
-        <AuthorizeView>
-            @if (AuthStateProvider.CurrentUser.Roles.Contains("Admin"))
-            {
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="/users/update/">
-                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Update user
-                    </NavLink>
-                </div>
-            }
-        </AuthorizeView>
-
-        <AuthorizeView>
-            @if (AuthStateProvider.CurrentUser.Roles.Contains("Admin"))
-            {
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="/users/create">
-                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Create user
-                    </NavLink>
-                </div>
-            }
-        </AuthorizeView>
-
         <!-- Font Awesome CDN (for at få ikoner til at fungere )-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
