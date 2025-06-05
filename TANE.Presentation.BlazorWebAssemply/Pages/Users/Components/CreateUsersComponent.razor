@@ -7,10 +7,10 @@
 @inject NavigationManager NavigationManager
 @inject NotificationService NotificationService
 @inject CustomStateProvider AuthStateProvider
-@inject ICreateUser CreateUser
+@inject ICreateUser CreateUserService
 
 
-<RadzenTemplateForm TItem="User" Data="@User" Submit="@OnSubmit" InvalidSubmit="@OnInvalidSubmit">
+<RadzenTemplateForm TItem="CreateUser" Data="@User" Submit="@OnSubmit" InvalidSubmit="@OnInvalidSubmit">
     <RadzenStack Gap="1rem" Class="rz-p-sm-12">
         <h4>Opret ny bruger</h4>
         <!-- E-mail -->
@@ -55,7 +55,7 @@
 
 
 @code {
-    public User User { get; set; } = new User();
+    public CreateUser User { get; set; } = new CreateUser();
 
 
     Variant variant = Variant.Flat;
@@ -64,7 +64,7 @@
     
         // await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
         // await CreateUser.CreateUserAsync(model.Email, model.Password, AuthStateProvider.CurrentUser.Token); //Opret trycatch
-    private async Task OnSubmit(User model)
+    private async Task OnSubmit(CreateUser model)
     {
         try
         {
@@ -72,7 +72,7 @@
             await AuthStateProvider.RefreshTokenAsync(NavigationManager, NotificationService);
 
             // Opretter brugeren – exception ved fejl
-            await CreateUser.CreateUserAsync(
+            await CreateUserService.CreateUserAsync(
                 model.Email,
                 model.Password,
                 AuthStateProvider.CurrentUser.Token

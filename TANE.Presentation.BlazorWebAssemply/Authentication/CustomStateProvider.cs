@@ -123,7 +123,7 @@ namespace TANE.Presentation.BlazorWebAssemply.Authentication
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = "Session expired",
-                    Detail = "Your session has expired. Please log in again.",
+                    Detail = "Din session er udløbet. Log venligt ind igen.",
                     Duration = 5000
                 });
 
