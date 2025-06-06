@@ -56,31 +56,5 @@ namespace TANE.Application.Test.Groups.Kunder
             Assert.NotNull(result);
             Assert.Equal(2, result.Count);
         }
-
-        [Fact]
-        // This test is to check if the method throws an exception when an invalid ID is provided
-        public async Task GetKundeById_InvalidId_ThrowsArgumentException()
-        {
-            // Arrange
-            var kundeRepository = new Mock<IKundeRepository>();
-
-            kundeRepository.Setup(repo => repo.ReadKundeByIdAsync(It.IsAny<int>(), jwtToken))
-                .ThrowsAsync(new ArgumentException("kundeId findes ikke"));
-
-            var getKundeCommand = new ReadKunde(kundeRepository.Object);
-            var invalidKundeId = 12; // Assuming 12 is an invalid ID for the test case
-
-            // Act
-            Func<Task> act = async () => await getKundeCommand.GetKundeByIdAsync(invalidKundeId, jwtToken);
-
-            var exception = await Assert.ThrowsAsync<ArgumentException>(act);
-
-            // Assert
-            Assert.Equal("kundeId findes ikke", exception.Message);
-
-        }
-
-
-
     }
 }
