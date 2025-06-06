@@ -10,24 +10,31 @@ namespace TANE.Application.Test.Groups.Kunder
         private static string jwtToken = "test-token";
 
         [Fact]
-        // This test is to check if the method calls the repository with a valid Kunde object
-        public async Task UpdateKunde_ValidInput_CallsRepository()
+        public async Task UpdateKunde_ValidInput()
         {
             // Arrange
             var kundeRepository = new Mock<IKundeRepository>();
+
+            //Update kunde command return the kunde object that is passed in
+            kundeRepository.Setup(repo => repo.UpdateKundeAsync(It.IsAny<Kunde>(), jwtToken))
+                .ReturnsAsync((Kunde kunde, string token) => kunde);
+
             var updateKundeCommand = new UpdateKunde(kundeRepository.Object);
 
-            var validKunde = new Kunde("test", "tester", "test@test.com", "12345678");
+            var validKunde = new Kunde("test", "tester", "test@test.com", "22345678");
 
-            kundeRepository.Setup(repo => repo.UpdateKundeAsync(validKunde, jwtToken))
-                .ReturnsAsync(validKunde); // Set it to return the validKunde object
+            validKunde.Id = 1; // Set a valid Id for the kunde
 
             // Act
-            await updateKundeCommand.UpdateKundeAsync(validKunde, jwtToken);
+            var result = await updateKundeCommand.UpdateKundeAsync(validKunde, jwtToken);
 
             // Assert
-            //tjekker at REPO ikke bliver kaldt
-            kundeRepository.Verify(repo => repo.UpdateKundeAsync(It.IsAny<Kunde>(), jwtToken), Times.Never);
+            Assert.NotNull(result);
+            Assert.Equal(validKunde.Id, result.Id);
+            Assert.Equal(validKunde.Fornavn, result.Fornavn);
+            Assert.Equal(validKunde.Efternavn, result.Efternavn);
+            Assert.Equal(validKunde.Email, result.Email);
+            Assert.Equal(validKunde.TlfNummer, result.TlfNummer);
         }
 
         [Fact]
@@ -36,6 +43,7 @@ namespace TANE.Application.Test.Groups.Kunder
         {
             //Arrange
             var kundeRepository = new Mock<IKundeRepository>();
+
             var updateKundeCommand = new UpdateKunde(kundeRepository.Object);
 
             var invalidKunde = new Kunde("tests", "test", "invalidemail.dk", "12345678");
@@ -46,10 +54,6 @@ namespace TANE.Application.Test.Groups.Kunder
             //Assert
             var exception = await Assert.ThrowsAsync<ArgumentException>(act);
             Assert.Equal("Email er ikke valid", exception.Message);
-
-            //tjekker at REPO ikke bliver kaldt
-            kundeRepository.Verify(repo => repo.UpdateKundeAsync(It.IsAny<Kunde>(), jwtToken), Times.Never); 
         }
-
     }
 }

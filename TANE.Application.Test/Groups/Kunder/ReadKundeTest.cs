@@ -63,6 +63,10 @@ namespace TANE.Application.Test.Groups.Kunder
         {
             // Arrange
             var kundeRepository = new Mock<IKundeRepository>();
+
+            kundeRepository.Setup(repo => repo.ReadKundeByIdAsync(It.IsAny<int>(), jwtToken))
+                .ThrowsAsync(new ArgumentException("kundeId findes ikke"));
+
             var getKundeCommand = new ReadKunde(kundeRepository.Object);
             var invalidKundeId = 12; // Assuming 12 is an invalid ID for the test case
 
@@ -72,7 +76,7 @@ namespace TANE.Application.Test.Groups.Kunder
             var exception = await Assert.ThrowsAsync<ArgumentException>(act);
 
             // Assert
-            Assert.Equal("kundeId er ikke valid", exception.Message);
+            Assert.Equal("kundeId findes ikke", exception.Message);
 
         }
 

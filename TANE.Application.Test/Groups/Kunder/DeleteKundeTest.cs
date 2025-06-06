@@ -16,9 +16,9 @@ namespace TANE.Application.Test.Groups.Kunder
             // Arrange
             var kundeRepository = new Mock<IKundeRepository>();
 
-            // Setup the mock to return a Kunde object when DeleteKundeAsync is called
+            // Setup the mock to return a true value when DeleteKundeAsync is called
             kundeRepository.Setup(repo => repo.DeleteKundeAsync(It.IsAny<int>(), jwtToken))
-                .ReturnsAsync((int id) => true);
+                .ReturnsAsync(true);
 
             DeleteKunde deleteKundeCommand = new DeleteKunde(kundeRepository.Object);
             

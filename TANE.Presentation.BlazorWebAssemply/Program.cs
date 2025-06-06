@@ -27,8 +27,6 @@ namespace TANE.Presentation.BlazorWebAssemply
             builder.RootComponents.Add<HeadOutlet>("head::after");
          
 
-
-
             builder.Services.AddAuthorizationCore();
 
             //Add layer services

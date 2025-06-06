@@ -18,7 +18,7 @@ namespace TANE.Application.Test.Groups.Kunder
 
             // Setup the mock to return a Kunde object when CreateKundeAsync is called
             kundeRepository.Setup(repo => repo.CreateKundeAsync(It.IsAny<Kunde>(), jwtToken))
-                .ReturnsAsync((Kunde kunde) => kunde);
+                .ReturnsAsync((Kunde kunde, string token) => kunde);
 
             CreateKunde createKundeCommand = new CreateKunde(kundeRepository.Object);
 
@@ -39,7 +39,6 @@ namespace TANE.Application.Test.Groups.Kunder
             // Arrange
             var kundeRepository = new Mock<IKundeRepository>();
 
-            // Setup the mock to return null when CreateKundeAsync is called
             CreateKunde createKundeCommand = new CreateKunde(kundeRepository.Object);
 
             // Invalid email (missing @)
@@ -53,9 +52,5 @@ namespace TANE.Application.Test.Groups.Kunder
             Assert.Equal("Email er ikke valid", exception.Message);
 
         }
-
-
-
-
     }
 }
